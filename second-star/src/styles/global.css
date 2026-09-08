@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Tailwind v4 is CSS-first: these theme variables are the project config. */
+@theme {
+	/* Keep generated color utilities limited to CancelKit's semantic palette. */
+	--color-*: initial;
+	--color-bg: #000000;
+	--color-surface: #0a0a0a;
+	--color-border: #1a1a1a;
+	--color-accent: #00ff88;
+	--color-muted: #888888;
+	--color-danger: #ff4444;
+	--font-display: Geist, system-ui, sans-serif;
+	--font-body: Inter, system-ui, sans-serif;
+	--radius-card: 8px;
+	--radius-input: 4px;
+}
+
+@layer base {
+	:root { color-scheme: dark; background: #000000; }
+	html { background: #000000; font-family: var(--font-body); }
+	body { min-width: 320px; margin: 0; background: #000000; color: #ffffff; }
+	button, a { -webkit-tap-highlight-color: transparent; }
+}

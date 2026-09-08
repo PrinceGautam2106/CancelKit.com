@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+
+interface Props { title?: string; description?: string; ogImage?: string; }
+const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png' } = Astro.props;
+const siteUrl = Astro.site ?? new URL('https://cancelkit.com');
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+const imageUrl = new URL(ogImage, siteUrl).href;
+const languagePath = Astro.url.pathname === '/' ? '' : Astro.url.pathname;
+const applicationSchema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'CancelKit', applicationCategory: 'FinanceApplication', operatingSystem: 'Web', description, url: siteUrl.href };
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="canonical" href={canonicalUrl} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="CancelKit" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={imageUrl} />
+		<link rel="alternate" hreflang="en" href={new URL(`/en${languagePath}`, siteUrl).href} />
+		<link rel="alternate" hreflang="es" href={new URL(`/es${languagePath}`, siteUrl).href} />
+		<link rel="alternate" hreflang="fr" href={new URL(`/fr${languagePath}`, siteUrl).href} />
+		<link rel="alternate" hreflang="de" href={new URL(`/de${languagePath}`, siteUrl).href} />
+		<link rel="alternate" hreflang="pt" href={new URL(`/pt${languagePath}`, siteUrl).href} />
+		<script type="application/ld+json" set:html={JSON.stringify(applicationSchema)}></script>
+		<title>{title}</title>
+	</head>
+	<body><slot /></body>
+</html>

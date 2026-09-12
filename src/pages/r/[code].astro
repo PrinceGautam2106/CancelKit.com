@@ -1,0 +1,339 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+export const prerender = false;
+
+const { code } = Astro.params;
+const referralCode = (code || '').toLowerCase();
+
+// Derive clean display name from code (e.g. "alex-98f" -> "Alex")
+let friendName = 'Your friend';
+if (referralCode) {
+	const rawName = referralCode.split('-')[0];
+	if (rawName && rawName !== 'kit' && rawName !== 'cancelkit') {
+		friendName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+	}
+}
+
+const title = `${friendName} gave you 1 month of CancelKit Pro free`;
+const description = `Start free with CancelKit. ${friendName} saved on subscriptions they forgot about — claim your free month today.`;
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="ref-landing-page">
+		<div class="ref-landing-container">
+			<!-- Friend Referral Card -->
+			<div class="friend-callout">
+				<div class="friend-avatar">🎁</div>
+				<div class="friend-text">
+					<span class="friend-badge">Special Referral Invite</span>
+					<p>{friendName} invited you to stop overpaying for subscriptions</p>
+				</div>
+			</div>
+
+			<!-- Hero Conversion Area -->
+			<header class="ref-hero">
+				<h1>Start free — your first month on us</h1>
+				<p class="ref-hero-sub">
+					{friendName} saved <strong class="text-accent">$187/month</strong> uncovering forgotten subscriptions with CancelKit. Connect your inbox in 30 seconds to see what's draining yours.
+				</p>
+
+				<div class="ref-cta-box">
+					<a href={`/signup?ref=${encodeURIComponent(referralCode)}`} class="btn-claim" id="claim-invite-btn">
+						Claim Your Free Month →
+					</a>
+					<p class="cta-guarantee">✓ No credit card required to scan • Read-only inbox access</p>
+				</div>
+			</header>
+
+			<!-- Value Pillars Card -->
+			<div class="pillars-card">
+				<h2>What CancelKit does for you</h2>
+				<div class="pillars-grid">
+					<div class="pillar-item">
+						<div class="pillar-icon">🔍</div>
+						<h3>Instant Receipt Scan</h3>
+						<p>Connect your email and our AI finds recurring charges, hidden gym memberships, and expired trials.</p>
+					</div>
+
+					<div class="pillar-item">
+						<div class="pillar-icon">⚡</div>
+						<h3>1-Click Cancellation</h3>
+						<p>We provide exact step-by-step cancel routes or cancel directly on your behalf. No retention hotlines.</p>
+					</div>
+
+					<div class="pillar-item">
+						<div class="pillar-icon">⚠️</div>
+						<h3>Renewal Radar</h3>
+						<p>Get alerted 7 days before any recurring subscription charges your card so you never pay by surprise.</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Social Proof Quote -->
+			<div class="social-proof-card">
+				<div class="stars">★★★★★</div>
+				<blockquote>
+					"I was paying for 4 streaming services I hadn't opened in 6 months. CancelKit found them in 2 minutes and I saved $48/month immediately."
+				</blockquote>
+				<div class="quote-author">
+					<strong>Marcus L.</strong> — Saved $576/year
+				</div>
+			</div>
+
+			<!-- Bottom CTA -->
+			<div class="bottom-action">
+				<a href={`/signup?ref=${encodeURIComponent(referralCode)}`} class="btn-claim-sm">
+					Start Free Scan with {friendName}'s Invite →
+				</a>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script define:vars={{ referralCode }}>
+	// Persist the referral code in localStorage across the user's journey
+	if (referralCode) {
+		try {
+			localStorage.setItem('cancelkit-referral-code', referralCode);
+			// Also track referral view in Supabase / session
+			fetch('/api/apply-referral', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					referralCode,
+					status: 'viewed',
+				}),
+			}).catch(() => {});
+		} catch {
+			/* ignore */
+		}
+	}
+</script>
+
+<style>
+	.ref-landing-page {
+		min-height: 100svh;
+		padding: 3.5rem 1.5rem 6rem;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+		color: #ccc;
+		font-family: var(--font-body);
+	}
+
+	.ref-landing-container {
+		max-width: 48rem;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	/* Friend Callout Pill */
+	.friend-callout {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85rem;
+		padding: 0.65rem 1.25rem;
+		background: #0d0d0d;
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		border-radius: var(--radius-pill);
+		margin-bottom: 2.25rem;
+		text-align: left;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.12);
+	}
+
+	.friend-avatar {
+		font-size: 1.4rem;
+	}
+
+	.friend-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1rem;
+	}
+
+	.friend-badge {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		text-transform: uppercase;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--color-accent);
+	}
+
+	.friend-text p {
+		margin: 0;
+		font-size: 0.86rem;
+		color: #fff;
+		font-weight: 500;
+	}
+
+	/* Hero */
+	.ref-hero h1 {
+		margin: 0 0 1rem;
+		font-family: var(--font-display);
+		font-size: clamp(2.4rem, 6vw, 3.6rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		color: #fff;
+		line-height: 1.15;
+	}
+
+	.ref-hero-sub {
+		margin: 0 auto 2.25rem;
+		font-size: 1.15rem;
+		color: var(--color-muted);
+		max-width: 36rem;
+		line-height: 1.6;
+	}
+
+	.text-accent {
+		color: var(--color-accent);
+	}
+
+	.ref-cta-box {
+		margin-bottom: 3.5rem;
+	}
+
+	.btn-claim {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.1rem 2.25rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-body);
+		font-size: 1.05rem;
+		font-weight: 700;
+		text-decoration: none;
+		box-shadow: 0 0 35px rgba(0, 255, 136, 0.45);
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.btn-claim:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 0 50px rgba(0, 255, 136, 0.65);
+	}
+
+	.cta-guarantee {
+		margin: 0.85rem 0 0;
+		font-size: 0.82rem;
+		color: #777;
+	}
+
+	/* Pillars Card */
+	.pillars-card {
+		padding: 2.5rem 2rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		margin-bottom: 2.5rem;
+		text-align: left;
+	}
+
+	.pillars-card h2 {
+		margin: 0 0 1.75rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+	}
+
+	.pillars-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.75rem;
+	}
+
+	.pillar-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.pillar-icon {
+		font-size: 1.6rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.pillar-item h3 {
+		margin: 0;
+		font-size: 1.05rem;
+		color: #fff;
+	}
+
+	.pillar-item p {
+		margin: 0;
+		font-size: 0.86rem;
+		color: var(--color-muted);
+		line-height: 1.5;
+	}
+
+	/* Social Proof */
+	.social-proof-card {
+		padding: 2rem;
+		background: #090909;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		margin-bottom: 2.5rem;
+	}
+
+	.stars {
+		color: #ffaa00;
+		font-size: 1.1rem;
+		margin-bottom: 0.75rem;
+		letter-spacing: 0.15em;
+	}
+
+	blockquote {
+		margin: 0 0 1rem;
+		font-size: 1.05rem;
+		font-style: italic;
+		color: #e0e0e0;
+		line-height: 1.55;
+	}
+
+	.quote-author {
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.quote-author strong {
+		color: #fff;
+	}
+
+	.btn-claim-sm {
+		display: inline-block;
+		padding: 0.85rem 1.75rem;
+		border-radius: var(--radius-pill);
+		background: #181818;
+		border: 1px solid var(--color-border-hover);
+		color: #fff;
+		font-size: 0.92rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.btn-claim-sm:hover {
+		background: #222;
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	@media (max-width: 680px) {
+		.pillars-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.friend-callout {
+			width: 100%;
+			box-sizing: border-box;
+		}
+	}
+</style>

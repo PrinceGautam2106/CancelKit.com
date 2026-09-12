@@ -1,0 +1,147 @@
+---
+/**
+ * Savings / history empty: nudge the user to cancel their first subscription.
+ * Parent fills [data-nudge-name] and sets data-cancel-id on the button.
+ */
+---
+
+<div class="nothing-cancelled" data-nothing-cancelled hidden>
+	<p class="nothing-cancelled__eyebrow">GET STARTED</p>
+	<h3 class="nothing-cancelled__title">No cancellations yet — but you're about to change that.</h3>
+	<p class="nothing-cancelled__copy">
+		Pick one charge you don't need. One cancel is all it takes to start saving.
+	</p>
+
+	<div class="nothing-cancelled__nudge" data-nudge-card>
+		<div class="nothing-cancelled__svc">
+			<span class="nothing-cancelled__avatar" data-nudge-initial aria-hidden="true">?</span>
+			<div>
+				<strong data-nudge-name>Your first subscription</strong>
+				<span data-nudge-meta>$0/mo</span>
+			</div>
+		</div>
+		<button type="button" class="nothing-cancelled__cancel" data-nudge-cancel>
+			Cancel
+		</button>
+	</div>
+</div>
+
+<style>
+	.nothing-cancelled {
+		padding: 1.15rem 0 0;
+	}
+
+	.nothing-cancelled[hidden] {
+		display: none !important;
+	}
+
+	.nothing-cancelled__eyebrow {
+		margin: 0 0 0.4rem;
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		letter-spacing: 0.1em;
+		color: var(--color-faint);
+	}
+
+	.nothing-cancelled__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1rem;
+		font-weight: 650;
+		letter-spacing: -0.02em;
+		color: #fff;
+		line-height: 1.35;
+	}
+
+	.nothing-cancelled__copy {
+		margin: 0.45rem 0 1rem;
+		font-size: 0.82rem;
+		color: var(--color-muted);
+		line-height: 1.45;
+	}
+
+	.nothing-cancelled__nudge {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.85rem 0.9rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: #080808;
+	}
+
+	.nothing-cancelled__svc {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		min-width: 0;
+	}
+
+	.nothing-cancelled__avatar {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 8px;
+		display: grid;
+		place-items: center;
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 0.85rem;
+		flex-shrink: 0;
+	}
+
+	.nothing-cancelled__svc strong {
+		display: block;
+		font-size: 0.88rem;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.nothing-cancelled__svc span {
+		font-size: 0.72rem;
+		color: var(--color-muted);
+	}
+
+	.nothing-cancelled__cancel {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+		flex-shrink: 0;
+		padding: 0.55rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-danger);
+		color: #fff;
+		font-family: inherit;
+		font-weight: 700;
+		font-size: 0.82rem;
+		box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.45);
+		animation: cancel-pulse 1.8s ease-out infinite;
+	}
+
+	.nothing-cancelled__cancel:hover {
+		filter: brightness(1.08);
+		animation: none;
+	}
+
+	@keyframes cancel-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.45);
+		}
+		70% {
+			box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.nothing-cancelled__cancel {
+			animation: none;
+		}
+	}
+</style>

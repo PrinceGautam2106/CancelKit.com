@@ -1,22 +1,27 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const title = 'Connect your email — SubZap';
+const title = 'Connect your email — CancelKit';
 const description = 'Read-only access. We scan for receipts only. We can never send emails.';
 ---
 
 <BaseLayout {title} {description}>
 	<main class="connect-page">
 		<div class="connect-card">
-			<a class="connect-logo" href="/" aria-label="SubZap home">
-				<span class="connect-logo__icon">S</span>
-				<span class="connect-logo__text">Sub<span class="connect-logo__accent">Zap</span></span>
+			<a class="connect-logo" href="/" aria-label="CancelKit home">
+				<span class="connect-logo__icon">C</span>
+				<span class="connect-logo__text">Cancel<span>K<span class="connect-logo__accent">i</span>t</span></span>
 			</a>
 
 			<h1>Connect your email to find your subscriptions</h1>
 			<p class="connect-subtitle">
 				Read-only access. We scan for receipts only. We can never send emails.
 			</p>
+
+			<div class="connect-email-pill" id="connect-email-pill" hidden>
+				<span class="email-pill-dot"></span>
+				<span id="connect-email-text"></span>
+			</div>
 
 			<div class="connect-buttons">
 				<button type="button" class="btn-provider" id="connect-gmail-btn">
@@ -64,8 +69,23 @@ const description = 'Read-only access. We scan for receipts only. We can never s
 	const gmailBtn = document.getElementById('connect-gmail-btn') as HTMLButtonElement | null;
 	const outlookBtn = document.getElementById('connect-outlook-btn') as HTMLButtonElement | null;
 
+	const searchParams = new URLSearchParams(window.location.search);
+	const emailParam = searchParams.get('email');
+	if (emailParam) {
+		localStorage.setItem('cancelkit-user-email', emailParam);
+		localStorage.setItem('cancelkit-user-email', emailParam);
+		const pill = document.getElementById('connect-email-pill');
+		const text = document.getElementById('connect-email-text');
+		if (pill && text) {
+			pill.hidden = false;
+			text.textContent = `Scanning receipts for: ${emailParam}`;
+		}
+	}
+
 	function scanningNext(provider: 'gmail' | 'outlook') {
-		return `/onboarding/scanning?provider=${provider}`;
+		const email = searchParams.get('email') || localStorage.getItem('cancelkit-user-email') || '';
+		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
+		return `/onboarding/scanning?provider=${provider}${emailQuery}`;
 	}
 
 	function callbackRedirect(provider: 'gmail' | 'outlook') {
@@ -185,10 +205,32 @@ const description = 'Read-only access. We scan for receipts only. We can never s
 	}
 
 	.connect-subtitle {
-		margin: 0.9rem 0 2.25rem;
+		margin: 0.9rem 0 1.25rem;
 		color: var(--color-muted);
 		font-size: 0.95rem;
 		line-height: 1.55;
+	}
+
+	.connect-email-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: 999px;
+		padding: 0.35rem 0.85rem;
+		font-size: 0.8125rem;
+		color: #00ff88;
+		margin-bottom: 1.5rem;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.email-pill-dot {
+		width: 6px;
+		height: 6px;
+		background: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 6px #00ff88;
 	}
 
 	.connect-buttons {

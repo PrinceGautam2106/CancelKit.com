@@ -4,7 +4,7 @@ import CookieBanner from '../components/CookieBanner.astro';
 
 interface Props { title?: string; description?: string; ogImage?: string; lang?: string; }
 const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png', lang = 'en' } = Astro.props;
-const siteUrl = Astro.site ?? new URL('https://cancelkit.com');
+const siteUrl = Astro.site ?? new URL('https://cancelkits.com');
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const imageUrl = new URL(ogImage, siteUrl).href;
 const languagePath = Astro.url.pathname === '/' ? '' : Astro.url.pathname;
@@ -41,6 +41,7 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 		<link rel="alternate" hreflang="pt" href={new URL(`/pt${languagePath}`, siteUrl).href} />
 		<script type="application/ld+json" set:html={JSON.stringify(applicationSchema)}></script>
 		<title>{title}</title>
+		<slot name="head" />
 	</head>
 	<body>
 		<slot />

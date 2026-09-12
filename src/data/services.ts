@@ -25,6 +25,8 @@ export interface Service {
 	metaDescription: string;
 	relatedSlugs?: string[];
 	alternatives: Alternative[];
+	cancelDifficultyScore?: number;
+	difficultyNotes?: string;
 }
 export interface Alternative { name: string; description: string; affiliateUrl: string; monthlyCost: number; commission: string; category: string; }
 
@@ -35,6 +37,8 @@ export const services: Service[] = [
 		category: 'Streaming',
 		monthlyPrice: 15.49,
 		cancelDifficulty: 'medium',
+		cancelDifficultyScore: 2,
+		difficultyNotes: '2 clicks, done',
 		cancelMethod: 'online',
 		steps: [
 			'Sign in at netflix.com/account on a browser (not the app)',
@@ -55,6 +59,8 @@ export const services: Service[] = [
 		category: 'Music & Audio',
 		monthlyPrice: 11.99,
 		cancelDifficulty: 'easy',
+		cancelDifficultyScore: 2,
+		difficultyNotes: 'Easy online',
 		cancelMethod: 'online',
 		steps: [
 			'Open spotify.com/account and sign in',
@@ -75,6 +81,8 @@ export const services: Service[] = [
 		category: 'Software & Cloud',
 		monthlyPrice: 59.99,
 		cancelDifficulty: 'nightmare',
+		cancelDifficultyScore: 7,
+		difficultyNotes: 'Hidden cancel button, retention offers, phone call required for some plans',
 		cancelMethod: 'online',
 		steps: [
 			'Sign in at account.adobe.com and open Plans',
@@ -96,6 +104,8 @@ export const services: Service[] = [
 		category: 'Streaming',
 		monthlyPrice: 17.99,
 		cancelDifficulty: 'easy',
+		cancelDifficultyScore: 2,
+		difficultyNotes: 'Quick self-service online cancel',
 		cancelMethod: 'online',
 		steps: [
 			'Go to hulu.com/account and sign in',
@@ -115,6 +125,8 @@ export const services: Service[] = [
 		category: 'Streaming',
 		monthlyPrice: 15.99,
 		cancelDifficulty: 'easy',
+		cancelDifficultyScore: 2,
+		difficultyNotes: '2-click account cancellation',
 		cancelMethod: 'online',
 		steps: [
 			'Sign in at disneyplus.com/account',
@@ -134,6 +146,8 @@ export const services: Service[] = [
 		category: 'Streaming',
 		monthlyPrice: 16.99,
 		cancelDifficulty: 'medium',
+		cancelDifficultyScore: 4,
+		difficultyNotes: 'Account page cancel, can be tricky if carrier-billed',
 		cancelMethod: 'online',
 		steps: [
 			'Sign in at max.com (or via your billing partner like Verizon/AT&T)',
@@ -153,6 +167,8 @@ export const services: Service[] = [
 		category: 'Shopping & Memberships',
 		monthlyPrice: 14.99,
 		cancelDifficulty: 'medium',
+		cancelDifficultyScore: 3,
+		difficultyNotes: 'Online but lots of confirmation screens',
 		cancelMethod: 'online',
 		steps: [
 			'Open amazon.com/gp/primecentral and sign in',
@@ -171,7 +187,9 @@ export const services: Service[] = [
 		name: 'Apple One',
 		category: 'Software & Cloud',
 		monthlyPrice: 19.95,
-		cancelDifficulty: 'medium',
+		cancelDifficulty: 'easy',
+		cancelDifficultyScore: 2,
+		difficultyNotes: '1-click toggle in iOS Settings or Apple ID',
 		cancelMethod: 'online',
 		steps: [
 			'On iPhone/iPad: Settings → [your name] → Subscriptions',
@@ -210,6 +228,8 @@ export const services: Service[] = [
 		category: 'Fitness & Wellness',
 		monthlyPrice: 22.99,
 		cancelDifficulty: 'hard',
+		cancelDifficultyScore: 9,
+		difficultyNotes: 'Requires IN-PERSON visit or certified mail. Seriously.',
 		cancelMethod: 'in-person',
 		steps: [
 			'Check your club’s cancel policy (many require in-club or certified mail)',
@@ -325,6 +345,8 @@ export const services: Service[] = [
 		category: 'News & Learning',
 		monthlyPrice: 17.0,
 		cancelDifficulty: 'medium',
+		cancelDifficultyScore: 6,
+		difficultyNotes: 'Phone call required, long hold times',
 		cancelMethod: 'online',
 		steps: [
 			'Sign in at myaccount.nytimes.com',
@@ -344,6 +366,8 @@ export const services: Service[] = [
 		category: 'News & Learning',
 		monthlyPrice: 39.0,
 		cancelDifficulty: 'hard',
+		cancelDifficultyScore: 7,
+		difficultyNotes: 'Phone call or chat retention gauntlet required',
 		cancelMethod: 'phone',
 		steps: [
 			'Visit customercenter.wsj.com and sign in',
@@ -496,6 +520,8 @@ export const services: Service[] = [
 		category: 'Food & Delivery',
 		monthlyPrice: 60.0,
 		cancelDifficulty: 'medium',
+		cancelDifficultyScore: 6,
+		difficultyNotes: 'Online but deeply hidden',
 		cancelMethod: 'online',
 		steps: [
 			'Log in to your HelloFresh account on the website',
@@ -547,6 +573,46 @@ export const services: Service[] = [
 		metaTitle: 'How to Cancel Apple Music in 2026 | CancelKit',
 		metaDescription: 'Cancel Apple Music from iPhone, Android, or the web in under a minute.',
 		relatedSlugs: ['spotify', 'youtube-premium', 'apple-one', 'tidal'],
+	},
+	{
+		slug: 'sirius-xm',
+		name: 'Sirius XM',
+		category: 'Music & Audio',
+		monthlyPrice: 23.99,
+		cancelDifficulty: 'hard',
+		cancelDifficultyScore: 8,
+		difficultyNotes: 'Phone only, aggressive retention team',
+		cancelMethod: 'phone',
+		steps: [
+			'Call SiriusXM customer service at 1-866-635-2349 (Monday–Friday 8am–8pm ET)',
+			'Navigate the automated phone tree to reach the cancellation & retention department',
+			'Decline multiple discounted promotional offers from the retention agent',
+			'Insist on immediate cancellation and request a cancellation reference number',
+		],
+		timeToCancel: '15–30 minutes',
+		willTheyOfferDiscount: true,
+		saveWithCancelKit: true,
+		metaTitle: 'How to Cancel SiriusXM in 2026 (Skip Retention Traps)',
+		metaDescription: 'Verified steps to cancel SiriusXM radio without getting trapped by aggressive retention agents.',
+		relatedSlugs: ['spotify', 'apple-music', 'audible'],
+		alternatives: [
+			{
+				name: 'Spotify Premium',
+				description: 'Ad-free streaming music and podcasts with instant 1-click online cancellation.',
+				affiliateUrl: 'https://spotify.com',
+				monthlyCost: 11.99,
+				commission: '$5.00',
+				category: 'Music & Audio',
+			},
+			{
+				name: 'Apple Music',
+				description: 'Spatial audio and lossless tracks with easy management inside Apple settings.',
+				affiliateUrl: 'https://apple.com/music',
+				monthlyCost: 10.99,
+				commission: '$5.00',
+				category: 'Music & Audio',
+			},
+		],
 	},
 	{
 		slug: 'apple-tv-plus',
@@ -668,6 +734,8 @@ export const services: Service[] = [
 		category: 'Fitness & Wellness',
 		monthlyPrice: 40.0,
 		cancelDifficulty: 'nightmare',
+		cancelDifficultyScore: 9,
+		difficultyNotes: 'Requires certified postal letter or in-person manager signature',
 		cancelMethod: 'in-person',
 		steps: [
 			'Read your contract for notice period, freeze options, and required method',
@@ -688,6 +756,8 @@ export const services: Service[] = [
 		category: 'Fitness & Wellness',
 		monthlyPrice: 34.99,
 		cancelDifficulty: 'hard',
+		cancelDifficultyScore: 9,
+		difficultyNotes: 'Certified mail only',
 		cancelMethod: 'in-person',
 		steps: [
 			'Visit your home club and request a cancellation form',
@@ -707,6 +777,8 @@ export const services: Service[] = [
 		category: 'Fitness & Wellness',
 		monthlyPrice: 159.0,
 		cancelDifficulty: 'hard',
+		cancelDifficultyScore: 8,
+		difficultyNotes: 'Requires written 30-day notice in person or certified mail',
 		cancelMethod: 'email',
 		steps: [
 			'Email or visit your studio with the cancel request before the billing date',
@@ -1466,4 +1538,34 @@ export function buildFaqs(service: Service) {
 				: `CancelKit can still track ${name} renewals and remind you before the next charge, even when the provider requires a manual step.`,
 		},
 	];
+}
+
+export function getCancelDifficultyScore(service: Service): number {
+	if (typeof service.cancelDifficultyScore === 'number') {
+		return service.cancelDifficultyScore;
+	}
+	if (service.cancelMethod === 'in-person' || service.cancelDifficulty === 'nightmare') return 9;
+	if (service.cancelMethod === 'phone' || service.cancelDifficulty === 'hard') return 7;
+	if (service.cancelDifficulty === 'medium') return 5;
+	return 2;
+}
+
+export function getDifficultyNotes(service: Service): string {
+	if (service.difficultyNotes) {
+		return service.difficultyNotes;
+	}
+	if (service.cancelMethod === 'in-person') return 'Requires in-person club visit or certified mail';
+	if (service.cancelMethod === 'phone') return 'Phone call required with retention agents';
+	if (service.cancelDifficulty === 'nightmare') return 'Multi-step retention flow and hidden cancellation settings';
+	if (service.cancelDifficulty === 'hard') return 'Multiple retention prompts, survey screens, or wait times';
+	if (service.cancelDifficulty === 'medium') return 'Online cancellation with multiple confirmation prompts';
+	return 'Straightforward 1–2 click online self-service cancellation';
+}
+
+export type DifficultyTier = 'nightmare' | 'hard' | 'easy';
+
+export function getDifficultyTier(score: number): DifficultyTier {
+	if (score >= 8) return 'nightmare';
+	if (score >= 5) return 'hard';
+	return 'easy';
 }

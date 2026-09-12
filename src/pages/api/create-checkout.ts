@@ -15,12 +15,12 @@ export const POST: APIRoute = async ({ request }) => {
 			});
 		}
 
-		const { priceId = STRIPE_PRICES.pro.monthly, userId, email } = body;
+		const { priceId = STRIPE_PRICES.pro.monthly, userId, email, referralCode } = body as any;
 
 		const origin =
 			request.headers.get('origin') ||
 			request.headers.get('referer') ||
-			'https://cancelkit.com';
+			'https://cancelkits.com';
 		const siteUrl = new URL(origin).origin;
 
 		const plan = getPlanFromPriceId(priceId);
@@ -40,11 +40,13 @@ export const POST: APIRoute = async ({ request }) => {
 			metadata: {
 				userId: userId || '',
 				plan,
+				referralCode: referralCode || '',
 			},
 			subscription_data: {
 				metadata: {
 					userId: userId || '',
 					plan,
+					referralCode: referralCode || '',
 				},
 			},
 			success_url: `${siteUrl}/dashboard?upgraded=true`,

@@ -33,7 +33,7 @@ const itemListSchema = {
 		'@type': 'ListItem',
 		position: index + 1,
 		name: `How to cancel ${service.name}`,
-		url: `https://cancelkit.com/cancel/${service.slug}`,
+		url: `https://cancelkits.com/cancel/${service.slug}`,
 	})),
 };
 ---
@@ -51,6 +51,13 @@ const itemListSchema = {
 			<p class="hub__lede">
 				Clear, unbiased cancellation walkthroughs for {services.length}+ popular services. Find direct links, bypass retention tricks, or let CancelKit handle it automatically.
 			</p>
+
+			<div class="hub__ranking-banner">
+				<a href="/cancel-difficulty" class="hub__ranking-link">
+					<span class="ranking-badge">🔥 Hall of Shame</span>
+					<span>Which subscriptions are hardest to cancel? See 2026 Rankings &rarr;</span>
+				</a>
+			</div>
 
 			<!-- Search input -->
 			<div class="hub__search-wrap">
@@ -263,9 +270,42 @@ const itemListSchema = {
 		color: var(--color-muted);
 	}
 
+	.hub__ranking-banner {
+		margin-top: 1.25rem;
+	}
+
+	.hub__ranking-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.65rem;
+		background: rgba(255, 68, 68, 0.08);
+		border: 1px solid rgba(255, 68, 68, 0.25);
+		border-radius: 999px;
+		padding: 0.4rem 0.95rem;
+		font-size: 0.875rem;
+		color: #fca5a5;
+		text-decoration: none;
+		transition: all 0.15s ease;
+	}
+
+	.hub__ranking-link:hover {
+		background: rgba(255, 68, 68, 0.16);
+		border-color: #ff4444;
+		color: #ffffff;
+	}
+
+	.ranking-badge {
+		background: rgba(255, 68, 68, 0.25);
+		color: #ff4444;
+		font-size: 0.75rem;
+		font-weight: 700;
+		padding: 0.15rem 0.45rem;
+		border-radius: 999px;
+	}
+
 	/* Search bar */
 	.hub__search-wrap {
-		margin-top: 2.25rem;
+		margin-top: 1.75rem;
 		max-width: 44rem;
 	}
 

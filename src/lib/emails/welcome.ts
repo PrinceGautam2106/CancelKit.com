@@ -1,7 +1,7 @@
 /**
  * welcome.ts — Sent immediately on signup.
  *
- * Subject: "SubZaps is scanning your subscriptions now..."
+ * Subject: "CancelKit is scanning your subscriptions now..."
  * Tone:    Excited but calm. Reassuring. Not spammy.
  */
 
@@ -16,7 +16,7 @@ export interface WelcomeEmailData {
 }
 
 export function welcomeSubject(): string {
-	return 'SubZaps is scanning your subscriptions now...';
+	return 'CancelKit is scanning your subscriptions now...';
 }
 
 export function welcomeHtml(data: WelcomeEmailData): string {
@@ -57,7 +57,7 @@ export function welcomeHtml(data: WelcomeEmailData): string {
       </div>`;
 
 	const body = `
-    <h1 style="${styles.h1}">Welcome to SubZaps, ${firstName} 👋</h1>
+    <h1 style="${styles.h1}">Welcome to CancelKit, ${firstName} 👋</h1>
     <p style="${styles.body}">
       You just took the first step toward knowing exactly where your money goes every month. Here's what's happening:
     </p>

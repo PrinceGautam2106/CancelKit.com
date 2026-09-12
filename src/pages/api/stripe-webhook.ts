@@ -61,7 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
 							.upsert(
 								{
 									user_id: userId || session.customer,
-									name: `SubZap ${plan.toUpperCase()}`,
+									name: `CancelKit ${plan.toUpperCase()}`,
 									category: 'Software & Cloud',
 									amount: plan === 'family' ? 19 : 9,
 									currency: 'USD',
@@ -184,7 +184,7 @@ export const POST: APIRoute = async ({ request }) => {
 					await supabase.from('alerts').insert({
 						customer_id: invoice.customer,
 						type: 'payment_failed',
-						message: `Your SubZaps payment of $${amount} failed. Please update your payment method within 3 days.`,
+						message: `Your CancelKit payment of $${amount} failed. Please update your payment method within 3 days.`,
 						created_at: new Date().toISOString(),
 					});
 				} catch {

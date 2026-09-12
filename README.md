@@ -1,6 +1,6 @@
 # CancelKit
 
-Subscription cancel guides and tracking for [cancelkit.com](https://cancelkit.com).
+Subscription cancel guides and tracking for [cancelkits.com](https://cancelkits.com).
 
 ## Stack
 

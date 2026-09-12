@@ -31,4 +31,10 @@ export {
 	type WeeklySavingsData,
 } from './weekly-savings';
 
+export {
+	referralRewardSubject,
+	referralRewardHtml,
+	type ReferralRewardEmailData,
+} from './referral-reward';
+
 export { emailLayout, styles, SITE } from './layout';

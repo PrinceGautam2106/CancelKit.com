@@ -43,27 +43,27 @@ const articleSchema = {
 	author: {
 		'@type': 'Organization',
 		name: 'CancelKit Research',
-		url: 'https://cancelkit.com',
+		url: 'https://cancelkits.com',
 	},
 	publisher: {
 		'@type': 'Organization',
 		name: 'CancelKit',
-		url: 'https://cancelkit.com',
+		url: 'https://cancelkits.com',
 		logo: {
 			'@type': 'ImageObject',
-			url: 'https://cancelkit.com/favicon.svg',
+			url: 'https://cancelkits.com/favicon.svg',
 		},
 	},
-	mainEntityOfPage: `https://cancelkit.com/blog/${post.id}`,
+	mainEntityOfPage: `https://cancelkits.com/blog/${post.id}`,
 };
 
 const breadcrumbSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'BreadcrumbList',
 	itemListElement: [
-		{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://cancelkit.com/' },
-		{ '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://cancelkit.com/blog/' },
-		{ '@type': 'ListItem', position: 3, name: post.data.title, item: `https://cancelkit.com/blog/${post.id}` },
+		{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://cancelkits.com/' },
+		{ '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://cancelkits.com/blog/' },
+		{ '@type': 'ListItem', position: 3, name: post.data.title, item: `https://cancelkits.com/blog/${post.id}` },
 	],
 };
 

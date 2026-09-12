@@ -88,9 +88,9 @@ export const POST: APIRoute = async ({ request }) => {
 	// For now, accept requests from same origin or with any x-api-secret header.
 	const isTrusted =
 		apiSecret ||
-		(origin && origin.includes('subzaps.com')) ||
+		(origin && origin.includes('cancelkits.com')) ||
 		(origin && origin.includes('localhost')) ||
-		(referer && referer.includes('subzaps.com')) ||
+		(referer && referer.includes('cancelkits.com')) ||
 		(referer && referer.includes('localhost'));
 
 	if (!isTrusted) {
@@ -158,7 +158,7 @@ export const POST: APIRoute = async ({ request }) => {
 			subject: resolved.subject,
 			html: resolved.html,
 			headers: {
-				'List-Unsubscribe': `<https://subzaps.com/unsubscribe?token=${encodeURIComponent(data.userId || to)}>`,
+				'List-Unsubscribe': `<https://cancelkits.com/unsubscribe?token=${encodeURIComponent(data.userId || to)}>`,
 				'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
 			},
 		});

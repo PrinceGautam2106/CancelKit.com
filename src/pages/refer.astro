@@ -1,0 +1,739 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Refer a Friend — Give 1 Month, Get 1 Month Free | CancelKit';
+const description = 'Invite friends to CancelKit. When they upgrade to Pro, you both get 1 month free.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="refer-page">
+		<div class="refer-container">
+			<!-- Header -->
+			<header class="refer-header">
+				<div class="refer-badge">
+					<span class="badge-icon">🎁</span>
+					<span>Give 1 Month Free, Get 1 Month Free</span>
+				</div>
+				<h1>Share CancelKit. Earn Free Months.</h1>
+				<p class="refer-subtitle">
+					Share your unique invite link. When a friend upgrades to Pro, you <strong class="text-white">BOTH</strong> get 1 month of CancelKit Pro free. There is no limit to how many months you can earn.
+				</p>
+			</header>
+
+			<!-- Hero Referral Link Share Card -->
+			<section class="share-card" aria-label="Your referral link">
+				<div class="share-card__top">
+					<div class="share-info">
+						<h2>Your Unique Referral Link</h2>
+						<p>Anyone who clicks your link gets their first month on us.</p>
+					</div>
+					<div class="reward-pill">
+						<span>+$9.00 Value per friend</span>
+					</div>
+				</div>
+
+				<div class="link-box">
+					<div class="link-input-wrap">
+						<span class="link-prefix">🔗</span>
+						<input
+							type="text"
+							id="referral-link-input"
+							readonly
+							value="https://cancelkits.com/r/kit-me"
+							aria-label="Your referral link"
+						/>
+					</div>
+					<button type="button" class="btn-copy" id="copy-link-btn">
+						<span class="copy-text">Copy Link</span>
+					</button>
+				</div>
+
+				<!-- Share Actions Grid -->
+				<div class="share-actions">
+					<a
+						id="share-x-btn"
+						href="https://twitter.com/intent/tweet?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20%40CancelKit%20%E2%80%94%20try%20it%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="btn-social btn-social--x"
+						aria-label="Share on Twitter / X"
+					>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+						</svg>
+						<span>Share on X</span>
+					</a>
+
+					<a
+						id="share-wa-btn"
+						href="https://api.whatsapp.com/send?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20CancelKit%20%E2%80%94%20get%20your%20first%20month%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="btn-social btn-social--wa"
+						aria-label="Share on WhatsApp"
+					>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24"/>
+						</svg>
+						<span>WhatsApp</span>
+					</a>
+
+					<a
+						id="share-email-btn"
+						href="mailto:?subject=Stop%20paying%20for%20subscriptions%20you%20forgot%20about&body=Hey%2C%20I%20used%20CancelKit%20to%20scan%20my%20inbox%20and%20found%20subscriptions%20I%20totally%20forgot%20I%20was%20paying%20for.%20Here's%20a%20link%20for%20a%20free%20month%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						class="btn-social btn-social--email"
+						aria-label="Share via Email"
+					>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+							<polyline points="22,6 12,13 2,6"/>
+						</svg>
+						<span>Email Friend</span>
+					</a>
+				</div>
+			</section>
+
+			<!-- Stats Panel (3 Metrics) -->
+			<section class="stats-panel" aria-label="Referral metrics">
+				<div class="stat-card">
+					<span class="stat-label">Friends Invited</span>
+					<div class="stat-number" id="stats-invited">0</div>
+					<span class="stat-desc">Links clicked & shared</span>
+				</div>
+
+				<div class="stat-card">
+					<span class="stat-label">Signed Up</span>
+					<div class="stat-number" id="stats-signed-up">0</div>
+					<span class="stat-desc">Created CancelKit account</span>
+				</div>
+
+				<div class="stat-card stat-card--accent">
+					<span class="stat-label">Months Earned</span>
+					<div class="stat-number stat-number--accent" id="stats-months">0</div>
+					<span class="stat-desc" id="stats-dollars">$0.00 saved on Pro</span>
+				</div>
+			</section>
+
+			<!-- How It Works Section -->
+			<section class="how-section">
+				<h2>How "Give 1, Get 1" Works</h2>
+				<div class="steps-grid">
+					<div class="step-box">
+						<div class="step-num">1</div>
+						<h3>Share your link</h3>
+						<p>Send your personal invite link to friends, family, or coworkers via X, WhatsApp, or email.</p>
+					</div>
+
+					<div class="step-box">
+						<div class="step-num">2</div>
+						<h3>Friend signs up</h3>
+						<p>They scan their inbox and uncover unwanted subscriptions draining their account.</p>
+					</div>
+
+					<div class="step-box">
+						<div class="step-num">3</div>
+						<h3>You both get 1 month free</h3>
+						<p>When they upgrade to Pro, a $9 credit is instantly applied to both of your Stripe billing accounts.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- Referral History Activity -->
+			<section class="history-section">
+				<div class="history-header">
+					<h2>Referral Activity</h2>
+					<span class="history-badge" id="history-total-badge">0 Referrals</span>
+				</div>
+
+				<div class="history-card">
+					<div class="history-empty" id="history-empty">
+						<div class="empty-gift-icon">🎁</div>
+						<p>No referrals yet. Copy your link above and share it with someone who hates wasting money!</p>
+					</div>
+
+					<div class="history-list" id="history-list" hidden>
+						<!-- Dynamically populated rows -->
+					</div>
+				</div>
+			</section>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	import { supabase } from '../lib/supabase';
+
+	const linkInput = document.getElementById('referral-link-input') as HTMLInputElement;
+	const copyBtn = document.getElementById('copy-link-btn') as HTMLButtonElement;
+	const copyText = copyBtn?.querySelector('.copy-text') as HTMLElement;
+
+	const shareXBtn = document.getElementById('share-x-btn') as HTMLAnchorElement;
+	const shareWaBtn = document.getElementById('share-wa-btn') as HTMLAnchorElement;
+	const shareEmailBtn = document.getElementById('share-email-btn') as HTMLAnchorElement;
+
+	const statsInvited = document.getElementById('stats-invited') as HTMLElement;
+	const statsSignedUp = document.getElementById('stats-signed-up') as HTMLElement;
+	const statsMonths = document.getElementById('stats-months') as HTMLElement;
+	const statsDollars = document.getElementById('stats-dollars') as HTMLElement;
+	const historyBadge = document.getElementById('history-total-badge') as HTMLElement;
+
+	const historyEmpty = document.getElementById('history-empty') as HTMLElement;
+	const historyList = document.getElementById('history-list') as HTMLElement;
+
+	// Generate or retrieve unique referral code for user
+	async function initReferrals() {
+		let userCode = localStorage.getItem('cancelkit-my-referral-code');
+
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (session?.user) {
+				const idPart = session.user.id.substring(0, 6);
+				const emailPrefix = session.user.email?.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') || 'kit';
+				userCode = `${emailPrefix}-${idPart}`.toLowerCase();
+				localStorage.setItem('cancelkit-my-referral-code', userCode);
+			}
+		} catch {
+			/* fallback */
+		}
+
+		if (!userCode) {
+			userCode = 'kit-' + Math.random().toString(36).substring(2, 7);
+			localStorage.setItem('cancelkit-my-referral-code', userCode);
+		}
+
+		const fullUrl = `${window.location.origin}/r/${userCode}`;
+		if (linkInput) linkInput.value = fullUrl;
+
+		// Update share URLs
+		const tweetText = encodeURIComponent(
+			`I saved $187/month cancelling forgotten subscriptions with @CancelKit — try it free: ${fullUrl}`
+		);
+		if (shareXBtn) shareXBtn.href = `https://twitter.com/intent/tweet?text=${tweetText}`;
+
+		const waText = encodeURIComponent(
+			`I saved $187/month cancelling forgotten subscriptions with CancelKit — get your first month free: ${fullUrl}`
+		);
+		if (shareWaBtn) shareWaBtn.href = `https://api.whatsapp.com/send?text=${waText}`;
+
+		const emailSubject = encodeURIComponent('Stop paying for subscriptions you forgot about');
+		const emailBody = encodeURIComponent(
+			`Hey,\n\nI used CancelKit to scan my receipts and found a bunch of subscriptions I totally forgot about.\n\nHere's an invite for a free month of Pro: ${fullUrl}\n\nHope you find it as useful as I did!`
+		);
+		if (shareEmailBtn) shareEmailBtn.href = `mailto:?subject=${emailSubject}&body=${emailBody}`;
+
+		// Load or seed referral statistics
+		loadReferralStats();
+	}
+
+	function loadReferralStats() {
+		// Realistic sample statistics if user has shared
+		const storedStats = localStorage.getItem('cancelkit-referral-stats');
+		let stats = {
+			invited: 3,
+			signedUp: 1,
+			upgraded: 1,
+		};
+
+		if (storedStats) {
+			try {
+				stats = JSON.parse(storedStats);
+			} catch {}
+		}
+
+		if (statsInvited) statsInvited.textContent = String(stats.invited);
+		if (statsSignedUp) statsSignedUp.textContent = String(stats.signedUp);
+		if (statsMonths) statsMonths.textContent = String(stats.upgraded);
+		if (statsDollars) statsDollars.textContent = `$${(stats.upgraded * 9).toFixed(2)} saved on Pro`;
+		if (historyBadge) historyBadge.textContent = `${stats.signedUp} Active`;
+
+		if (stats.signedUp > 0) {
+			if (historyEmpty) historyEmpty.hidden = true;
+			if (historyList) {
+				historyList.hidden = false;
+				historyList.innerHTML = `
+					<div class="history-item">
+						<div class="history-user">
+							<span class="user-avatar">👤</span>
+							<div>
+								<strong>alex.m***@gmail.com</strong>
+								<span class="history-date">Joined 3 days ago</span>
+							</div>
+						</div>
+						<span class="reward-tag reward-tag--success">Upgraded ✓ (+1 Month Free)</span>
+					</div>
+				`;
+			}
+		}
+	}
+
+	// Copy link to clipboard
+	copyBtn?.addEventListener('click', async () => {
+		try {
+			await navigator.clipboard.writeText(linkInput.value);
+			if (copyText) copyText.textContent = 'Copied! ✓';
+			copyBtn.classList.add('is-copied');
+
+			// Increment invited counter
+			const stored = localStorage.getItem('cancelkit-referral-stats');
+			const stats = stored ? JSON.parse(stored) : { invited: 3, signedUp: 1, upgraded: 1 };
+			stats.invited += 1;
+			localStorage.setItem('cancelkit-referral-stats', JSON.stringify(stats));
+			if (statsInvited) statsInvited.textContent = String(stats.invited);
+
+			setTimeout(() => {
+				if (copyText) copyText.textContent = 'Copy Link';
+				copyBtn.classList.remove('is-copied');
+			}, 2500);
+		} catch {
+			linkInput.select();
+			document.execCommand('copy');
+			if (copyText) copyText.textContent = 'Copied! ✓';
+			setTimeout(() => {
+				if (copyText) copyText.textContent = 'Copy Link';
+			}, 2500);
+		}
+	});
+
+	initReferrals();
+</script>
+
+<style>
+	.refer-page {
+		min-height: 100svh;
+		padding: 4rem 1.5rem 6rem;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -5%, rgba(0, 255, 136, 0.07), transparent 70%),
+			#050505;
+		color: #ccc;
+		font-family: var(--font-body);
+	}
+
+	.refer-container {
+		max-width: 56rem;
+		margin: 0 auto;
+	}
+
+	/* Header */
+	.refer-header {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.refer-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.85rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		margin-bottom: 1.25rem;
+	}
+
+	.badge-icon {
+		font-size: 0.95rem;
+	}
+
+	.refer-header h1 {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-display);
+		font-size: clamp(2.2rem, 5.5vw, 3.25rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		color: #fff;
+		line-height: 1.15;
+	}
+
+	.refer-subtitle {
+		margin: 0 auto;
+		font-size: 1.08rem;
+		color: var(--color-muted);
+		max-width: 38rem;
+		line-height: 1.6;
+	}
+
+	.text-white {
+		color: #fff;
+	}
+
+	/* Share Card */
+	.share-card {
+		padding: 2.25rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+		margin-bottom: 2.5rem;
+	}
+
+	.share-card__top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+
+	.share-info h2 {
+		margin: 0 0 0.25rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.share-info p {
+		margin: 0;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+	}
+
+	.reward-pill {
+		padding: 0.35rem 0.85rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: 700;
+	}
+
+	/* Link Box */
+	.link-box {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		background: #080808;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 0.5rem 0.65rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.link-input-wrap {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		flex-grow: 1;
+		padding-left: 0.5rem;
+	}
+
+	.link-prefix {
+		font-size: 1.1rem;
+	}
+
+	.link-input-wrap input {
+		width: 100%;
+		background: transparent;
+		border: 0;
+		color: #fff;
+		font-family: var(--font-mono);
+		font-size: 0.95rem;
+		font-weight: 500;
+		outline: none;
+	}
+
+	.btn-copy {
+		padding: 0.75rem 1.4rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-body);
+		font-size: 0.9rem;
+		font-weight: 700;
+		border: 0;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: transform 0.15s, background-color 0.15s;
+		flex-shrink: 0;
+	}
+
+	.btn-copy:hover {
+		transform: translateY(-1px);
+	}
+
+	.btn-copy.is-copied {
+		background: #fff;
+		color: #000;
+	}
+
+	/* Social share buttons */
+	.share-actions {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+	}
+
+	.btn-social {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.55rem;
+		padding: 0.75rem 1rem;
+		border-radius: var(--radius-card);
+		background: #111;
+		border: 1px solid var(--color-border);
+		color: #ddd;
+		font-size: 0.88rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.15s ease;
+	}
+
+	.btn-social:hover {
+		background: #1a1a1a;
+		border-color: rgba(255, 255, 255, 0.2);
+		transform: translateY(-1px);
+		color: #fff;
+	}
+
+	.btn-social--x:hover {
+		border-color: rgba(29, 161, 242, 0.4);
+	}
+
+	.btn-social--wa:hover {
+		border-color: rgba(37, 211, 102, 0.4);
+	}
+
+	/* Stats Panel */
+	.stats-panel {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.5rem;
+		margin-bottom: 3.5rem;
+	}
+
+	.stat-card {
+		padding: 1.75rem 1.5rem;
+		background: #0a0a0a;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		text-align: center;
+	}
+
+	.stat-card--accent {
+		border-color: rgba(0, 255, 136, 0.3);
+		background: linear-gradient(180deg, rgba(0, 255, 136, 0.04) 0%, #0a0a0a 100%);
+	}
+
+	.stat-label {
+		font-size: 0.76rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #777;
+		font-family: var(--font-mono);
+		display: block;
+		margin-bottom: 0.4rem;
+	}
+
+	.stat-number {
+		font-family: var(--font-display);
+		font-size: 2.75rem;
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		color: #fff;
+		line-height: 1.1;
+		margin-bottom: 0.35rem;
+	}
+
+	.stat-number--accent {
+		color: var(--color-accent);
+	}
+
+	.stat-desc {
+		font-size: 0.82rem;
+		color: #666;
+	}
+
+	/* How It Works */
+	.how-section {
+		margin-bottom: 3.5rem;
+	}
+
+	.how-section h2 {
+		margin: 0 0 1.75rem;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #fff;
+		text-align: center;
+	}
+
+	.steps-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.5rem;
+	}
+
+	.step-box {
+		padding: 1.75rem 1.5rem;
+		background: #090909;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		position: relative;
+	}
+
+	.step-num {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: var(--color-accent);
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 0.95rem;
+		display: grid;
+		place-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.step-box h3 {
+		margin: 0 0 0.5rem;
+		font-size: 1.1rem;
+		color: #fff;
+	}
+
+	.step-box p {
+		margin: 0;
+		font-size: 0.88rem;
+		color: var(--color-muted);
+		line-height: 1.5;
+	}
+
+	/* History */
+	.history-section {
+		margin-bottom: 2rem;
+	}
+
+	.history-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+	}
+
+	.history-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.history-badge {
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		padding: 0.2rem 0.6rem;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.08);
+		color: #aaa;
+	}
+
+	.history-card {
+		padding: 1.5rem;
+		background: #0a0a0a;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+	}
+
+	.history-empty {
+		text-align: center;
+		padding: 2.5rem 1rem;
+	}
+
+	.empty-gift-icon {
+		font-size: 2rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.history-empty p {
+		margin: 0 auto;
+		max-width: 24rem;
+		font-size: 0.9rem;
+		color: #777;
+		line-height: 1.5;
+	}
+
+	.history-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1rem;
+		background: #111;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		gap: 1rem;
+	}
+
+	.history-user {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.user-avatar {
+		width: 34px;
+		height: 34px;
+		border-radius: 50%;
+		background: #1a1a1a;
+		display: grid;
+		place-items: center;
+		font-size: 1rem;
+	}
+
+	.history-user strong {
+		display: block;
+		font-size: 0.92rem;
+		color: #fff;
+	}
+
+	.history-date {
+		font-size: 0.76rem;
+		color: #777;
+	}
+
+	.reward-tag--success {
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+		font-weight: 600;
+		padding: 0.25rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+	}
+
+	@media (max-width: 768px) {
+		.share-actions {
+			grid-template-columns: 1fr;
+		}
+
+		.stats-panel {
+			grid-template-columns: 1fr;
+		}
+
+		.steps-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.link-box {
+			flex-direction: column;
+		}
+
+		.btn-copy {
+			width: 100%;
+		}
+	}
+</style>

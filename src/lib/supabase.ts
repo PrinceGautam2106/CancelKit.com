@@ -19,7 +19,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 		persistSession: true,
 		autoRefreshToken: true,
 		detectSessionInUrl: true,
-		storageKey: 'subzap-auth-token',
+		storageKey: 'cancelkit-auth-token',
 	},
 });
 
@@ -79,6 +79,26 @@ export interface CancelHistory {
 	status: CancelStatus;
 	confirmation_code?: string;
 	notes?: string;
+}
+
+export type ReferralStatus = 'pending' | 'signed_up' | 'upgraded';
+
+export interface Referral {
+	id: string;
+	referrer_user_id: string;
+	referral_code: string;
+	referred_user_id?: string;
+	referred_email?: string;
+	status: ReferralStatus;
+	reward_given_at?: string | null;
+	reward_months: number;
+	created_at: string;
+}
+
+export interface ReferralStats {
+	invitedCount: number;
+	signedUpCount: number;
+	monthsEarned: number;
 }
 
 // Cookie Helper Functions for SSR / Middleware sync

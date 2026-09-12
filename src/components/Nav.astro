@@ -5,8 +5,9 @@ const navigation = [
 	{ label: 'Features', href: '/#features' },
 	{ label: 'How it works', href: '/#how-it-works' },
 	{ label: 'Cancel guides', href: '/cancel' },
-	{ label: 'Blog', href: '/blog' },
 	{ label: 'Pricing', href: '/pricing' },
+	{ label: 'Refer & Earn', href: '/refer' },
+	{ label: 'Blog', href: '/blog' },
 ];
 const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 ---
@@ -124,7 +125,7 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		try {
 			const { data: { session } } = await supabase.auth.getSession();
 			if (session) {
-				const plan = (localStorage.getItem('subzap-user-plan') || 'free') as 'free' | 'pro' | 'family';
+				const plan = (localStorage.getItem('cancelkit-user-plan') || 'free') as 'free' | 'pro' | 'family';
 				const navPlan = document.getElementById('nav-plan-badge');
 				const mobilePlan = document.getElementById('mobile-plan-badge');
 				const signinLink = document.getElementById('nav-signin-link');

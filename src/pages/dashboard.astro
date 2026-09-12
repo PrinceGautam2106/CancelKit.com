@@ -2,15 +2,26 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PlanBadge from '../components/PlanBadge.astro';
 import SavingsCounter from '../components/SavingsCounter.astro';
+import EmptySubscriptions from '../components/EmptySubscriptions.astro';
+import ScanFailed from '../components/ScanFailed.astro';
+import NothingCancelled from '../components/NothingCancelled.astro';
+import AllCancelled from '../components/AllCancelled.astro';
+import LoadingCard from '../components/LoadingCard.astro';
 
 const title = 'Dashboard — CancelKit';
 const description = 'See every subscription draining your account and cancel what you do not need.';
 ---
 
 <BaseLayout {title} {description}>
-	<div class="dash" data-dashboard data-connected="false">
-		<!-- EMPTY STATE -->
-		<section class="dash__empty" data-empty-state aria-labelledby="empty-title">
+	<div class="dash" data-dashboard data-connected="false" data-loading="true">
+		<!-- LOADING SKELETON -->
+		<section class="dash__loading" data-loading-state aria-busy="true">
+			<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+			<LoadingCard rows={6} />
+		</section>
+
+		<!-- CONNECT EMPTY STATE -->
+		<section class="dash__empty" data-empty-state hidden aria-labelledby="empty-title">
 			<div class="dash__empty-inner">
 				<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
 				<h1 id="empty-title">Connect your email to see what's draining you</h1>
@@ -53,7 +64,7 @@ const description = 'See every subscription draining your account and cancel wha
 					<div class="dash__upgrade-text">
 						<span class="dash__upgrade-icon">🎉</span>
 						<div>
-							<strong>Welcome to SubZap Pro!</strong>
+							<strong>Welcome to CancelKit Pro!</strong>
 							<p>All 14 subscriptions unlocked. Instant 1-click cancellation and renewal radar active.</p>
 						</div>
 					</div>
@@ -87,7 +98,15 @@ const description = 'See every subscription draining your account and cancel wha
 				</header>
 
 				<div class="dash__table-wrap">
-					<table class="dash__table">
+					<div data-list-loading hidden>
+						<LoadingCard rows={5} />
+					</div>
+
+					<ScanFailed />
+					<EmptySubscriptions />
+					<AllCancelled />
+
+					<table class="dash__table" data-subs-table>
 						<thead>
 							<tr>
 								<th scope="col">Service</th>
@@ -99,10 +118,9 @@ const description = 'See every subscription draining your account and cancel wha
 						<tbody data-sub-list></tbody>
 					</table>
 					<div class="dash__table-empty" data-table-empty hidden>
-						<div class="dash__empty-badge">✓ ZERO RENEWALS</div>
-						<p class="dash__empty-title">No Active Subscriptions Found</p>
-						<p class="dash__empty-desc">Your dashboard has no recurring charges draining your funds.</p>
-						<button type="button" class="dash__btn-sm dash__btn--accent" data-add-sub-clean>+ Add Real Subscription</button>
+						<p class="dash__empty-title">Nothing in this filter</p>
+						<p class="dash__empty-desc">Try another filter, or add a subscription manually.</p>
+						<button type="button" class="dash__btn-sm dash__btn--accent" data-add-manual>+ Add subscription</button>
 					</div>
 
 					<!-- PRO PLAN DASHBOARD GATE OVERLAY -->
@@ -176,6 +194,7 @@ const description = 'See every subscription draining your account and cancel wha
 
 				<section class="dash__history" id="history" aria-labelledby="history-heading">
 					<h2 id="history-heading">Cancel History</h2>
+					<NothingCancelled />
 					<ul data-history-list></ul>
 				</section>
 			</aside>
@@ -217,6 +236,50 @@ const description = 'See every subscription draining your account and cancel wha
 				</div>
 			</form>
 		</dialog>
+
+		<!-- VIRAL REFERRAL TRIGGER MODAL (OPENS RIGHT AFTER CANCELLATION) -->
+		<div class="viral-modal-backdrop" id="viral-referral-modal" hidden role="dialog" aria-modal="true" aria-labelledby="viral-modal-title">
+			<div class="viral-modal-card">
+				<button type="button" class="viral-modal-close" id="viral-modal-close-btn" aria-label="Close modal">✕</button>
+
+				<div class="viral-modal-celebrate">🎉</div>
+				<h2 id="viral-modal-title" class="viral-modal-title">
+					You just saved <span id="viral-saved-amount" class="text-accent">$15.49</span>/month!
+				</h2>
+				<p class="viral-modal-sub">
+					Know someone paying for subscriptions they forgot about?<br/>
+					<strong>Share CancelKit → you both get a free month.</strong>
+				</p>
+
+				<div class="viral-referral-box">
+					<span class="viral-box-label">Your personal invite link</span>
+					<div class="viral-link-row">
+						<input type="text" id="viral-ref-link-input" readonly value="https://cancelkits.com/r/kit-me" />
+						<button type="button" class="viral-copy-btn" id="viral-copy-btn">Copy</button>
+					</div>
+				</div>
+
+				<div class="viral-actions">
+					<a id="viral-twitter-btn" href="#" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--x">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+						</svg>
+						<span>Tweet savings</span>
+					</a>
+
+					<a id="viral-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--wa">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24"/>
+						</svg>
+						<span>WhatsApp</span>
+					</a>
+
+					<a href="/refer" class="viral-share-btn viral-share-btn--more">
+						<span>View details →</span>
+					</a>
+				</div>
+			</div>
+		</div>
 	</div>
 </BaseLayout>
 
@@ -287,6 +350,7 @@ const description = 'See every subscription draining your account and cancel wha
 	const root = document.querySelector<HTMLElement>('[data-dashboard]');
 	const emptyState = document.querySelector<HTMLElement>('[data-empty-state]');
 	const appShell = document.querySelector<HTMLElement>('[data-app-shell]');
+	const loadingState = document.querySelector<HTMLElement>('[data-loading-state]');
 	const listEl = document.querySelector<HTMLElement>('[data-sub-list]');
 	const emptyTable = document.querySelector<HTMLElement>('[data-table-empty]');
 	const historyList = document.querySelector<HTMLElement>('[data-history-list]');
@@ -295,12 +359,19 @@ const description = 'See every subscription draining your account and cancel wha
 	const burnAfterEl = document.querySelector<HTMLElement>('[data-burn-after]');
 	const savedMonthlyEl = document.querySelector<HTMLElement>('[data-saved-monthly]');
 	const savedYearlyEl = document.querySelector<HTMLElement>('[data-saved-yearly]');
+	const emptySubsEl = document.querySelector<HTMLElement>('[data-empty-subscriptions]');
+	const scanFailedEl = document.querySelector<HTMLElement>('[data-scan-failed]');
+	const allCancelledEl = document.querySelector<HTMLElement>('[data-all-cancelled]');
+	const nothingCancelledEl = document.querySelector<HTMLElement>('[data-nothing-cancelled]');
+	const subsTable = document.querySelector<HTMLElement>('[data-subs-table]');
+	const listLoading = document.querySelector<HTMLElement>('[data-list-loading]');
 
+	let scanFailed = new URLSearchParams(window.location.search).get('scan') === 'failed';
 	let filter: 'all' | SubStatus = 'all';
 	let sort: 'amount' | 'renewal' | 'category' = 'amount';
 	let subs: Subscription[] = loadSubs();
 
-	const USER_PLAN_KEY = 'subzap-user-plan';
+	const USER_PLAN_KEY = 'cancelkit-user-plan';
 	let userPlan: 'free' | 'pro' | 'family' = 'free';
 
 	const dashUrlParams = new URLSearchParams(window.location.search);
@@ -375,7 +446,8 @@ const description = 'See every subscription draining your account and cancel wha
 	function isConnected() {
 		const params = new URLSearchParams(window.location.search);
 		if (params.get('connected') === '1' || params.get('empty') === '1') return true;
-		return localStorage.getItem(STORAGE_KEY) === '1';
+		const val = localStorage.getItem(STORAGE_KEY);
+		return val === '1' || val === 'true';
 	}
 
 	function setConnected(provider: string) {
@@ -386,7 +458,17 @@ const description = 'See every subscription draining your account and cancel wha
 		showApp(true);
 	}
 
+	function setLoading(loading: boolean) {
+		root?.setAttribute('data-loading', String(loading));
+		loadingState?.toggleAttribute('hidden', !loading);
+		if (loading) {
+			emptyState?.toggleAttribute('hidden', true);
+			appShell?.toggleAttribute('hidden', true);
+		}
+	}
+
 	function showApp(connected: boolean) {
+		setLoading(false);
 		root?.setAttribute('data-connected', String(connected));
 		emptyState?.toggleAttribute('hidden', connected);
 		appShell?.toggleAttribute('hidden', !connected);
@@ -407,15 +489,22 @@ const description = 'See every subscription draining your account and cancel wha
 			if (sort === 'renewal') return a.nextBilling.localeCompare(b.nextBilling);
 			return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
 		});
-
 		return rows;
 	}
 
 	function totals() {
-		const before = subs.reduce((sum, s) => sum + s.monthly, 0);
-		const after = subs.filter((s) => s.status !== 'cancelled').reduce((sum, s) => sum + s.monthly, 0);
+		const before = subs.reduce((sum, sub) => sum + sub.monthly, 0);
+		const after = subs.filter((sub) => sub.status !== 'cancelled').reduce((sum, sub) => sum + sub.monthly, 0);
 		const saved = before - after;
 		return { before, after, saved, yearly: saved * 12 };
+	}
+
+	function escapeHtml(value: string) {
+		return value
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;');
 	}
 
 	function renderStats() {
@@ -428,85 +517,78 @@ const description = 'See every subscription draining your account and cancel wha
 
 	function renderHistory() {
 		if (!historyList) return;
-		const cancelled = subs.filter((s) => s.status === 'cancelled');
-		historyList.innerHTML = cancelled.length
-			? cancelled
-					.map(
-						(s) =>
-							`<li><span>${escapeHtml(s.name)}</span><span class="dash__saved-inline">Saved ${money(s.monthly)}/mo</span></li>`,
-					)
-					.join('')
-			: `<li class="dash__history-empty">No cancellations yet.</li>`;
-	}
-
-	function escapeHtml(value: string) {
-		return value
-			.replaceAll('&', '&amp;')
-			.replaceAll('<', '&lt;')
-			.replaceAll('>', '&gt;')
-			.replaceAll('"', '&quot;');
+		const cancelled = subs.filter((sub) => sub.status === 'cancelled');
+		const firstActive = subs.find((sub) => sub.status !== 'cancelled');
+		nothingCancelledEl?.toggleAttribute('hidden', cancelled.length > 0 || !firstActive);
+		if (firstActive) {
+			const name = nothingCancelledEl?.querySelector<HTMLElement>('[data-nudge-name]');
+			const meta = nothingCancelledEl?.querySelector<HTMLElement>('[data-nudge-meta]');
+			const avatar = nothingCancelledEl?.querySelector<HTMLElement>('[data-nudge-initial]');
+			const cancel = nothingCancelledEl?.querySelector<HTMLButtonElement>('[data-nudge-cancel]');
+			if (name) name.textContent = firstActive.name;
+			if (meta) meta.textContent = `${money(firstActive.monthly)}/mo`;
+			if (avatar) avatar.textContent = initial(firstActive.name);
+			if (cancel) cancel.dataset.nudgeCancel = firstActive.id;
+		}
+		historyList.innerHTML = cancelled.map((sub) =>
+			`<li><span>${escapeHtml(sub.name)}</span><span class="dash__saved-inline">Saved ${money(sub.monthly)}/mo</span></li>`,
+		).join('');
 	}
 
 	function renderList() {
 		if (!listEl) return;
 		const rows = visibleSubs();
-		emptyTable?.toggleAttribute('hidden', rows.length > 0);
+		const active = subs.filter((sub) => sub.status !== 'cancelled');
+		const everythingCancelled = subs.length > 0 && active.length === 0;
+		const showScanFailure = scanFailed;
+		const showEmpty = !showScanFailure && subs.length === 0;
+		const showCelebration = !showScanFailure && !showEmpty && everythingCancelled;
 
-		// Dashboard gate: Free users see first 10, rest are blurred behind gate
-		const isFree = userPlan === 'free';
-		const maxFreeCount = 10;
-		const displayedRows = isFree ? rows.slice(0, maxFreeCount) : rows;
-		const hiddenCount = Math.max(0, rows.length - maxFreeCount);
-
-		const gateWrap = document.getElementById('dash-gate-wrap');
-		const gateTitle = document.getElementById('dash-gate-title');
-		if (gateWrap) {
-			if (isFree && hiddenCount > 0) {
-				gateWrap.hidden = false;
-				if (gateTitle) {
-					gateTitle.textContent = `Upgrade to Pro to see all ${rows.length} subscriptions`;
-				}
-			} else {
-				gateWrap.hidden = true;
-			}
+		scanFailedEl?.toggleAttribute('hidden', !showScanFailure);
+		emptySubsEl?.toggleAttribute('hidden', !showEmpty);
+		allCancelledEl?.toggleAttribute('hidden', !showCelebration);
+		subsTable?.toggleAttribute('hidden', showScanFailure || showEmpty || showCelebration);
+		emptyTable?.toggleAttribute('hidden', showScanFailure || showEmpty || showCelebration || rows.length > 0);
+		if (showCelebration) {
+			const { yearly } = totals();
+			const saved = allCancelledEl?.querySelector<HTMLElement>('[data-saved-total]');
+			const share = allCancelledEl?.querySelector<HTMLAnchorElement>('[data-share-savings]');
+			if (saved) saved.textContent = money(yearly);
+			if (share) share.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just cancelled every subscription on my list and saved ${money(yearly)} a year with CancelKit. ⚡`)}`;
 		}
 
-		listEl.innerHTML = displayedRows
-			.map((s) => {
-				const cancelled = s.status === 'cancelled';
-				const annual = s.monthly * 12;
-				const icon = faviconUrl(s.domain);
-				const nameClass = cancelled ? 'dash__svc-name is-cancelled' : 'dash__svc-name';
-				const action = cancelled
-					? `<span class="dash__saved-badge">Saved ${money(s.monthly)}</span>`
-					: `<button type="button" class="dash__cancel" data-cancel="${escapeHtml(s.id)}">Cancel</button>`;
+		const gateWrap = document.getElementById('dash-gate-wrap');
+		if (showScanFailure || showEmpty || showCelebration) {
+			if (gateWrap) gateWrap.hidden = true;
+			listEl.innerHTML = '';
+			return;
+		}
 
-				return `<tr class="${cancelled ? 'is-cancelled-row' : ''}" data-id="${escapeHtml(s.id)}">
-					<td>
-						<div class="dash__svc">
-							<span class="dash__logo" data-initial="${initial(s.name)}">
-								${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}
-							</span>
-							<div>
-								<div class="${nameClass}">${escapeHtml(s.name)}</div>
-								<span class="dash__tag">${escapeHtml(s.category)}</span>
-							</div>
-						</div>
-					</td>
-					<td>
-						<div class="dash__amount">${money(s.monthly)}</div>
-						<div class="dash__annual">${money(annual)}/yr</div>
-					</td>
-					<td class="dash__date">${formatDate(s.nextBilling)}</td>
-					<td class="dash__actions">${action}</td>
-				</tr>`;
-			})
-			.join('');
+		const displayedRows = userPlan === 'free' ? rows.slice(0, 10) : rows;
+		if (gateWrap) gateWrap.hidden = !(userPlan === 'free' && rows.length > 10);
+		const gateTitle = document.getElementById('dash-gate-title');
+		if (gateTitle && userPlan === 'free' && rows.length > 10) {
+			gateTitle.textContent = `Upgrade to Pro to see all ${rows.length} subscriptions`;
+		}
+
+		listEl.innerHTML = displayedRows.map((sub) => {
+			const cancelled = sub.status === 'cancelled';
+			const icon = faviconUrl(sub.domain);
+			const action = cancelled
+				? `<span class="dash__saved-badge">Saved ${money(sub.monthly)}</span>`
+				: `<button type="button" class="dash__cancel" data-cancel="${escapeHtml(sub.id)}">Cancel</button>`;
+			return `<tr class="${cancelled ? 'is-cancelled-row' : ''}">
+				<td><div class="dash__svc"><span class="dash__logo" data-initial="${initial(sub.name)}">${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}</span><div><div class="dash__svc-name ${cancelled ? 'is-cancelled' : ''}">${escapeHtml(sub.name)}</div><span class="dash__tag">${escapeHtml(sub.category)}</span></div></div></td>
+				<td><div class="dash__amount">${money(sub.monthly)}</div><div class="dash__annual">${money(sub.monthly * 12)}/yr</div></td>
+				<td class="dash__date">${formatDate(sub.nextBilling)}</td><td class="dash__actions">${action}</td>
+			</tr>`;
+		}).join('');
+
 	}
 
 	function render() {
-		renderList();
 		renderStats();
+		renderList();
 		renderHistory();
 	}
 
@@ -516,7 +598,71 @@ const description = 'See every subscription draining your account and cancel wha
 		item.status = 'cancelled';
 		saveSubs();
 		render();
+
+		// Trigger viral referral popup right after emotional satisfaction of cancelling!
+		showViralReferralModal(item.name, item.monthly);
 	}
+
+	function showViralReferralModal(serviceName: string, monthlyAmount: number) {
+		const modal = document.getElementById('viral-referral-modal');
+		const amountEl = document.getElementById('viral-saved-amount');
+		const linkInput = document.getElementById('viral-ref-link-input') as HTMLInputElement;
+		const twitterBtn = document.getElementById('viral-twitter-btn') as HTMLAnchorElement;
+		const waBtn = document.getElementById('viral-whatsapp-btn') as HTMLAnchorElement;
+
+		if (amountEl) amountEl.textContent = `$${monthlyAmount.toFixed(2)}`;
+
+		const userCode = localStorage.getItem('cancelkit-my-referral-code') || 'kit-me';
+		const referralUrl = `${window.location.origin}/r/${userCode}`;
+
+		if (linkInput) linkInput.value = referralUrl;
+
+		if (twitterBtn) {
+			const text = encodeURIComponent(
+				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with @CancelKit 🎉 Try it free: ${referralUrl}`
+			);
+			twitterBtn.href = `https://twitter.com/intent/tweet?text=${text}`;
+		}
+
+		if (waBtn) {
+			const text = encodeURIComponent(
+				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with CancelKit 🎉 Get your first month free: ${referralUrl}`
+			);
+			waBtn.href = `https://api.whatsapp.com/send?text=${text}`;
+		}
+
+		if (modal) modal.hidden = false;
+	}
+
+	// Modal dismiss & copy handlers
+	document.getElementById('viral-modal-close-btn')?.addEventListener('click', () => {
+		const modal = document.getElementById('viral-referral-modal');
+		if (modal) modal.hidden = true;
+	});
+
+	document.getElementById('viral-referral-modal')?.addEventListener('click', (e) => {
+		if (e.target === document.getElementById('viral-referral-modal')) {
+			const modal = document.getElementById('viral-referral-modal');
+			if (modal) modal.hidden = true;
+		}
+	});
+
+	document.getElementById('viral-copy-btn')?.addEventListener('click', async () => {
+		const linkInput = document.getElementById('viral-ref-link-input') as HTMLInputElement;
+		const copyBtn = document.getElementById('viral-copy-btn') as HTMLButtonElement;
+		if (!linkInput || !copyBtn) return;
+
+		try {
+			await navigator.clipboard.writeText(linkInput.value);
+			copyBtn.textContent = 'Copied! ✓';
+			setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+		} catch {
+			linkInput.select();
+			document.execCommand('copy');
+			copyBtn.textContent = 'Copied! ✓';
+			setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+		}
+	});
 
 	// Events
 	document.getElementById('dash-upgrade-btn')?.addEventListener('click', async () => {
@@ -597,6 +743,19 @@ const description = 'See every subscription draining your account and cancel wha
 
 	document.querySelector('[data-add-sub]')?.addEventListener('click', openModal);
 	document.querySelector('[data-add-sub-clean]')?.addEventListener('click', openModal);
+	document.querySelectorAll<HTMLButtonElement>('[data-add-manual]').forEach((button) => {
+		button.addEventListener('click', openModal);
+	});
+	document.querySelector<HTMLButtonElement>('[data-nudge-cancel]')?.addEventListener('click', (event) => {
+		const button = event.currentTarget;
+		if (button.dataset.nudgeCancel) cancelSub(button.dataset.nudgeCancel);
+	});
+	document.querySelector<HTMLButtonElement>('[data-reconnect-email]')?.addEventListener('click', () => {
+		window.location.href = '/onboarding/connect';
+	});
+	document.querySelector<HTMLButtonElement>('[data-retry-scan]')?.addEventListener('click', () => {
+		window.location.href = '/onboarding/connect';
+	});
 	document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
 	document.getElementById('modal-cancel-btn')?.addEventListener('click', closeModal);
 
@@ -1579,6 +1738,197 @@ const description = 'See every subscription draining your account and cancel wha
 			flex-direction: column;
 			align-items: flex-start;
 		}
+	}
+
+	/* VIRAL REFERRAL TRIGGER MODAL */
+	.viral-modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.82);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.25rem;
+		animation: fadeInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes fadeInModal {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	.viral-modal-card {
+		position: relative;
+		width: min(100%, 30rem);
+		padding: 2.5rem 2rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
+		text-align: center;
+		animation: popUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes popUpModal {
+		from {
+			opacity: 0;
+			transform: scale(0.94) translateY(12px);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+		}
+	}
+
+	.viral-modal-close {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background: transparent;
+		border: 0;
+		color: #777;
+		font-size: 1.1rem;
+		cursor: pointer;
+		padding: 0.25rem;
+		transition: color 0.15s;
+	}
+
+	.viral-modal-close:hover {
+		color: #fff;
+	}
+
+	.viral-modal-celebrate {
+		font-size: 3rem;
+		margin-bottom: 0.5rem;
+		animation: bounceCelebrate 0.6s ease;
+	}
+
+	@keyframes bounceCelebrate {
+		0%, 100% { transform: scale(1); }
+		50% { transform: scale(1.2); }
+	}
+
+	.viral-modal-title {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: 1.6rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.viral-modal-sub {
+		margin: 0 auto 1.75rem;
+		color: var(--color-muted);
+		font-size: 0.92rem;
+		line-height: 1.5;
+		max-width: 24rem;
+	}
+
+	.viral-modal-sub strong {
+		color: #fff;
+	}
+
+	.viral-referral-box {
+		background: #080808;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 0.85rem 1rem;
+		text-align: left;
+		margin-bottom: 1.25rem;
+	}
+
+	.viral-box-label {
+		display: block;
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		font-family: var(--font-mono);
+		color: #666;
+		margin-bottom: 0.4rem;
+	}
+
+	.viral-link-row {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+
+	.viral-link-row input {
+		width: 100%;
+		background: transparent;
+		border: 0;
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.88rem;
+		outline: none;
+	}
+
+	.viral-copy-btn {
+		padding: 0.45rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		font-size: 0.78rem;
+		border: 0;
+		cursor: pointer;
+		flex-shrink: 0;
+		transition: background-color 0.15s;
+	}
+
+	.viral-actions {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem;
+		flex-wrap: wrap;
+	}
+
+	.viral-share-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.65rem 1.15rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.84rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.15s ease;
+	}
+
+	.viral-share-btn--x {
+		background: #111;
+		border: 1px solid rgba(29, 161, 242, 0.4);
+		color: #fff;
+	}
+
+	.viral-share-btn--x:hover {
+		background: rgba(29, 161, 242, 0.15);
+		transform: translateY(-1px);
+	}
+
+	.viral-share-btn--wa {
+		background: #111;
+		border: 1px solid rgba(37, 211, 102, 0.4);
+		color: #fff;
+	}
+
+	.viral-share-btn--wa:hover {
+		background: rgba(37, 211, 102, 0.15);
+		transform: translateY(-1px);
+	}
+
+	.viral-share-btn--more {
+		background: transparent;
+		color: var(--color-muted);
+	}
+
+	.viral-share-btn--more:hover {
+		color: #fff;
+		text-decoration: underline;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

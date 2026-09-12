@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Page not found — CancelKit';
+const description = 'This page got cancelled too. Head home or open your dashboard.';
+---
+
+<BaseLayout {title} {description}>
+	<main class="err">
+		<a class="err__logo" href="/" aria-label="CancelKit home">
+			<span class="err__logo-icon">C</span>
+			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>t</span></span>
+		</a>
+
+		<p class="err__code" aria-hidden="true">404</p>
+		<h1>This page got cancelled too.</h1>
+		<p class="err__sub">The page you're looking for doesn't exist.</p>
+
+		<div class="err__actions">
+			<a class="err__btn err__btn--primary" id="err-primary-cta" href="/">Go home →</a>
+			<a class="err__btn err__btn--ghost" href="/cancel">Browse cancel guides</a>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	import { supabase } from '../lib/supabase';
+
+	const cta = document.getElementById('err-primary-cta') as HTMLAnchorElement | null;
+
+	supabase.auth.getSession().then(({ data: { session } }) => {
+		if (!cta) return;
+		if (session) {
+			cta.href = '/dashboard';
+			cta.textContent = 'Go to dashboard →';
+		} else {
+			cta.href = '/';
+			cta.textContent = 'Go home →';
+		}
+	});
+</script>
+
+<style>
+	.err {
+		min-height: 100svh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 2.5rem 1.25rem;
+		background:
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.err__logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 2.5rem;
+	}
+
+	.err__logo-icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.err__logo-text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.err__logo-accent {
+		color: var(--color-accent);
+	}
+
+	.err__code {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-faint);
+	}
+
+	.err h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.75rem, 5vw, 2.5rem);
+		font-weight: 750;
+		letter-spacing: -0.04em;
+		line-height: 1.15;
+		color: #fff;
+		max-width: 18ch;
+	}
+
+	.err__sub {
+		margin: 0.9rem 0 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+	}
+
+	.err__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+
+	.err__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.85rem 1.35rem;
+		border-radius: var(--radius-pill);
+		font-weight: 700;
+		font-size: 0.95rem;
+		text-decoration: none;
+		transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+	}
+
+	.err__btn--primary {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.err__btn--primary:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 6px 22px rgba(0, 255, 136, 0.28);
+	}
+
+	.err__btn--ghost {
+		border: 1px solid var(--color-border);
+		background: transparent;
+		color: #ddd;
+	}
+
+	.err__btn--ghost:hover {
+		background: #111;
+		border-color: var(--color-border-hover);
+	}
+</style>

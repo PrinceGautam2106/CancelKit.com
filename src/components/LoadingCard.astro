@@ -1,0 +1,148 @@
+---
+/**
+ * Skeleton placeholder while dashboard subscription data loads.
+ * CSS-only shimmer — no layout shift when swapped for real rows.
+ */
+interface Props {
+	rows?: number;
+	class?: string;
+}
+
+const { rows = 5, class: className = '' } = Astro.props;
+const placeholders = Array.from({ length: rows }, (_, i) => i);
+---
+
+<div
+	class:list={['loading-card', className]}
+	data-loading-card
+	aria-busy="true"
+	aria-label="Loading subscriptions"
+>
+	<div class="loading-card__header">
+		<span class="loading-card__bone loading-card__bone--title"></span>
+		<span class="loading-card__bone loading-card__bone--chip"></span>
+	</div>
+
+	<div class="loading-card__table" role="presentation">
+		{placeholders.map(() => (
+			<div class="loading-card__row">
+				<span class="loading-card__bone loading-card__bone--avatar"></span>
+				<span class="loading-card__bone loading-card__bone--name"></span>
+				<span class="loading-card__bone loading-card__bone--amount"></span>
+				<span class="loading-card__bone loading-card__bone--date"></span>
+				<span class="loading-card__bone loading-card__bone--action"></span>
+			</div>
+		))}
+	</div>
+</div>
+
+<style>
+	.loading-card {
+		padding: 1.15rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		min-height: 18rem;
+	}
+
+	.loading-card[hidden] {
+		display: none !important;
+	}
+
+	.loading-card__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	}
+
+	.loading-card__table {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.loading-card__row {
+		display: grid;
+		grid-template-columns: 2rem minmax(0, 1.4fr) 0.7fr 0.7fr 0.6fr;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.loading-card__bone {
+		display: block;
+		border-radius: 6px;
+		background: linear-gradient(
+			90deg,
+			#141414 0%,
+			#1c1c1c 40%,
+			#141414 80%
+		);
+		background-size: 200% 100%;
+		animation: skeleton-shimmer 1.4s ease-in-out infinite;
+	}
+
+	.loading-card__bone--title {
+		width: 42%;
+		height: 1rem;
+	}
+
+	.loading-card__bone--chip {
+		width: 5.5rem;
+		height: 1.5rem;
+		border-radius: var(--radius-pill);
+	}
+
+	.loading-card__bone--avatar {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 8px;
+	}
+
+	.loading-card__bone--name {
+		height: 0.85rem;
+		width: 100%;
+	}
+
+	.loading-card__bone--amount,
+	.loading-card__bone--date {
+		height: 0.85rem;
+		width: 70%;
+		justify-self: end;
+	}
+
+	.loading-card__bone--action {
+		height: 1.65rem;
+		width: 4.5rem;
+		border-radius: var(--radius-pill);
+		justify-self: end;
+	}
+
+	@keyframes skeleton-shimmer {
+		0% {
+			background-position: 100% 0;
+		}
+		100% {
+			background-position: -100% 0;
+		}
+	}
+
+	@media (max-width: 40rem) {
+		.loading-card__row {
+			grid-template-columns: 2rem 1fr 0.8fr;
+		}
+
+		.loading-card__bone--date,
+		.loading-card__bone--action {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.loading-card__bone {
+			animation: none;
+		}
+	}
+</style>

@@ -1,0 +1,110 @@
+---
+/**
+ * Shown when the connected inbox scan returns zero subscriptions.
+ * Always offers reconnect + manual add — never leaves the user stranded.
+ */
+---
+
+<div class="empty-subs" data-empty-subscriptions hidden>
+	<div class="empty-subs__icon" aria-hidden="true">
+		<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+			<path d="M4 6h16M4 12h10M4 18h14" stroke-linecap="round"/>
+		</svg>
+	</div>
+	<h2 class="empty-subs__title">We didn't find any subscriptions yet.</h2>
+	<p class="empty-subs__copy">
+		Your inbox might not have billing receipts we recognize — or they're still on the way.
+		You can reconnect email or add what you know about.
+	</p>
+	<div class="empty-subs__actions">
+		<button type="button" class="empty-subs__btn empty-subs__btn--primary" data-reconnect-email>
+			Reconnect email
+		</button>
+		<button type="button" class="empty-subs__btn empty-subs__btn--ghost" data-add-manual>
+			Add manually
+		</button>
+	</div>
+</div>
+
+<style>
+	.empty-subs {
+		padding: 2.75rem 1.5rem;
+		text-align: center;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+	}
+
+	.empty-subs[hidden] {
+		display: none !important;
+	}
+
+	.empty-subs__icon {
+		width: 3.25rem;
+		height: 3.25rem;
+		margin: 0 auto 1.15rem;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		color: var(--color-accent);
+	}
+
+	.empty-subs__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.empty-subs__copy {
+		margin: 0.65rem auto 0;
+		max-width: 28rem;
+		color: var(--color-muted);
+		font-size: 0.92rem;
+		line-height: 1.5;
+	}
+
+	.empty-subs__actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.65rem;
+		margin-top: 1.5rem;
+	}
+
+	.empty-subs__btn {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+		font-family: inherit;
+		font-weight: 650;
+		font-size: 0.9rem;
+		padding: 0.75rem 1.2rem;
+		border-radius: var(--radius-pill);
+		transition: transform 0.15s, background 0.15s, border-color 0.15s;
+	}
+
+	.empty-subs__btn--primary {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.empty-subs__btn--primary:hover {
+		transform: translateY(-1px);
+	}
+
+	.empty-subs__btn--ghost {
+		background: transparent;
+		color: #ddd;
+		border: 1px solid var(--color-border);
+	}
+
+	.empty-subs__btn--ghost:hover {
+		border-color: var(--color-border-hover);
+		background: #111;
+	}
+</style>

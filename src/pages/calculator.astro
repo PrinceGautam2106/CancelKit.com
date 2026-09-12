@@ -1,0 +1,1536 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const pageTitle = "Subscription Cost Calculator — How Much Are You REALLY Spending? (2026)";
+const pageDescription = "Free subscription cost calculator. Check your streaming, music, software, and gym subscriptions to see your true monthly, yearly, and 5-year recurring cost. Zero login required.";
+
+interface SubscriptionItem {
+	id: string;
+	name: string;
+	price: number;
+	periodLabel?: string;
+}
+
+interface CategoryGroup {
+	category: string;
+	id: string;
+	items: SubscriptionItem[];
+}
+
+const categories: CategoryGroup[] = [
+	{
+		category: 'Streaming Video',
+		id: 'streaming',
+		items: [
+			{ id: 'netflix-standard', name: 'Netflix Standard', price: 15.49 },
+			{ id: 'netflix-premium', name: 'Netflix Premium', price: 22.99 },
+			{ id: 'hulu', name: 'Hulu', price: 17.99 },
+			{ id: 'disney-plus', name: 'Disney+', price: 13.99 },
+			{ id: 'hbo-max', name: 'HBO Max (Max)', price: 15.99 },
+			{ id: 'amazon-prime', name: 'Amazon Prime', price: 14.99 },
+			{ id: 'apple-tv-plus', name: 'Apple TV+', price: 9.99 },
+			{ id: 'peacock', name: 'Peacock', price: 7.99 },
+			{ id: 'youtube-premium', name: 'YouTube Premium', price: 13.99 },
+			{ id: 'paramount-plus', name: 'Paramount+', price: 11.99 },
+		],
+	},
+	{
+		category: 'Music & Audio',
+		id: 'music',
+		items: [
+			{ id: 'spotify', name: 'Spotify Premium', price: 10.99 },
+			{ id: 'apple-music', name: 'Apple Music', price: 10.99 },
+			{ id: 'tidal', name: 'Tidal', price: 10.99 },
+			{ id: 'youtube-music', name: 'YouTube Music', price: 10.99 },
+			{ id: 'pandora', name: 'Pandora Plus', price: 4.99 },
+		],
+	},
+	{
+		category: 'Software / Productivity',
+		id: 'software',
+		items: [
+			{ id: 'adobe-cc', name: 'Adobe Creative Cloud', price: 54.99 },
+			{ id: 'microsoft-365', name: 'Microsoft 365 Personal', price: 9.99 },
+			{ id: 'canva-pro', name: 'Canva Pro', price: 12.99 },
+			{ id: 'dropbox-plus', name: 'Dropbox Plus', price: 11.99 },
+			{ id: 'google-one', name: 'Google One 2TB', price: 9.99 },
+			{ id: 'icloud-200gb', name: 'iCloud 200GB', price: 2.99 },
+		],
+	},
+	{
+		category: 'Fitness & Wellness',
+		id: 'fitness',
+		items: [
+			{ id: 'planet-fitness', name: 'Planet Fitness Classic', price: 24.99 },
+			{ id: 'peloton', name: 'Peloton App+', price: 12.99 },
+			{ id: 'headspace', name: 'Headspace', price: 12.99 },
+			{ id: 'calm', name: 'Calm', price: 6.99 },
+			{ id: 'nike-training', name: 'Nike Training Club Premium', price: 4.99 },
+		],
+	},
+	{
+		category: 'News & Reading',
+		id: 'news',
+		items: [
+			{ id: 'nyt', name: 'New York Times All Access', price: 17.00 },
+			{ id: 'wsj', name: 'Wall Street Journal Digital', price: 38.99 },
+			{ id: 'wapo', name: 'Washington Post', price: 9.99 },
+			{ id: 'audible', name: 'Audible Premium Plus', price: 7.95 },
+			{ id: 'kindle-unlimited', name: 'Kindle Unlimited', price: 11.99 },
+		],
+	},
+	{
+		category: 'VPN, Food & Other',
+		id: 'other',
+		items: [
+			{ id: 'linkedin-premium', name: 'LinkedIn Premium Career', price: 39.99 },
+			{ id: 'nordvpn', name: 'NordVPN', price: 4.99 },
+			{ id: 'expressvpn', name: 'ExpressVPN', price: 8.32 },
+			{ id: 'hellofresh', name: 'HelloFresh', price: 240.00, periodLabel: 'avg $60/wk' },
+			{ id: 'duolingo-plus', name: 'Duolingo Super', price: 6.99 },
+		],
+	},
+];
+
+const faqs = [
+	{
+		q: 'How much does the average American spend on subscriptions?',
+		a: 'According to comprehensive research by C+R Research and West Monroe, the average American spends approximately $219 per month on subscriptions — totaling over $2,628 per year. Strikingly, when asked to estimate without checking their statements, consumers guessed an average of just $86 per month. This means most people underestimate their recurring subscription costs by 2.5x.',
+	},
+	{
+		q: 'What subscriptions do I have and how can I find them?',
+		a: 'To identify all active subscriptions: (1) Check iOS Settings → Apple ID → Subscriptions; (2) Open Google Play Store → Payments & Subscriptions; (3) Search your email receipts for keywords like "receipt", "subscription", "membership", or "billing period"; (4) Review the past 3 months of bank and credit card statements for recurring monthly merchant names; or (5) Use CancelKit to securely scan your inbox receipts automatically in 30 seconds.',
+	},
+	{
+		q: 'How can I reduce my monthly subscription costs?',
+		a: 'The most effective strategies include: (1) Rotate video streaming services month-to-month rather than paying for 4–5 simultaneously; (2) Cancel auto-renewals on free trials immediately after signing up; (3) Audit subscriptions quarterly to prune unused gym memberships or SaaS tools; (4) Request retention discount offers before finalizing cancellations; and (5) Use CancelKit to handle cancellations for difficult companies that demand phone calls or certified mail.',
+	},
+	{
+		q: 'Why does the 5-year subscription cost matter?',
+		a: 'Small recurring fees have huge compound impacts on personal savings. For instance, spending $180/month on subscriptions adds up to $10,800 in cash over 5 years. If that same $180/month were invested in a broad-market index fund with average 8% returns, it would grow to nearly $13,200. Seeing the 5-year cost exposes the true financial tradeoff of forgotten memberships.',
+	},
+];
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: faqs.map((faq) => ({
+		'@type': 'Question',
+		name: faq.q,
+		acceptedAnswer: { '@type': 'Answer', text: faq.a },
+	})),
+};
+
+const webAppSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'WebApplication',
+	name: 'Subscription Cost Calculator',
+	applicationCategory: 'FinanceApplication',
+	operatingSystem: 'All',
+	description: pageDescription,
+	offers: {
+		'@type': 'Offer',
+		price: '0.00',
+		priceCurrency: 'USD',
+	},
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<slot name="head" slot="head">
+		<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+		<script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+	</slot>
+
+	<Nav />
+
+	<main class="calc-page">
+		<!-- Hero Header -->
+		<section class="calc-hero">
+			<div class="calc-container">
+				<div class="hero-badge">
+					<span class="badge-dot"></span>
+					<span>Free Tool • Instant Calculation • No Login Required</span>
+				</div>
+
+				<h1 class="calc-title">
+					How Much Are You <span class="highlight-danger">REALLY</span> Spending on Subscriptions?
+				</h1>
+
+				<p class="calc-subtitle">
+					Check every subscription you might have below. Watch your monthly, yearly, and 5-year costs calculate in real time.
+				</p>
+			</div>
+		</section>
+
+		<!-- Main Interactive Calculator Workspace -->
+		<section class="calc-workspace">
+			<div class="calc-container">
+				<div class="calc-layout">
+					<!-- Left Column: Checklists -->
+					<div class="checklist-column">
+						<div class="checklist-toolbar">
+							<span class="toolbar-hint">Select the services you currently pay for:</span>
+							<button type="button" id="clear-all-btn" class="btn-clear-selection">Clear all</button>
+						</div>
+
+						{categories.map((cat) => (
+							<div class="category-block" data-category-id={cat.id}>
+								<div class="category-header">
+									<h2 class="category-title">{cat.category}</h2>
+									<span class="category-subtotal" data-cat-subtotal={cat.id}>$0.00/mo</span>
+								</div>
+
+								<div class="items-grid">
+									{cat.items.map((item) => (
+										<label class="sub-checkbox-card" for={`sub-${item.id}`}>
+											<input
+												type="checkbox"
+												id={`sub-${item.id}`}
+												name="subscription"
+												value={item.price}
+												data-name={item.name}
+												data-category={cat.id}
+												class="sub-checkbox-input"
+											/>
+											<div class="checkbox-visual">
+												<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+													<polyline points="20 6 9 17 4 12"></polyline>
+												</svg>
+											</div>
+											<div class="sub-card-details">
+												<span class="sub-card-name">{item.name}</span>
+												<span class="sub-card-price">
+													${item.price.toFixed(2)}/mo
+													{item.periodLabel && <span class="period-sub">({item.periodLabel})</span>}
+												</span>
+											</div>
+										</label>
+									))}
+								</div>
+							</div>
+						))}
+
+						<!-- Custom Subscription Input Row -->
+						<div class="custom-sub-block">
+							<div class="custom-header">
+								<h3>Don't see one of your subscriptions? Add it:</h3>
+							</div>
+							<div class="custom-form-row">
+								<input
+									type="text"
+									id="custom-name-input"
+									placeholder="Subscription name (e.g. Equinox, Midjourney, ChatGPT)"
+									class="custom-input-name"
+								/>
+								<div class="price-input-wrap">
+									<span class="dollar-sign">$</span>
+									<input
+										type="number"
+										step="0.01"
+										min="0"
+										id="custom-price-input"
+										placeholder="Monthly $"
+										class="custom-input-price"
+									/>
+								</div>
+								<button type="button" id="add-custom-btn" class="btn-add-custom">
+									+ Add
+								</button>
+							</div>
+							<div id="custom-items-list" class="custom-items-container"></div>
+						</div>
+					</div>
+
+					<!-- Right Column: Sticky Live Results Panel -->
+					<aside class="results-column">
+						<div class="results-panel" id="live-results-panel">
+							<div class="results-panel-header">
+								<span class="panel-eyebrow">LIVE CALCULATION</span>
+								<span class="selected-counter" id="selected-count-badge">0 services selected</span>
+							</div>
+
+							<!-- Calculation Metrics -->
+							<div class="metrics-stack">
+								<!-- Monthly Metric -->
+								<div class="metric-card metric-monthly">
+									<span class="metric-label">Monthly total</span>
+									<div class="metric-value-row">
+										<span class="metric-value metric-value--white" id="val-monthly">$0.00</span>
+										<span class="metric-unit">/mo</span>
+									</div>
+								</div>
+
+								<!-- Yearly Metric -->
+								<div class="metric-card metric-yearly">
+									<span class="metric-label">Yearly total</span>
+									<div class="metric-value-row">
+										<span class="metric-value metric-value--danger" id="val-yearly">$0.00</span>
+										<span class="metric-unit">/yr</span>
+									</div>
+								</div>
+
+								<!-- 5-Year Gut Punch Metric -->
+								<div class="metric-card metric-five-year">
+									<div class="gut-punch-tag">THE 5-YEAR IMPACT</div>
+									<span class="metric-label">In 5 years, you will have spent:</span>
+									<div class="metric-value-row">
+										<span class="metric-value metric-value--danger-large" id="val-five-year">$0.00</span>
+									</div>
+									<p class="gut-punch-sub">
+										Invested in an index fund at 8%, this could be worth <strong id="val-invested">$0</strong>.
+									</p>
+								</div>
+							</div>
+
+							<!-- Dynamic Reveal Banner (shows when total > $50/mo) -->
+							<div class="reveal-moment-box" id="reveal-moment-banner" hidden>
+								<div class="reveal-icon">🚨</div>
+								<div class="reveal-content">
+									<h4 class="reveal-title">
+										You're spending <span id="reveal-yearly-text" class="text-danger">$0</span>/year on subscriptions.
+									</h4>
+									<p class="reveal-desc">
+										CancelKit connects to your receipts and finds the forgotten renewals you didn't even remember to check off.
+									</p>
+									<a href="/signup?ref=calculator" class="btn-reveal-cta">
+										Find my forgotten ones →
+									</a>
+								</div>
+							</div>
+
+							<!-- Social Share Widget -->
+							<div class="share-results-box">
+								<a
+									href="https://twitter.com/intent/tweet?text=Calculate%20your%20subscription%20spending%20with%20CancelKit"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="btn-share-tweet"
+									id="tweet-share-btn"
+								>
+									<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+										<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+									</svg>
+									<span>Share my subscription cost</span>
+								</a>
+
+								<button type="button" class="btn-copy-summary" id="copy-summary-btn">
+									<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+									<span id="copy-btn-label">Copy cost summary</span>
+								</button>
+							</div>
+
+							<!-- Trust Bullet Points -->
+							<div class="panel-trust-notes">
+								<div class="trust-note">
+									<span class="trust-check">✓</span>
+									<span>100% private. Runs in your browser.</span>
+								</div>
+								<div class="trust-note">
+									<span class="trust-check">✓</span>
+									<span>No account required to calculate.</span>
+								</div>
+							</div>
+						</div>
+					</aside>
+				</div>
+			</div>
+		</section>
+
+		<!-- SEO Research & Data Section -->
+		<section class="seo-data-section">
+			<div class="calc-container">
+				<div class="seo-content-card">
+					<div class="study-highlight">
+						<span class="study-tag">Consumer Benchmark Study</span>
+						<h2 class="study-title">How much does the average American spend on subscriptions?</h2>
+						<div class="study-stat-banner">
+							<div class="big-stat-number">$219<span class="stat-month">/month</span></div>
+							<div class="stat-explanation">
+								<p>
+									The average American spends <strong>$219/month ($2,628/year)</strong> on recurring subscriptions, according to benchmark consumer audits by C+R Research and West Monroe.
+								</p>
+								<p class="stat-blindspot">
+									<strong>The 2.5x Blindspot:</strong> When consumers are asked to guess their monthly subscription expenditure without reviewing statements, the average estimate is only <strong>$86/month</strong>. Nearly 42% of consumers admit they continue paying for services they have stopped using entirely.
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Comprehensive FAQ -->
+					<div class="calc-faq-block">
+						<h3 class="faq-heading">Frequently Asked Questions About Subscription Costs</h3>
+						<div class="faq-grid">
+							{faqs.map((faq) => (
+								<div class="faq-item">
+									<h4 class="faq-question">{faq.q}</h4>
+									<p class="faq-answer">{faq.a}</p>
+								</div>
+							))}
+						</div>
+					</div>
+
+					<!-- Bottom Pitch Section -->
+					<div class="calculator-bottom-pitch">
+						<div class="pitch-content">
+							<h3>Want to stop bleeding money on subscriptions?</h3>
+							<p>
+								CancelKit links to your receipts in read-only mode, finds every active recurring fee, and helps you cancel the ones you no longer use with a single click.
+							</p>
+						</div>
+						<a href="/onboarding/connect" class="btn-pitch-cta">
+							Scan My Subscriptions Free →
+						</a>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Mobile Sticky Bottom Bar -->
+	<div class="mobile-sticky-bar" id="mobile-sticky-bar">
+		<div class="mobile-bar-inner">
+			<div class="mobile-bar-stats">
+				<span class="mobile-bar-label">Monthly total:</span>
+				<span class="mobile-bar-value" id="mobile-bar-monthly">$0.00/mo</span>
+				<span class="mobile-bar-sub" id="mobile-bar-yearly">($0/yr)</span>
+			</div>
+			<a href="#live-results-panel" class="mobile-bar-btn" id="mobile-view-summary-btn">
+				View 5-Year Cost
+			</a>
+		</div>
+	</div>
+
+	<Footer />
+</BaseLayout>
+
+<script>
+	// Interactive Vanilla JS Logic
+	document.addEventListener('DOMContentLoaded', () => {
+		const checkboxes = Array.from(document.querySelectorAll<HTMLInputElement>('.sub-checkbox-input'));
+		const categorySubtotals = document.querySelectorAll<HTMLElement>('[data-cat-subtotal]');
+		const clearAllBtn = document.getElementById('clear-all-btn');
+
+		// Metric Displays
+		const valMonthly = document.getElementById('val-monthly');
+		const valYearly = document.getElementById('val-yearly');
+		const valFiveYear = document.getElementById('val-five-year');
+		const valInvested = document.getElementById('val-invested');
+		const selectedCountBadge = document.getElementById('selected-count-badge');
+		const mobileBarMonthly = document.getElementById('mobile-bar-monthly');
+		const mobileBarYearly = document.getElementById('mobile-bar-yearly');
+
+		// Reveal banner
+		const revealBanner = document.getElementById('reveal-moment-banner');
+		const revealYearlyText = document.getElementById('reveal-yearly-text');
+
+		// Share elements
+		const tweetShareBtn = document.getElementById('tweet-share-btn') as HTMLAnchorElement | null;
+		const copySummaryBtn = document.getElementById('copy-summary-btn');
+		const copyBtnLabel = document.getElementById('copy-btn-label');
+
+		// Custom Subscriptions
+		const customNameInput = document.getElementById('custom-name-input') as HTMLInputElement | null;
+		const customPriceInput = document.getElementById('custom-price-input') as HTMLInputElement | null;
+		const addCustomBtn = document.getElementById('add-custom-btn');
+		const customItemsList = document.getElementById('custom-items-list');
+
+		interface CustomItem {
+			id: string;
+			name: string;
+			price: number;
+			checked: boolean;
+		}
+
+		let customSubscriptions: CustomItem[] = [];
+
+		function formatUSD(num: number): string {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2,
+			}).format(num);
+		}
+
+		function calculateInvestedValue(monthly: number): number {
+			// Monthly compounding at 8% annual return over 5 years (60 months)
+			const r = 0.08 / 12;
+			const n = 60;
+			if (monthly <= 0) return 0;
+			const fv = monthly * ((Math.pow(1 + r, n) - 1) / r);
+			return Math.round(fv);
+		}
+
+		function updateCalculations() {
+			let monthlyTotal = 0;
+			let checkedCount = 0;
+			const catTotals: Record<string, number> = {};
+
+			// Tally standard checkboxes
+			checkboxes.forEach((cb) => {
+				const cat = cb.dataset.category || 'other';
+				const price = parseFloat(cb.value) || 0;
+				if (!catTotals[cat]) catTotals[cat] = 0;
+
+				if (cb.checked) {
+					monthlyTotal += price;
+					checkedCount++;
+					catTotals[cat] += price;
+				}
+			});
+
+			// Tally custom items
+			customSubscriptions.forEach((item) => {
+				if (item.checked) {
+					monthlyTotal += item.price;
+					checkedCount++;
+				}
+			});
+
+			const yearlyTotal = monthlyTotal * 12;
+			const fiveYearTotal = yearlyTotal * 5;
+			const investedEstimate = calculateInvestedValue(monthlyTotal);
+
+			// Update DOM metrics
+			if (valMonthly) valMonthly.textContent = formatUSD(monthlyTotal);
+			if (valYearly) valYearly.textContent = formatUSD(yearlyTotal);
+			if (valFiveYear) valFiveYear.textContent = formatUSD(fiveYearTotal);
+			if (valInvested) valInvested.textContent = `$${investedEstimate.toLocaleString()}`;
+			if (selectedCountBadge) {
+				selectedCountBadge.textContent = `${checkedCount} service${checkedCount === 1 ? '' : 's'} selected`;
+			}
+
+			// Update Mobile Bottom Bar
+			if (mobileBarMonthly) mobileBarMonthly.textContent = `${formatUSD(monthlyTotal)}/mo`;
+			if (mobileBarYearly) mobileBarYearly.textContent = `(${formatUSD(yearlyTotal)}/yr)`;
+
+			// Update Category Subtotals
+			categorySubtotals.forEach((el) => {
+				const catId = el.dataset.catSubtotal;
+				const amount = (catId && catTotals[catId]) || 0;
+				el.textContent = `${formatUSD(amount)}/mo`;
+				if (amount > 0) {
+					el.classList.add('has-spend');
+				} else {
+					el.classList.remove('has-spend');
+				}
+			});
+
+			// Reveal Moment: Show banner when monthlyTotal > $50
+			if (revealBanner && revealYearlyText) {
+				if (monthlyTotal > 50) {
+					revealBanner.hidden = false;
+					revealYearlyText.textContent = formatUSD(yearlyTotal);
+				} else {
+					revealBanner.hidden = true;
+				}
+			}
+
+			// Update Social Share Link
+			if (tweetShareBtn) {
+				const roundedMonthly = Math.round(monthlyTotal);
+				const tweetText = roundedMonthly > 0
+					? `I'm spending $${roundedMonthly}/month on subscriptions 😱 Calculate yours: https://cancelkits.com/calculator via @CancelKit`
+					: `How much are you REALLY spending on subscriptions? Calculate your monthly, yearly, and 5-year total with @CancelKit: https://cancelkits.com/calculator`;
+				tweetShareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+			}
+		}
+
+		// Checkbox change listener
+		checkboxes.forEach((cb) => {
+			cb.addEventListener('change', () => {
+				const card = cb.closest('.sub-checkbox-card');
+				if (cb.checked) {
+					card?.classList.add('is-checked');
+				} else {
+					card?.classList.remove('is-checked');
+				}
+				updateCalculations();
+			});
+		});
+
+		// Clear all button
+		clearAllBtn?.addEventListener('click', () => {
+			checkboxes.forEach((cb) => {
+				cb.checked = false;
+				cb.closest('.sub-checkbox-card')?.classList.remove('is-checked');
+			});
+			customSubscriptions.forEach((item) => (item.checked = false));
+			renderCustomItems();
+			updateCalculations();
+		});
+
+		// Add custom subscription handler
+		function addCustomSubscription() {
+			if (!customNameInput || !customPriceInput) return;
+			const name = customNameInput.value.trim();
+			const price = parseFloat(customPriceInput.value);
+
+			if (!name || isNaN(price) || price <= 0) {
+				customPriceInput.focus();
+				return;
+			}
+
+			const newItem: CustomItem = {
+				id: `custom-${Date.now()}`,
+				name,
+				price,
+				checked: true,
+			};
+
+			customSubscriptions.push(newItem);
+			customNameInput.value = '';
+			customPriceInput.value = '';
+			renderCustomItems();
+			updateCalculations();
+		}
+
+		addCustomBtn?.addEventListener('click', addCustomSubscription);
+		customPriceInput?.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') addCustomSubscription();
+		});
+
+		function renderCustomItems() {
+			if (!customItemsList) return;
+			customItemsList.innerHTML = '';
+
+			customSubscriptions.forEach((item, index) => {
+				const row = document.createElement('div');
+				row.className = `custom-item-card ${item.checked ? 'is-checked' : ''}`;
+				row.innerHTML = `
+					<label class="custom-item-label">
+						<input type="checkbox" ${item.checked ? 'checked' : ''} class="custom-checkbox" data-index="${index}" />
+						<span class="custom-name">${item.name}</span>
+						<span class="custom-price">${formatUSD(item.price)}/mo</span>
+					</label>
+					<button type="button" class="btn-remove-custom" data-index="${index}" title="Remove">&times;</button>
+				`;
+
+				const cb = row.querySelector('.custom-checkbox') as HTMLInputElement;
+				cb.addEventListener('change', () => {
+					item.checked = cb.checked;
+					if (cb.checked) {
+						row.classList.add('is-checked');
+					} else {
+						row.classList.remove('is-checked');
+					}
+					updateCalculations();
+				});
+
+				const removeBtn = row.querySelector('.btn-remove-custom') as HTMLButtonElement;
+				removeBtn.addEventListener('click', () => {
+					customSubscriptions.splice(index, 1);
+					renderCustomItems();
+					updateCalculations();
+				});
+
+				customItemsList.appendChild(row);
+			});
+		}
+
+		// Copy summary text to clipboard
+		copySummaryBtn?.addEventListener('click', async () => {
+			let monthly = 0;
+			let count = 0;
+			checkboxes.forEach((cb) => {
+				if (cb.checked) {
+					monthly += parseFloat(cb.value) || 0;
+					count++;
+				}
+			});
+			customSubscriptions.forEach((item) => {
+				if (item.checked) {
+					monthly += item.price;
+					count++;
+				}
+			});
+
+			const yearly = monthly * 12;
+			const fiveYear = yearly * 5;
+
+			const summaryText = `My Subscription Cost Breakdown (via CancelKit):
+• Monthly: ${formatUSD(monthly)}/mo across ${count} services
+• Yearly: ${formatUSD(yearly)}/yr
+• In 5 years: ${formatUSD(fiveYear)}
+Calculate yours free: https://cancelkits.com/calculator`;
+
+			try {
+				await navigator.clipboard.writeText(summaryText);
+				if (copyBtnLabel) copyBtnLabel.textContent = 'Copied to clipboard!';
+				setTimeout(() => {
+					if (copyBtnLabel) copyBtnLabel.textContent = 'Copy cost summary';
+				}, 2500);
+			} catch {
+				// clipboard fallback
+			}
+		});
+
+		// Initial calculation run
+		updateCalculations();
+	});
+</script>
+
+<style>
+	/* Base Styling */
+	.calc-page {
+		background-color: #050505;
+		color: #ffffff;
+		min-height: 100vh;
+		padding-bottom: 6rem;
+	}
+
+	.calc-container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+
+	/* Hero Header */
+	.calc-hero {
+		padding: 4.5rem 0 2.5rem;
+		text-align: center;
+	}
+
+	.hero-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		padding: 0.35rem 0.85rem;
+		border-radius: 999px;
+		font-size: 0.8125rem;
+		color: #a3a3a3;
+		margin-bottom: 1.25rem;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.badge-dot {
+		width: 7px;
+		height: 7px;
+		background-color: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 8px #00ff88;
+	}
+
+	.calc-title {
+		font-family: var(--font-display, inherit);
+		font-size: clamp(2.1rem, 5vw, 3.5rem);
+		font-weight: 800;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+		margin: 0 auto 1rem;
+		max-width: 860px;
+	}
+
+	.highlight-danger {
+		color: #ff4444;
+		text-shadow: 0 0 35px rgba(255, 68, 68, 0.35);
+	}
+
+	.calc-subtitle {
+		font-size: clamp(1.05rem, 2vw, 1.25rem);
+		color: #a3a3a3;
+		max-width: 680px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
+
+	/* Workspace Layout */
+	.calc-workspace {
+		margin-bottom: 4.5rem;
+	}
+
+	.calc-layout {
+		display: grid;
+		grid-template-columns: 1fr 380px;
+		gap: 2.5rem;
+		align-items: start;
+	}
+
+	/* Left Checklist Column */
+	.checklist-column {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.checklist-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #1c1c1c;
+	}
+
+	.toolbar-hint {
+		font-size: 0.875rem;
+		color: #888888;
+	}
+
+	.btn-clear-selection {
+		background: transparent;
+		border: none;
+		color: #737373;
+		font-size: 0.8125rem;
+		cursor: pointer;
+		text-decoration: underline;
+		padding: 0;
+		transition: color 0.15s ease;
+	}
+	.btn-clear-selection:hover {
+		color: #ffffff;
+	}
+
+	/* Category Blocks */
+	.category-block {
+		background: #0a0a0a;
+		border: 1px solid #1c1c1c;
+		border-radius: 14px;
+		padding: 1.25rem 1.5rem 1.5rem;
+	}
+
+	.category-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #161616;
+	}
+
+	.category-title {
+		font-size: 1.1rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		margin: 0;
+		color: #ffffff;
+	}
+
+	.category-subtotal {
+		font-size: 0.875rem;
+		font-weight: 600;
+		font-family: var(--font-mono, monospace);
+		color: #666666;
+		transition: color 0.2s ease;
+	}
+	.category-subtotal.has-spend {
+		color: #00ff88;
+	}
+
+	.items-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+		gap: 0.75rem;
+	}
+
+	/* Checkbox Card */
+	.sub-checkbox-card {
+		background: #111111;
+		border: 1px solid #222222;
+		border-radius: 10px;
+		padding: 0.75rem 0.85rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		cursor: pointer;
+		user-select: none;
+		transition: all 0.15s ease;
+	}
+
+	.sub-checkbox-card:hover {
+		background: #161616;
+		border-color: #333333;
+	}
+
+	.sub-checkbox-card.is-checked {
+		background: rgba(0, 255, 136, 0.05);
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	.sub-checkbox-input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.checkbox-visual {
+		width: 20px;
+		height: 20px;
+		border: 1.5px solid #444444;
+		border-radius: 5px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		background: #080808;
+		transition: all 0.15s ease;
+	}
+
+	.check-icon {
+		width: 13px;
+		height: 13px;
+		color: #000000;
+		opacity: 0;
+		transform: scale(0.6);
+		transition: all 0.15s ease;
+	}
+
+	.sub-checkbox-card.is-checked .checkbox-visual {
+		background: #00ff88;
+		border-color: #00ff88;
+	}
+
+	.sub-checkbox-card.is-checked .check-icon {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	.sub-card-details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		min-width: 0;
+	}
+
+	.sub-card-name {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #ffffff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.sub-card-price {
+		font-size: 0.75rem;
+		color: #888888;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.period-sub {
+		color: #666666;
+		font-size: 0.7rem;
+	}
+
+	/* Custom Subscriptions Section */
+	.custom-sub-block {
+		background: #0a0a0a;
+		border: 1px dashed #282828;
+		border-radius: 14px;
+		padding: 1.25rem 1.5rem;
+	}
+
+	.custom-header h3 {
+		font-size: 0.95rem;
+		font-weight: 600;
+		margin: 0 0 0.85rem;
+		color: #cccccc;
+	}
+
+	.custom-form-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+	}
+
+	.custom-input-name {
+		flex: 2;
+		min-width: 200px;
+		background: #111111;
+		border: 1px solid #262626;
+		border-radius: 8px;
+		padding: 0.6rem 0.85rem;
+		color: #ffffff;
+		font-size: 0.875rem;
+		outline: none;
+	}
+
+	.price-input-wrap {
+		position: relative;
+		flex: 1;
+		min-width: 110px;
+	}
+
+	.dollar-sign {
+		position: absolute;
+		left: 0.65rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #737373;
+		font-size: 0.875rem;
+	}
+
+	.custom-input-price {
+		width: 100%;
+		background: #111111;
+		border: 1px solid #262626;
+		border-radius: 8px;
+		padding: 0.6rem 0.65rem 0.6rem 1.65rem;
+		color: #ffffff;
+		font-size: 0.875rem;
+		outline: none;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.custom-input-name:focus,
+	.custom-input-price:focus {
+		border-color: #00ff88;
+	}
+
+	.btn-add-custom {
+		background: #1c1c1c;
+		border: 1px solid #333333;
+		color: #ffffff;
+		padding: 0.6rem 1.1rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+	.btn-add-custom:hover {
+		background: #282828;
+		border-color: #555555;
+	}
+
+	.custom-items-container {
+		margin-top: 0.85rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.custom-item-card {
+		background: #111111;
+		border: 1px solid #222222;
+		border-radius: 8px;
+		padding: 0.5rem 0.75rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.custom-item-card.is-checked {
+		border-color: rgba(0, 255, 136, 0.4);
+		background: rgba(0, 255, 136, 0.05);
+	}
+
+	.custom-item-label {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		cursor: pointer;
+		font-size: 0.875rem;
+	}
+
+	.custom-price {
+		color: #888888;
+		font-family: var(--font-mono, monospace);
+		font-size: 0.8125rem;
+	}
+
+	.btn-remove-custom {
+		background: transparent;
+		border: none;
+		color: #ff4444;
+		font-size: 1.25rem;
+		cursor: pointer;
+		line-height: 1;
+		padding: 0 0.25rem;
+	}
+
+	/* Sticky Results Column */
+	.results-column {
+		position: relative;
+	}
+
+	.results-panel {
+		position: sticky;
+		top: 5.5rem;
+		background: #0d0d0d;
+		border: 1px solid #222222;
+		border-radius: 18px;
+		padding: 1.75rem;
+		box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+	}
+
+	.results-panel-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #1c1c1c;
+	}
+
+	.panel-eyebrow {
+		font-size: 0.6875rem;
+		font-weight: 700;
+		color: #00ff88;
+		letter-spacing: 0.08em;
+	}
+
+	.selected-counter {
+		font-size: 0.75rem;
+		color: #888888;
+	}
+
+	/* Metrics Stack */
+	.metrics-stack {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.metric-card {
+		background: #121212;
+		border: 1px solid #1f1f1f;
+		border-radius: 12px;
+		padding: 1rem 1.15rem;
+	}
+
+	.metric-label {
+		display: block;
+		font-size: 0.75rem;
+		color: #888888;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.25rem;
+	}
+
+	.metric-value-row {
+		display: flex;
+		align-items: baseline;
+		gap: 0.35rem;
+	}
+
+	.metric-value {
+		font-family: var(--font-display, inherit);
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		line-height: 1.1;
+	}
+
+	.metric-unit {
+		font-size: 0.875rem;
+		color: #737373;
+	}
+
+	/* Specific colors requested */
+	.metric-value--white {
+		font-size: 1.85rem;
+		color: #ffffff;
+	}
+
+	.metric-value--danger {
+		font-size: 1.85rem;
+		color: #ff4444;
+	}
+
+	.metric-value--danger-large {
+		font-size: 2.35rem;
+		color: #ff4444;
+		text-shadow: 0 0 25px rgba(255, 68, 68, 0.25);
+	}
+
+	.metric-five-year {
+		background: linear-gradient(180deg, #180d0d 0%, #121212 100%);
+		border-color: rgba(255, 68, 68, 0.3);
+		position: relative;
+	}
+
+	.gut-punch-tag {
+		display: inline-block;
+		font-size: 0.6875rem;
+		font-weight: 800;
+		color: #ff4444;
+		letter-spacing: 0.06em;
+		margin-bottom: 0.25rem;
+	}
+
+	.gut-punch-sub {
+		font-size: 0.75rem;
+		color: #999999;
+		margin: 0.65rem 0 0;
+		line-height: 1.45;
+		border-top: 1px solid rgba(255, 255, 255, 0.07);
+		padding-top: 0.65rem;
+	}
+	.gut-punch-sub strong {
+		color: #00ff88;
+	}
+
+	/* Reveal Moment Banner (> $50/mo) */
+	.reveal-moment-box {
+		background: rgba(255, 68, 68, 0.08);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		border-radius: 12px;
+		padding: 1.15rem;
+		margin-bottom: 1.25rem;
+		display: flex;
+		gap: 0.75rem;
+		animation: slide-up 0.25s ease-out;
+	}
+
+	@keyframes slide-up {
+		from { opacity: 0; transform: translateY(8px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.reveal-icon {
+		font-size: 1.25rem;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.reveal-title {
+		font-size: 0.9375rem;
+		font-weight: 700;
+		margin: 0 0 0.35rem;
+		line-height: 1.35;
+	}
+
+	.text-danger {
+		color: #ff4444;
+	}
+
+	.reveal-desc {
+		font-size: 0.8125rem;
+		color: #cccccc;
+		margin: 0 0 0.85rem;
+		line-height: 1.45;
+	}
+
+	.btn-reveal-cta {
+		display: inline-block;
+		background: #ff4444;
+		color: #ffffff;
+		padding: 0.55rem 0.95rem;
+		border-radius: 6px;
+		font-size: 0.8125rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition: background 0.15s ease;
+	}
+	.btn-reveal-cta:hover {
+		background: #ff2222;
+	}
+
+	/* Share Results Box */
+	.share-results-box {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.btn-share-tweet {
+		background: #000000;
+		border: 1px solid #333333;
+		color: #ffffff;
+		padding: 0.65rem 1rem;
+		border-radius: 8px;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		transition: all 0.15s ease;
+	}
+	.btn-share-tweet:hover {
+		border-color: #666666;
+		background: #111111;
+	}
+
+	.btn-copy-summary {
+		background: #161616;
+		border: 1px solid #282828;
+		color: #d4d4d4;
+		padding: 0.6rem 1rem;
+		border-radius: 8px;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		transition: all 0.15s ease;
+	}
+	.btn-copy-summary:hover {
+		background: #202020;
+		color: #ffffff;
+	}
+
+	/* Trust Notes */
+	.panel-trust-notes {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		border-top: 1px solid #1c1c1c;
+		padding-top: 1rem;
+	}
+
+	.trust-note {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		color: #737373;
+	}
+
+	.trust-check {
+		color: #00ff88;
+		font-weight: 700;
+	}
+
+	/* SEO Content Section */
+	.seo-data-section {
+		margin-top: 3rem;
+	}
+
+	.seo-content-card {
+		background: #0a0a0a;
+		border: 1px solid #1c1c1c;
+		border-radius: 18px;
+		padding: 3rem;
+	}
+
+	.study-highlight {
+		margin-bottom: 3rem;
+		border-bottom: 1px solid #181818;
+		padding-bottom: 2.5rem;
+	}
+
+	.study-tag {
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #00ff88;
+	}
+
+	.study-title {
+		font-size: clamp(1.4rem, 3vw, 2.1rem);
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		margin: 0.5rem 0 1.5rem;
+	}
+
+	.study-stat-banner {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2rem;
+		align-items: center;
+		background: #111111;
+		border: 1px solid #242424;
+		border-radius: 14px;
+		padding: 2rem;
+	}
+
+	.big-stat-number {
+		font-family: var(--font-display, inherit);
+		font-size: clamp(3rem, 6vw, 4.5rem);
+		font-weight: 800;
+		color: #00ff88;
+		line-height: 1;
+		letter-spacing: -0.04em;
+	}
+
+	.stat-month {
+		font-size: 1.25rem;
+		color: #888888;
+		font-weight: 500;
+	}
+
+	.stat-explanation {
+		flex: 1;
+		min-width: 260px;
+	}
+
+	.stat-explanation p {
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: #d4d4d4;
+		margin: 0 0 0.85rem;
+	}
+
+	.stat-blindspot {
+		font-size: 0.9375rem !important;
+		color: #999999 !important;
+		border-left: 2px solid #ff4444;
+		padding-left: 0.85rem;
+	}
+
+	/* FAQ Section */
+	.calc-faq-block {
+		margin-bottom: 3rem;
+	}
+
+	.faq-heading {
+		font-size: 1.4rem;
+		font-weight: 700;
+		margin: 0 0 1.5rem;
+		letter-spacing: -0.02em;
+	}
+
+	.faq-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.faq-item {
+		background: #111111;
+		border: 1px solid #1f1f1f;
+		border-radius: 12px;
+		padding: 1.35rem;
+	}
+
+	.faq-question {
+		font-size: 1rem;
+		font-weight: 600;
+		margin: 0 0 0.6rem;
+		color: #ffffff;
+		line-height: 1.4;
+	}
+
+	.faq-answer {
+		font-size: 0.875rem;
+		color: #999999;
+		margin: 0;
+		line-height: 1.6;
+	}
+
+	/* Bottom Pitch */
+	.calculator-bottom-pitch {
+		background: radial-gradient(circle at 50% 0%, #171717 0%, #0d0d0d 100%);
+		border: 1px solid #2a2a2a;
+		border-radius: 14px;
+		padding: 2.25rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+	}
+
+	.pitch-content h3 {
+		font-size: 1.35rem;
+		font-weight: 800;
+		margin: 0 0 0.4rem;
+	}
+
+	.pitch-content p {
+		font-size: 0.9375rem;
+		color: #a3a3a3;
+		margin: 0;
+		max-width: 580px;
+		line-height: 1.55;
+	}
+
+	.btn-pitch-cta {
+		background: #00ff88;
+		color: #000000;
+		font-weight: 700;
+		padding: 0.85rem 1.75rem;
+		border-radius: 8px;
+		text-decoration: none;
+		white-space: nowrap;
+		transition: background 0.15s ease, transform 0.15s ease;
+	}
+	.btn-pitch-cta:hover {
+		background: #1aff96;
+		transform: translateY(-2px);
+	}
+
+	/* Mobile Sticky Bottom Bar */
+	.mobile-sticky-bar {
+		display: none;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: rgba(13, 13, 13, 0.95);
+		backdrop-filter: blur(8px);
+		border-top: 1px solid #262626;
+		padding: 0.75rem 1.25rem;
+		z-index: 99;
+	}
+
+	.mobile-bar-inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	.mobile-bar-stats {
+		display: flex;
+		align-items: baseline;
+		gap: 0.35rem;
+	}
+
+	.mobile-bar-label {
+		font-size: 0.75rem;
+		color: #888888;
+	}
+
+	.mobile-bar-value {
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: #ffffff;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.mobile-bar-sub {
+		font-size: 0.75rem;
+		color: #ff4444;
+	}
+
+	.mobile-bar-btn {
+		background: #00ff88;
+		color: #000000;
+		font-size: 0.8125rem;
+		font-weight: 700;
+		padding: 0.55rem 0.95rem;
+		border-radius: 6px;
+		text-decoration: none;
+	}
+
+	/* Responsive Media Queries */
+	@media (max-width: 960px) {
+		.calc-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.results-panel {
+			position: static;
+			margin-top: 1rem;
+		}
+
+		.mobile-sticky-bar {
+			display: block;
+		}
+
+		.seo-content-card {
+			padding: 1.75rem;
+		}
+
+		.calculator-bottom-pitch {
+			padding: 1.75rem;
+		}
+	}
+</style>

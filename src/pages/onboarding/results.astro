@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { STRIPE_PRICES } from '../../lib/stripe';
 
-const title = 'Scan Results — SubZap';
+const title = 'Scan Results — CancelKit';
 const description = 'See every subscription draining your account and start cancelling.';
 
 const FREE_TEASER = 5;
@@ -12,8 +12,8 @@ const FREE_TEASER = 5;
 	<main class="results-page">
 		<div class="results-container">
 			<div class="results-wordmark" aria-hidden="true">
-				<span class="wordmark-icon">S</span>
-				<span class="wordmark-text">Sub<span class="wordmark-accent">Zap</span></span>
+				<span class="wordmark-icon">C</span>
+				<span class="wordmark-text">Cancel<span>K<span class="wordmark-accent">i</span>t</span></span>
 			</div>
 
 			<header class="results-hero">
@@ -66,7 +66,7 @@ const FREE_TEASER = 5;
 			</section>
 
 			<p class="free-fallback">
-				<a href="/dashboard" class="free-continue-link">Or continue free — see your top 5 only</a>
+				<a href="/dashboard?connected=1" class="free-continue-link">Or continue free — see your top 5 only</a>
 			</p>
 		</div>
 	</main>
@@ -104,7 +104,7 @@ const FREE_TEASER = 5;
 
 	function parseSubs(): ScanSub[] {
 		try {
-			const raw = localStorage.getItem('subzap-scan-subs');
+			const raw = localStorage.getItem('cancelkit-scan-subs');
 			if (raw) {
 				const parsed = JSON.parse(raw) as ScanSub[];
 				if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -186,13 +186,13 @@ const FREE_TEASER = 5;
 
 	const subs = parseSubs().sort((a, b) => b.monthly - a.monthly);
 	const count =
-		Number(localStorage.getItem('subzap-scanned-count')) || subs.length || 14;
+		Number(localStorage.getItem('cancelkit-scanned-count')) || subs.length || 14;
 	const monthly =
-		Number(localStorage.getItem('subzap-monthly-total')) ||
-		Math.round(subs.reduce((s, x) => s + x.monthly, 0)) ||
-		247;
+		Number(localStorage.getItem('cancelkit-monthly-total')) ||
+		Math.round(subs.reduce((s, x) => s + x.monthly, 0) * 100) / 100 ||
+		271.33;
 	const annual =
-		Number(localStorage.getItem('subzap-annual-total')) || monthly * 12;
+		Number(localStorage.getItem('cancelkit-annual-total')) || monthly * 12;
 
 	const foundCountEl = document.getElementById('found-count');
 	const monthlyEl = document.getElementById('monthly-total');

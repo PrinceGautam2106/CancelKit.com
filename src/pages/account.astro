@@ -4,8 +4,8 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import PlanBadge from '../components/PlanBadge.astro';
 
-const title = 'Account Settings — SubZap';
-const description = 'Manage your SubZap profile, connected email accounts, subscription plan, and security settings.';
+const title = 'Account Settings — CancelKit';
+const description = 'Manage your CancelKit profile, connected email accounts, subscription plan, and security settings.';
 ---
 
 <BaseLayout {title} {description}>
@@ -146,7 +146,7 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 				<section class="account-card" aria-labelledby="plan-heading">
 					<div class="card-header">
 						<h2 id="plan-heading">Subscription Plan</h2>
-						<p>Your current SubZap membership and billing tier.</p>
+						<p>Your current CancelKit membership and billing tier.</p>
 					</div>
 
 					<div class="plan-display">
@@ -210,11 +210,11 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 					<div class="danger-actions">
 						<div class="danger-item">
 							<div class="danger-text">
-								<strong>Cancel my SubZaps subscription</strong>
+								<strong>Cancel my CancelKit subscription</strong>
 								<p>Your subscription will remain active until the end of your current billing period, after which you won't be charged again.</p>
 							</div>
-							<button type="button" class="btn-danger-outline" id="cancel-subzaps-btn">
-								Cancel my SubZaps subscription
+							<button type="button" class="btn-danger-outline" id="cancel-cancelkit-btn">
+								Cancel my CancelKit subscription
 							</button>
 						</div>
 
@@ -429,7 +429,7 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 		}
 	}
 
-	const savedPlan = (localStorage.getItem('subzap-user-plan') || 'pro') as 'free' | 'pro' | 'family';
+	const savedPlan = (localStorage.getItem('cancelkit-user-plan') || 'pro') as 'free' | 'pro' | 'family';
 	setAccountPlanBadge(savedPlan);
 
 	document.querySelectorAll<HTMLButtonElement>('[data-switch-tier]').forEach((btn) => {
@@ -438,7 +438,7 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 			if (!tier) return;
 
 			if (tier === 'free') {
-				localStorage.setItem('subzap-user-plan', 'free');
+				localStorage.setItem('cancelkit-user-plan', 'free');
 				currentPlanTitle.textContent = 'Free Plan';
 				currentPlanPrice.innerHTML = '$0/month • Free forever';
 				setAccountPlanBadge('free');
@@ -483,27 +483,27 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 	});
 
 	// DANGER ZONE
-	const cancelSubzapsBtn = document.getElementById('cancel-subzaps-btn') as HTMLButtonElement;
+	const cancelCancelKitBtn = document.getElementById('cancel-cancelkit-btn') as HTMLButtonElement;
 	const deleteDataBtn = document.getElementById('delete-data-btn') as HTMLButtonElement;
 	const dangerStatusMsg = document.getElementById('danger-status-msg') as HTMLDivElement;
 
-	// Cancel my SubZaps subscription
-	cancelSubzapsBtn?.addEventListener('click', () => {
+	// Cancel my CancelKit subscription
+	cancelCancelKitBtn?.addEventListener('click', () => {
 		const confirmed = window.confirm(
-			'Are you sure you want to cancel your SubZaps subscription? You will continue to have access until the end of your billing cycle.'
+			'Are you sure you want to cancel your CancelKit subscription? You will continue to have access until the end of your billing cycle.'
 		);
 		if (!confirmed) return;
 
-		cancelSubzapsBtn.disabled = true;
-		cancelSubzapsBtn.textContent = 'Cancelling...';
+		cancelCancelKitBtn.disabled = true;
+		cancelCancelKitBtn.textContent = 'Cancelling...';
 
 		setTimeout(() => {
 			if (dangerStatusMsg) {
 				dangerStatusMsg.hidden = false;
 				dangerStatusMsg.textContent =
-					'Your SubZaps subscription has been cancelled. You will retain access until October 15, 2026.';
+					'Your CancelKit subscription has been cancelled. You will retain access until October 15, 2026.';
 			}
-			cancelSubzapsBtn.textContent = 'Subscription Cancelled';
+			cancelCancelKitBtn.textContent = 'Subscription Cancelled';
 			const currentBadge = document.getElementById('current-plan-badge');
 			if (currentBadge) {
 				currentBadge.textContent = 'Cancelling at period end';
@@ -515,7 +515,7 @@ const description = 'Manage your SubZap profile, connected email accounts, subsc
 	// Delete all my data (GDPR)
 	deleteDataBtn?.addEventListener('click', async () => {
 		const confirmed = window.confirm(
-			'WARNING: This will permanently delete your SubZap account and all personal data in compliance with GDPR. This action CANNOT be reversed. Are you sure you wish to proceed?'
+			'WARNING: This will permanently delete your CancelKit account and all personal data in compliance with GDPR. This action CANNOT be reversed. Are you sure you wish to proceed?'
 		);
 		if (!confirmed) return;
 

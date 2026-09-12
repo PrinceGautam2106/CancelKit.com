@@ -1,4 +1,4 @@
--- SubZaps Email System — Supabase Tables
+-- CancelKit Email System — Supabase Tables
 -- Run this in the Supabase SQL Editor to create the tables
 -- the email system relies on.
 

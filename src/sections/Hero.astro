@@ -23,7 +23,7 @@ const { t } = Astro.props;
 			</p>
 		</div>
 
-		<form class="hero__form fade-in-up stagger-1" action="/start" method="get">
+		<form class="hero__form fade-in-up stagger-1" action="/onboarding/connect" method="get">
 			<div class="hero__field-row">
 				<input
 					class="hero__input"
@@ -39,7 +39,7 @@ const { t } = Astro.props;
 			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card required · Scans in 30 seconds'}</p>
 		</form>
 
-		<div class="hero__proof fade-in-up stagger-2" aria-label="SubZaps customer results">
+		<div class="hero__proof fade-in-up stagger-2" aria-label="CancelKit customer results">
 			<div class="hero__counter">
 				<SavingsCounter variant="hero" initial={2_341_882} />
 			</div>

@@ -1,0 +1,138 @@
+---
+/**
+ * Celebration when every tracked subscription is cancelled.
+ * Parent sets [data-saved-total] text and share URL.
+ */
+---
+
+<div class="all-cancelled" data-all-cancelled hidden>
+	<div class="all-cancelled__badge" aria-hidden="true">✓</div>
+	<h2 class="all-cancelled__title">You cancelled everything. Legendary.</h2>
+	<p class="all-cancelled__saved">
+		<span class="all-cancelled__amount" data-saved-total>$0</span>
+		<span class="all-cancelled__amount-label"> saved total</span>
+	</p>
+	<p class="all-cancelled__copy">
+		Zero renewals left on your list. Share the win — or add anything new that sneaks back in.
+	</p>
+	<div class="all-cancelled__actions">
+		<a
+			class="all-cancelled__btn all-cancelled__btn--primary"
+			data-share-savings
+			href="#"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			Share your savings
+		</a>
+		<button type="button" class="all-cancelled__btn all-cancelled__btn--ghost" data-add-manual>
+			Add a subscription
+		</button>
+	</div>
+</div>
+
+<style>
+	.all-cancelled {
+		padding: 2.75rem 1.5rem;
+		text-align: center;
+		border: 1px solid rgba(0, 255, 136, 0.28);
+		border-radius: var(--radius-lg);
+		background:
+			radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 255, 136, 0.12), transparent 70%),
+			var(--color-surface);
+	}
+
+	.all-cancelled[hidden] {
+		display: none !important;
+	}
+
+	.all-cancelled__badge {
+		width: 3.25rem;
+		height: 3.25rem;
+		margin: 0 auto 1.1rem;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		background: var(--color-accent);
+		color: #000;
+		font-size: 1.25rem;
+		font-weight: 800;
+	}
+
+	.all-cancelled__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.35rem, 3vw, 1.65rem);
+		font-weight: 750;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.all-cancelled__saved {
+		margin: 1rem 0 0;
+	}
+
+	.all-cancelled__amount {
+		font-family: var(--font-mono);
+		font-size: clamp(1.75rem, 5vw, 2.35rem);
+		font-weight: 700;
+		color: var(--color-accent);
+		letter-spacing: -0.03em;
+	}
+
+	.all-cancelled__amount-label {
+		font-size: 1rem;
+		color: var(--color-muted);
+	}
+
+	.all-cancelled__copy {
+		margin: 0.75rem auto 0;
+		max-width: 26rem;
+		color: var(--color-muted);
+		font-size: 0.92rem;
+		line-height: 1.5;
+	}
+
+	.all-cancelled__actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.65rem;
+		margin-top: 1.5rem;
+	}
+
+	.all-cancelled__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.75rem 1.2rem;
+		border-radius: var(--radius-pill);
+		font-weight: 650;
+		font-size: 0.9rem;
+		text-decoration: none;
+		border: 0;
+		cursor: pointer;
+		font-family: inherit;
+		transition: transform 0.15s, background 0.15s, border-color 0.15s;
+	}
+
+	.all-cancelled__btn--primary {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.all-cancelled__btn--primary:hover {
+		transform: translateY(-1px);
+	}
+
+	.all-cancelled__btn--ghost {
+		background: transparent;
+		color: #ddd;
+		border: 1px solid var(--color-border);
+	}
+
+	.all-cancelled__btn--ghost:hover {
+		border-color: var(--color-border-hover);
+		background: #111;
+	}
+</style>

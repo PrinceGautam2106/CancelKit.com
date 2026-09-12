@@ -10,7 +10,7 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 	},
-	site: 'https://cancelkit.com',
+	site: 'https://cancelkits.com',
 	output: 'static',
 	adapter: vercel(),
 });

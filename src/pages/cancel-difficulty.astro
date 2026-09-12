@@ -1,0 +1,1835 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import {
+	services,
+	formatPrice,
+	getCancelDifficultyScore,
+	getDifficultyNotes,
+	getDifficultyTier,
+	type Service,
+} from '../data/services';
+
+const pageTitle = "Which Subscriptions Are Hardest to Cancel? (2026 Ranked)";
+const pageDescription = "We ranked 50 popular subscriptions by how hard they are to cancel — from 1-click to nightmare. Updated 2026.";
+
+// Pre-sort services by difficulty score descending
+const enrichedServices = services.map((s) => ({
+	...s,
+	score: getCancelDifficultyScore(s),
+	notes: getDifficultyNotes(s),
+	tier: getDifficultyTier(getCancelDifficultyScore(s)),
+})).sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+
+const nightmareServices = enrichedServices.filter((s) => s.tier === 'nightmare');
+const hardServices = enrichedServices.filter((s) => s.tier === 'hard');
+const easyServices = enrichedServices.filter((s) => s.tier === 'easy');
+
+const totalCount = enrichedServices.length;
+const avgScore = (enrichedServices.reduce((acc, s) => acc + s.score, 0) / totalCount).toFixed(1);
+
+const tweetText = encodeURIComponent(
+	"Which subscriptions are hardest to cancel? Planet Fitness (9/10), SiriusXM (8/10), Adobe (7/10)... See the 2026 Subscription Cancel Hall of Shame: https://cancelkits.com/cancel-difficulty via @CancelKit"
+);
+const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+
+const lastUpdatedDate = "March 2026";
+
+// ItemList schema for SEO
+const rankingSchema = {
+	"@context": "https://schema.org",
+	"@type": "ItemList",
+	"name": "Subscription Cancel Difficulty Index (2026)",
+	"description": pageDescription,
+	"numberOfItems": totalCount,
+	"itemListElement": enrichedServices.map((s, idx) => ({
+		"@type": "ListItem",
+		"position": idx + 1,
+		"name": `${s.name} - Cancel Difficulty ${s.score}/10`,
+		"url": `https://cancelkits.com/cancel/${s.slug}`,
+	})),
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<slot name="head" slot="head">
+		<script type="application/ld+json" set:html={JSON.stringify(rankingSchema)} />
+	</slot>
+
+	<Nav />
+
+	<main class="difficulty-page">
+		<!-- Hero Section -->
+		<section class="hero-section">
+			<div class="container">
+				<div class="freshness-badge">
+					<span class="pulse-dot"></span>
+					<span>Last Updated: {lastUpdatedDate} • Verified Across {totalCount}+ Services</span>
+				</div>
+
+				<h1 class="hero-title">
+					The Subscription <span class="highlight-danger">Cancel Hall of Shame</span>
+				</h1>
+
+				<p class="hero-subtitle">
+					Some companies make cancellation deliberately painful. We tested and ranked 50+ popular subscriptions by how hard they are to cancel — from 1-click to certified mail nightmares.
+				</p>
+
+				<!-- Stats Strip -->
+				<div class="stats-strip">
+					<div class="stat-card">
+						<span class="stat-value">{totalCount}</span>
+						<span class="stat-label">Services Tested</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-red">{nightmareServices.length}</span>
+						<span class="stat-label">Nightmare Tier (8–10)</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-orange">{hardServices.length}</span>
+						<span class="stat-label">Hard Tier (5–7)</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-green">{avgScore}/10</span>
+						<span class="stat-label">Average Difficulty</span>
+					</div>
+				</div>
+
+				<!-- Share & PR Action Bar -->
+				<div class="pr-action-bar">
+					<a href={tweetUrl} target="_blank" rel="noopener noreferrer" class="btn-share-x">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+						</svg>
+						Share this ranking
+					</a>
+
+					<button type="button" class="btn-embed" id="open-embed-modal-btn">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="16 18 22 12 16 6"></polyline>
+							<polyline points="8 6 2 12 8 18"></polyline>
+						</svg>
+						Embed or Cite this Data
+					</button>
+
+					<button type="button" class="btn-copy-url" id="copy-page-url-btn">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+							<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+						</svg>
+						<span id="copy-url-text">Copy link</span>
+					</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Interactive Filter & Search Controls -->
+		<section class="controls-section">
+			<div class="container">
+				<div class="controls-card">
+					<!-- Tier Filter Tabs -->
+					<div class="tier-tabs" role="tablist">
+						<button type="button" class="tier-tab is-active" data-filter="all">
+							All <span class="tab-badge">{totalCount}</span>
+						</button>
+						<button type="button" class="tier-tab tab-danger" data-filter="nightmare">
+							🔥 Nightmare Tier (8–10) <span class="tab-badge">{nightmareServices.length}</span>
+						</button>
+						<button type="button" class="tier-tab tab-warning" data-filter="hard">
+							⚠️ Hard Tier (5–7) <span class="tab-badge">{hardServices.length}</span>
+						</button>
+						<button type="button" class="tier-tab tab-success" data-filter="easy">
+							✅ Easy Tier (1–4) <span class="tab-badge">{easyServices.length}</span>
+						</button>
+					</div>
+
+					<!-- Search & Sort Bar -->
+					<div class="search-sort-row">
+						<div class="search-input-wrap">
+							<svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+							<input
+								type="search"
+								id="service-search-input"
+								placeholder="Search subscription (e.g. Netflix, Planet Fitness, Adobe, NYT)..."
+								aria-label="Search subscription"
+							/>
+						</div>
+
+						<div class="sort-wrap">
+							<label for="sort-select" class="sort-label">Sort:</label>
+							<select id="sort-select" class="sort-select" aria-label="Sort subscriptions">
+								<option value="hardest" selected>Hardest first (10 → 1)</option>
+								<option value="easiest">Easiest first (1 → 10)</option>
+								<option value="name">Alphabetical (A → Z)</option>
+								<option value="price">Price (High to Low)</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="filter-status-row">
+						<span id="results-count-text">Showing all {totalCount} subscriptions</span>
+						<button type="button" id="reset-filter-btn" class="reset-filter-btn" hidden>Reset filters</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Service Grid Section -->
+		<section class="rankings-section">
+			<div class="container">
+				<!-- Nightmare Tier Announcement -->
+				<div class="tier-group" id="tier-group-nightmare" data-tier="nightmare">
+					<div class="tier-header tier-header--nightmare">
+						<div class="tier-header__icon">🔥</div>
+						<div>
+							<h2 class="tier-header__title">Nightmare Tier (Score 8–10)</h2>
+							<p class="tier-header__desc">
+								Deliberate dark patterns, mandatory in-person club visits, certified snail mail, or aggressive phone retention teams designed to prevent cancellation.
+							</p>
+						</div>
+					</div>
+
+					<div class="service-cards-grid">
+						{nightmareServices.map((service) => (
+							<article
+								class="service-card service-card--nightmare"
+								data-tier="nightmare"
+								data-slug={service.slug}
+								data-name={service.name.toLowerCase()}
+								data-category={service.category.toLowerCase()}
+								data-score={service.score}
+								data-price={service.monthlyPrice}
+							>
+								<div class="card-header">
+									<div class="service-meta">
+										<h3 class="service-name">{service.name}</h3>
+										<span class="category-pill">{service.category}</span>
+									</div>
+									<div class="score-badge score-badge--nightmare" title={`Difficulty Score: ${service.score}/10`}>
+										<span class="score-num">{service.score}</span>
+										<span class="score-denom">/10</span>
+									</div>
+								</div>
+
+								<div class="difficulty-callout difficulty-callout--nightmare">
+									<span class="callout-icon">🚨</span>
+									<p class="callout-text">{service.notes}</p>
+								</div>
+
+								<div class="card-specs">
+									<div class="spec-item">
+										<span class="spec-label">Method</span>
+										<span class="spec-value method-pill method-pill--{service.cancelMethod}">{service.cancelMethod}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Avg. Time</span>
+										<span class="spec-value">{service.timeToCancel}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Price</span>
+										<span class="spec-value">{formatPrice(service.monthlyPrice)}/mo</span>
+									</div>
+								</div>
+
+								<div class="card-actions">
+									<a href={`/signup?ref=hall-of-shame&service=${service.slug}`} class="btn-cancelkit-action">
+										<span>Let CancelKit handle this one</span>
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<line x1="5" y1="12" x2="19" y2="12"></line>
+											<polyline points="12 5 19 12 12 19"></polyline>
+										</svg>
+									</a>
+									<a href={`/cancel/${service.slug}`} class="btn-guide-link">
+										View manual cancel guide →
+									</a>
+								</div>
+							</article>
+						))}
+					</div>
+				</div>
+
+				<!-- Mid-Page Conversion Interstitial -->
+				<div class="conversion-interstitial">
+					<div class="interstitial-badge">⚡ The 1-Click Alternative</div>
+					<h3 class="interstitial-title">
+						Tired of dealing with cancellation mazes?
+					</h3>
+					<p class="interstitial-desc">
+						CancelKit securely scans your receipts, flags forgotten renewals, and handles cancellations directly so you never have to call a phone tree or mail a certified letter again.
+					</p>
+					<div class="interstitial-actions">
+						<a href="/onboarding/connect" class="btn-interstitial-primary">
+							Scan My Subscriptions Free →
+						</a>
+						<a href="/pricing" class="btn-interstitial-secondary">
+							See Pricing & Guarantee
+						</a>
+					</div>
+				</div>
+
+				<!-- Hard Tier Section -->
+				<div class="tier-group" id="tier-group-hard" data-tier="hard">
+					<div class="tier-header tier-header--hard">
+						<div class="tier-header__icon">⚠️</div>
+						<div>
+							<h2 class="tier-header__title">Hard Tier (Score 5–7)</h2>
+							<p class="tier-header__desc">
+								Requires navigating hidden menus, enduring multiple retention screens, long support chat hold times, or declining persistent discount popups.
+							</p>
+						</div>
+					</div>
+
+					<div class="service-cards-grid">
+						{hardServices.map((service) => (
+							<article
+								class="service-card service-card--hard"
+								data-tier="hard"
+								data-slug={service.slug}
+								data-name={service.name.toLowerCase()}
+								data-category={service.category.toLowerCase()}
+								data-score={service.score}
+								data-price={service.monthlyPrice}
+							>
+								<div class="card-header">
+									<div class="service-meta">
+										<h3 class="service-name">{service.name}</h3>
+										<span class="category-pill">{service.category}</span>
+									</div>
+									<div class="score-badge score-badge--hard" title={`Difficulty Score: ${service.score}/10`}>
+										<span class="score-num">{service.score}</span>
+										<span class="score-denom">/10</span>
+									</div>
+								</div>
+
+								<div class="difficulty-callout difficulty-callout--hard">
+									<span class="callout-icon">⚠️</span>
+									<p class="callout-text">{service.notes}</p>
+								</div>
+
+								<div class="card-specs">
+									<div class="spec-item">
+										<span class="spec-label">Method</span>
+										<span class="spec-value method-pill method-pill--{service.cancelMethod}">{service.cancelMethod}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Avg. Time</span>
+										<span class="spec-value">{service.timeToCancel}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Price</span>
+										<span class="spec-value">{formatPrice(service.monthlyPrice)}/mo</span>
+									</div>
+								</div>
+
+								<div class="card-actions">
+									<a href={`/cancel/${service.slug}`} class="btn-guide-link btn-guide-link--primary">
+										View step-by-step guide →
+									</a>
+									<a href={`/signup?ref=difficulty-hard&service=${service.slug}`} class="btn-cancelkit-subtle">
+										Or cancel with CancelKit
+									</a>
+								</div>
+							</article>
+						))}
+					</div>
+				</div>
+
+				<!-- Easy Tier Section -->
+				<div class="tier-group" id="tier-group-easy" data-tier="easy">
+					<div class="tier-header tier-header--easy">
+						<div class="tier-header__icon">✅</div>
+						<div>
+							<h2 class="tier-header__title">Easy Tier (Score 1–4)</h2>
+							<p class="tier-header__desc">
+								Honest cancellation flows. Clear online account settings, 1–2 clicks to cancel, and standard confirmation emails without excessive friction.
+							</p>
+						</div>
+					</div>
+
+					<div class="service-cards-grid">
+						{easyServices.map((service) => (
+							<article
+								class="service-card service-card--easy"
+								data-tier="easy"
+								data-slug={service.slug}
+								data-name={service.name.toLowerCase()}
+								data-category={service.category.toLowerCase()}
+								data-score={service.score}
+								data-price={service.monthlyPrice}
+							>
+								<div class="card-header">
+									<div class="service-meta">
+										<h3 class="service-name">{service.name}</h3>
+										<span class="category-pill">{service.category}</span>
+									</div>
+									<div class="score-badge score-badge--easy" title={`Difficulty Score: ${service.score}/10`}>
+										<span class="score-num">{service.score}</span>
+										<span class="score-denom">/10</span>
+									</div>
+								</div>
+
+								<div class="difficulty-callout difficulty-callout--easy">
+									<span class="callout-icon">✓</span>
+									<p class="callout-text">{service.notes}</p>
+								</div>
+
+								<div class="card-specs">
+									<div class="spec-item">
+										<span class="spec-label">Method</span>
+										<span class="spec-value method-pill method-pill--{service.cancelMethod}">{service.cancelMethod}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Avg. Time</span>
+										<span class="spec-value">{service.timeToCancel}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Price</span>
+										<span class="spec-value">{formatPrice(service.monthlyPrice)}/mo</span>
+									</div>
+								</div>
+
+								<div class="card-actions">
+									<a href={`/cancel/${service.slug}`} class="btn-guide-link">
+										Step-by-step cancel guide →
+									</a>
+								</div>
+							</article>
+						))}
+					</div>
+				</div>
+
+				<!-- No Results Fallback -->
+				<div class="no-results-state" id="no-results-box" hidden>
+					<div class="no-results-icon">🔍</div>
+					<h3>No matching subscriptions found</h3>
+					<p>Try searching for a different service name, or reset your filters.</p>
+					<button type="button" id="clear-search-btn" class="btn-reset-large">
+						Clear search filter
+					</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Methodology & PR Backlink Section -->
+		<section class="methodology-section">
+			<div class="container">
+				<div class="methodology-card">
+					<div class="methodology-header">
+						<span class="methodology-tag">Research & Methodology</span>
+						<h2 class="methodology-title">How We Score Subscription Cancel Difficulty</h2>
+						<p class="methodology-sub">
+							Our consumer research team continuously tests cancellation processes across the 100 most popular consumer subscription services in North America and Europe.
+						</p>
+					</div>
+
+					<div class="criteria-grid">
+						<div class="criteria-item">
+							<div class="criteria-score-box score-green">1–4</div>
+							<h4 class="criteria-name">Frictionless / Easy</h4>
+							<p class="criteria-desc">
+								Can be cancelled online directly in user settings in under 3 minutes. Zero mandatory surveys or customer support chats required.
+							</p>
+						</div>
+
+						<div class="criteria-item">
+							<div class="criteria-score-box score-orange">5–7</div>
+							<h4 class="criteria-name">Moderate Resistance</h4>
+							<p class="criteria-desc">
+								Requires dodging multiple retention discount popups, multi-step exit questionnaires, or live chat wait queues with retention bots.
+							</p>
+						</div>
+
+						<div class="criteria-item">
+							<div class="criteria-score-box score-red">8–10</div>
+							<h4 class="criteria-name">Deliberate Hostility</h4>
+							<p class="criteria-desc">
+								Requires physical in-person visits, certified mail, early termination penalty fees, or mandatory phone calls to aggressive sales agents.
+							</p>
+						</div>
+					</div>
+
+					<!-- Journalist Citation Callout -->
+					<div class="journalist-box">
+						<div class="journalist-text">
+							<h4>Citing this study in your article or blog?</h4>
+							<p>
+								Journalists and bloggers are welcome to cite or republish this data with attribution to <strong>CancelKit</strong> and a link to <code>cancelkits.com/cancel-difficulty</code>.
+							</p>
+						</div>
+						<button type="button" class="btn-copy-citation" id="copy-press-citation-btn">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+								<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+							</svg>
+							<span id="citation-btn-label">Copy Attribution HTML</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Final Bottom Conversion Banner -->
+		<section class="bottom-cta-section">
+			<div class="container">
+				<div class="bottom-cta-card">
+					<div class="bottom-cta-content">
+						<h2 class="bottom-cta-title">Stop paying for subscriptions you don't use</h2>
+						<p class="bottom-cta-desc">
+							Connect your email in 30 seconds. CancelKit detects every hidden charge and cancels unwanted recurring billing in one click.
+						</p>
+					</div>
+					<div class="bottom-cta-btn-wrap">
+						<a href="/onboarding/connect" class="btn-cta-large">
+							Start Free Scan →
+						</a>
+						<span class="cta-guarantee">No credit card required • Read-only scan</span>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Embed / Citation Modal -->
+	<div id="embed-modal" class="modal-backdrop" hidden>
+		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+			<div class="modal-header">
+				<h3 id="modal-title">Embed or Cite This Ranking</h3>
+				<button type="button" class="modal-close-btn" id="close-embed-modal-btn" aria-label="Close modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+				<p class="modal-intro">
+					Embed an interactive ranking table on your blog or cite CancelKit data in your research:
+				</p>
+
+				<div class="embed-field-group">
+					<label class="embed-label" for="embed-iframe-code">1. Responsive Iframe Embed</label>
+					<div class="embed-code-box">
+						<textarea id="embed-iframe-code" readonly rows="3">&lt;iframe src="https://cancelkits.com/cancel-difficulty" width="100%" height="650" style="border:1px solid #222;border-radius:12px;" title="Subscription Cancel Difficulty Ranking 2026 - CancelKit"&gt;&lt;/iframe&gt;</textarea>
+						<button type="button" class="btn-copy-snippet" data-copy-target="embed-iframe-code">Copy</button>
+					</div>
+				</div>
+
+				<div class="embed-field-group">
+					<label class="embed-label" for="embed-html-code">2. HTML Citation with Link</label>
+					<div class="embed-code-box">
+						<textarea id="embed-html-code" readonly rows="2">&lt;p&gt;Source: &lt;a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener"&gt;CancelKit Subscription Cancel Difficulty Index (2026)&lt;/a&gt;&lt;/p&gt;</textarea>
+						<button type="button" class="btn-copy-snippet" data-copy-target="embed-html-code">Copy</button>
+					</div>
+				</div>
+
+				<div class="embed-field-group">
+					<label class="embed-label" for="embed-md-code">3. Markdown Link</label>
+					<div class="embed-code-box">
+						<textarea id="embed-md-code" readonly rows="2">[CancelKit Subscription Cancel Difficulty Index (2026)](https://cancelkits.com/cancel-difficulty)</textarea>
+						<button type="button" class="btn-copy-snippet" data-copy-target="embed-md-code">Copy</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn-modal-done" id="done-embed-modal-btn">Done</button>
+			</div>
+		</div>
+	</div>
+
+	<Footer />
+</BaseLayout>
+
+<script>
+	// Interactive Client-Side Filtering, Search, Sorting, and Embed Modal
+	document.addEventListener('DOMContentLoaded', () => {
+		const searchInput = document.getElementById('service-search-input') as HTMLInputElement | null;
+		const sortSelect = document.getElementById('sort-select') as HTMLSelectElement | null;
+		const filterTabs = document.querySelectorAll<HTMLButtonElement>('.tier-tab');
+		const serviceCards = Array.from(document.querySelectorAll<HTMLElement>('.service-card'));
+		const tierGroups = document.querySelectorAll<HTMLElement>('.tier-group');
+		const resultsCountText = document.getElementById('results-count-text');
+		const resetBtn = document.getElementById('reset-filter-btn');
+		const clearSearchBtn = document.getElementById('clear-search-btn');
+		const noResultsBox = document.getElementById('no-results-box');
+
+		let activeTierFilter = 'all';
+		let searchQuery = '';
+		let sortOrder = 'hardest';
+
+		function applyFilters() {
+			let visibleCount = 0;
+
+			serviceCards.forEach((card) => {
+				const cardTier = card.dataset.tier || '';
+				const cardName = card.dataset.name || '';
+				const cardCategory = card.dataset.category || '';
+
+				const matchesTier = activeTierFilter === 'all' || cardTier === activeTierFilter;
+				const matchesSearch = !searchQuery || cardName.includes(searchQuery) || cardCategory.includes(searchQuery);
+
+				if (matchesTier && matchesSearch) {
+					card.style.display = '';
+					visibleCount++;
+				} else {
+					card.style.display = 'none';
+				}
+			});
+
+			// Hide or show tier groups based on whether they contain visible cards
+			tierGroups.forEach((group) => {
+				const groupTier = group.dataset.tier;
+				const hasVisibleCards = Array.from(group.querySelectorAll<HTMLElement>('.service-card')).some(
+					(c) => c.style.display !== 'none'
+				);
+
+				if (activeTierFilter !== 'all' && groupTier !== activeTierFilter) {
+					group.style.display = 'none';
+				} else if (hasVisibleCards) {
+					group.style.display = '';
+				} else {
+					group.style.display = 'none';
+				}
+			});
+
+			// Results summary and empty state
+			if (resultsCountText) {
+				resultsCountText.textContent = `Showing ${visibleCount} of ${serviceCards.length} subscriptions`;
+			}
+
+			if (resetBtn) {
+				resetBtn.hidden = activeTierFilter === 'all' && !searchQuery;
+			}
+
+			if (noResultsBox) {
+				noResultsBox.hidden = visibleCount > 0;
+			}
+		}
+
+		// Re-sort cards within each group grid
+		function applySorting() {
+			const grids = document.querySelectorAll<HTMLElement>('.service-cards-grid');
+			grids.forEach((grid) => {
+				const cards = Array.from(grid.querySelectorAll<HTMLElement>('.service-card'));
+				cards.sort((a, b) => {
+					const scoreA = parseFloat(a.dataset.score || '0');
+					const scoreB = parseFloat(b.dataset.score || '0');
+					const nameA = a.dataset.name || '';
+					const nameB = b.dataset.name || '';
+					const priceA = parseFloat(a.dataset.price || '0');
+					const priceB = parseFloat(b.dataset.price || '0');
+
+					if (sortOrder === 'hardest') return scoreB - scoreA || nameA.localeCompare(nameB);
+					if (sortOrder === 'easiest') return scoreA - scoreB || nameA.localeCompare(nameB);
+					if (sortOrder === 'name') return nameA.localeCompare(nameB);
+					if (sortOrder === 'price') return priceB - priceA;
+					return 0;
+				});
+
+				cards.forEach((card) => grid.appendChild(card));
+			});
+		}
+
+		// Event: Filter tabs
+		filterTabs.forEach((tab) => {
+			tab.addEventListener('click', () => {
+				filterTabs.forEach((t) => t.classList.remove('is-active'));
+				tab.classList.add('is-active');
+				activeTierFilter = tab.dataset.filter || 'all';
+				applyFilters();
+			});
+		});
+
+		// Event: Search input
+		searchInput?.addEventListener('input', (e) => {
+			searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+			applyFilters();
+		});
+
+		// Event: Sort select
+		sortSelect?.addEventListener('change', (e) => {
+			sortOrder = (e.target as HTMLSelectElement).value;
+			applySorting();
+			applyFilters();
+		});
+
+		// Event: Reset button
+		resetBtn?.addEventListener('click', () => {
+			activeTierFilter = 'all';
+			searchQuery = '';
+			if (searchInput) searchInput.value = '';
+			filterTabs.forEach((t) => t.classList.remove('is-active'));
+			filterTabs[0]?.classList.add('is-active');
+			applyFilters();
+		});
+
+		clearSearchBtn?.addEventListener('click', () => {
+			searchQuery = '';
+			if (searchInput) searchInput.value = '';
+			activeTierFilter = 'all';
+			filterTabs.forEach((t) => t.classList.remove('is-active'));
+			filterTabs[0]?.classList.add('is-active');
+			applyFilters();
+		});
+
+		// Event: Copy page URL
+		const copyPageUrlBtn = document.getElementById('copy-page-url-btn');
+		const copyUrlText = document.getElementById('copy-url-text');
+		copyPageUrlBtn?.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(window.location.href);
+				if (copyUrlText) copyUrlText.textContent = 'Copied!';
+				setTimeout(() => {
+					if (copyUrlText) copyUrlText.textContent = 'Copy link';
+				}, 2500);
+			} catch {
+				// fallback
+			}
+		});
+
+		// Event: Copy press citation
+		const copyPressCitationBtn = document.getElementById('copy-press-citation-btn');
+		const citationBtnLabel = document.getElementById('citation-btn-label');
+		copyPressCitationBtn?.addEventListener('click', async () => {
+			const citationHtml = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener">CancelKit Subscription Cancel Difficulty Index (2026)</a></p>';
+			try {
+				await navigator.clipboard.writeText(citationHtml);
+				if (citationBtnLabel) citationBtnLabel.textContent = 'Copied Citation HTML!';
+				setTimeout(() => {
+					if (citationBtnLabel) citationBtnLabel.textContent = 'Copy Attribution HTML';
+				}, 2500);
+			} catch {
+				// fallback
+			}
+		});
+
+		// Embed Modal Controls
+		const embedModal = document.getElementById('embed-modal');
+		const openModalBtn = document.getElementById('open-embed-modal-btn');
+		const closeModalBtn = document.getElementById('close-embed-modal-btn');
+		const doneModalBtn = document.getElementById('done-embed-modal-btn');
+
+		function toggleModal(open: boolean) {
+			if (!embedModal) return;
+			embedModal.hidden = !open;
+			if (open) {
+				document.body.style.overflow = 'hidden';
+			} else {
+				document.body.style.overflow = '';
+			}
+		}
+
+		openModalBtn?.addEventListener('click', () => toggleModal(true));
+		closeModalBtn?.addEventListener('click', () => toggleModal(false));
+		doneModalBtn?.addEventListener('click', () => toggleModal(false));
+
+		embedModal?.addEventListener('click', (e) => {
+			if (e.target === embedModal) toggleModal(false);
+		});
+
+		// Copy snippet buttons inside modal
+		const copySnippetBtns = document.querySelectorAll<HTMLButtonElement>('.btn-copy-snippet');
+		copySnippetBtns.forEach((btn) => {
+			btn.addEventListener('click', async () => {
+				const targetId = btn.dataset.copyTarget;
+				if (!targetId) return;
+				const textarea = document.getElementById(targetId) as HTMLTextAreaElement | null;
+				if (!textarea) return;
+
+				try {
+					await navigator.clipboard.writeText(textarea.value);
+					const originalText = btn.textContent;
+					btn.textContent = 'Copied!';
+					btn.classList.add('is-copied');
+					setTimeout(() => {
+						btn.textContent = originalText;
+						btn.classList.remove('is-copied');
+					}, 2000);
+				} catch {
+					// fallback
+				}
+			});
+		});
+	});
+</script>
+
+<style>
+	/* Page Base */
+	.difficulty-page {
+		background-color: #050505;
+		color: #ffffff;
+		min-height: 100vh;
+		padding-bottom: 6rem;
+	}
+
+	.container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+
+	/* Hero Section */
+	.hero-section {
+		padding: 5rem 0 3rem;
+		text-align: center;
+		position: relative;
+	}
+
+	.freshness-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		padding: 0.35rem 0.85rem;
+		border-radius: 999px;
+		font-size: 0.8125rem;
+		color: #a3a3a3;
+		margin-bottom: 1.5rem;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.pulse-dot {
+		width: 7px;
+		height: 7px;
+		background-color: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 8px #00ff88;
+		animation: pulse-glow 2s infinite ease-in-out;
+	}
+
+	@keyframes pulse-glow {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.4; transform: scale(0.85); }
+	}
+
+	.hero-title {
+		font-family: var(--font-display, inherit);
+		font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+		font-weight: 800;
+		line-height: 1.12;
+		letter-spacing: -0.04em;
+		margin: 0 auto 1.25rem;
+		max-width: 900px;
+	}
+
+	.highlight-danger {
+		color: #ff4444;
+		text-shadow: 0 0 35px rgba(255, 68, 68, 0.35);
+	}
+
+	.hero-subtitle {
+		font-size: clamp(1.05rem, 2vw, 1.25rem);
+		color: #a3a3a3;
+		max-width: 760px;
+		margin: 0 auto 2.5rem;
+		line-height: 1.6;
+	}
+
+	/* Stats Strip */
+	.stats-strip {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		gap: 1rem;
+		max-width: 820px;
+		margin: 0 auto 2.5rem;
+	}
+
+	.stat-card {
+		background: #0f0f0f;
+		border: 1px solid #1f1f1f;
+		border-radius: 12px;
+		padding: 1.15rem 1rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.35rem;
+	}
+
+	.stat-value {
+		font-family: var(--font-display, inherit);
+		font-size: 1.75rem;
+		font-weight: 800;
+		color: #ffffff;
+		letter-spacing: -0.02em;
+	}
+
+	.stat-label {
+		font-size: 0.8125rem;
+		color: #888888;
+	}
+
+	.highlight-red { color: #ff4444; }
+	.highlight-orange { color: #ffa800; }
+	.highlight-green { color: #00ff88; }
+
+	/* PR Action Bar */
+	.pr-action-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+	}
+
+	.btn-share-x,
+	.btn-embed,
+	.btn-copy-url {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: #141414;
+		border: 1px solid #262626;
+		color: #e5e5e5;
+		padding: 0.6rem 1.15rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.btn-share-x:hover,
+	.btn-embed:hover,
+	.btn-copy-url:hover {
+		background: #1c1c1c;
+		border-color: #404040;
+		color: #ffffff;
+	}
+
+	.btn-share-x {
+		background: #000;
+		border-color: #333;
+	}
+	.btn-share-x:hover {
+		border-color: #555;
+	}
+
+	/* Controls Section */
+	.controls-section {
+		margin-bottom: 2.5rem;
+	}
+
+	.controls-card {
+		background: #0a0a0a;
+		border: 1px solid #1a1a1a;
+		border-radius: 14px;
+		padding: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.tier-tabs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.tier-tab {
+		background: #141414;
+		border: 1px solid #242424;
+		color: #a3a3a3;
+		padding: 0.55rem 0.95rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		transition: all 0.15s ease;
+	}
+
+	.tier-tab:hover {
+		color: #ffffff;
+		border-color: #383838;
+	}
+
+	.tier-tab.is-active {
+		background: #ffffff;
+		color: #000000;
+		border-color: #ffffff;
+		font-weight: 600;
+	}
+
+	.tier-tab.tab-danger.is-active {
+		background: #ff4444;
+		color: #ffffff;
+		border-color: #ff4444;
+	}
+
+	.tier-tab.tab-warning.is-active {
+		background: #ffa800;
+		color: #000000;
+		border-color: #ffa800;
+	}
+
+	.tier-tab.tab-success.is-active {
+		background: #00ff88;
+		color: #000000;
+		border-color: #00ff88;
+	}
+
+	.tab-badge {
+		background: rgba(0, 0, 0, 0.2);
+		padding: 0.1rem 0.4rem;
+		border-radius: 4px;
+		font-size: 0.75rem;
+	}
+	.tier-tab:not(.is-active) .tab-badge {
+		background: #202020;
+		color: #888;
+	}
+
+	.search-sort-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.search-input-wrap {
+		flex: 1;
+		min-width: 260px;
+		position: relative;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 0.85rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #737373;
+		pointer-events: none;
+	}
+
+	.search-input-wrap input {
+		width: 100%;
+		background: #121212;
+		border: 1px solid #262626;
+		border-radius: 8px;
+		padding: 0.65rem 1rem 0.65rem 2.5rem;
+		font-size: 0.9375rem;
+		color: #ffffff;
+		outline: none;
+		transition: border-color 0.15s ease;
+	}
+
+	.search-input-wrap input:focus {
+		border-color: #00ff88;
+	}
+
+	.sort-wrap {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.sort-label {
+		font-size: 0.875rem;
+		color: #888888;
+	}
+
+	.sort-select {
+		background: #121212;
+		border: 1px solid #262626;
+		color: #ffffff;
+		border-radius: 8px;
+		padding: 0.65rem 0.85rem;
+		font-size: 0.875rem;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.filter-status-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.8125rem;
+		color: #737373;
+		border-top: 1px solid #161616;
+		padding-top: 0.75rem;
+	}
+
+	.reset-filter-btn {
+		background: transparent;
+		border: none;
+		color: #00ff88;
+		cursor: pointer;
+		font-size: 0.8125rem;
+		text-decoration: underline;
+		padding: 0;
+	}
+
+	/* Rankings Section & Tiers */
+	.rankings-section {
+		margin-bottom: 4rem;
+	}
+
+	.tier-group {
+		margin-bottom: 3.5rem;
+	}
+
+	.tier-header {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+		padding: 1.25rem 1.5rem;
+		border-radius: 12px;
+		margin-bottom: 1.5rem;
+	}
+
+	.tier-header--nightmare {
+		background: linear-gradient(90deg, rgba(255, 68, 68, 0.12) 0%, rgba(255, 68, 68, 0.02) 100%);
+		border: 1px solid rgba(255, 68, 68, 0.25);
+	}
+
+	.tier-header--hard {
+		background: linear-gradient(90deg, rgba(255, 168, 0, 0.12) 0%, rgba(255, 168, 0, 0.02) 100%);
+		border: 1px solid rgba(255, 168, 0, 0.25);
+	}
+
+	.tier-header--easy {
+		background: linear-gradient(90deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.02) 100%);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+	}
+
+	.tier-header__icon {
+		font-size: 1.75rem;
+		line-height: 1;
+	}
+
+	.tier-header__title {
+		font-size: 1.35rem;
+		font-weight: 700;
+		margin: 0 0 0.35rem;
+		letter-spacing: -0.02em;
+	}
+
+	.tier-header--nightmare .tier-header__title { color: #ff4444; }
+	.tier-header--hard .tier-header__title { color: #ffa800; }
+	.tier-header--easy .tier-header__title { color: #00ff88; }
+
+	.tier-header__desc {
+		font-size: 0.9375rem;
+		color: #a3a3a3;
+		margin: 0;
+		line-height: 1.5;
+	}
+
+	/* Service Cards Grid */
+	.service-cards-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+		gap: 1.25rem;
+	}
+
+	.service-card {
+		background: #0d0d0d;
+		border: 1px solid #1c1c1c;
+		border-radius: 14px;
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		position: relative;
+		transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.service-card:hover {
+		transform: translateY(-2px);
+	}
+
+	.service-card--nightmare {
+		border-color: rgba(255, 68, 68, 0.3);
+		background: linear-gradient(180deg, #120a0a 0%, #0d0d0d 100%);
+	}
+	.service-card--nightmare:hover {
+		border-color: #ff4444;
+		box-shadow: 0 8px 30px rgba(255, 68, 68, 0.15);
+	}
+
+	.service-card--hard {
+		border-color: rgba(255, 168, 0, 0.25);
+	}
+	.service-card--hard:hover {
+		border-color: #ffa800;
+		box-shadow: 0 8px 30px rgba(255, 168, 0, 0.12);
+	}
+
+	.service-card--easy {
+		border-color: rgba(0, 255, 136, 0.18);
+	}
+	.service-card--easy:hover {
+		border-color: #00ff88;
+		box-shadow: 0 8px 30px rgba(0, 255, 136, 0.1);
+	}
+
+	.card-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.service-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.service-name {
+		font-size: 1.15rem;
+		font-weight: 700;
+		margin: 0;
+		color: #ffffff;
+		letter-spacing: -0.01em;
+	}
+
+	.category-pill {
+		font-size: 0.75rem;
+		color: #888888;
+	}
+
+	.score-badge {
+		display: flex;
+		align-items: baseline;
+		padding: 0.25rem 0.65rem;
+		border-radius: 8px;
+		font-weight: 800;
+		font-family: var(--font-mono, monospace);
+	}
+
+	.score-badge--nightmare {
+		background: rgba(255, 68, 68, 0.18);
+		border: 1px solid #ff4444;
+		color: #ff4444;
+	}
+
+	.score-badge--hard {
+		background: rgba(255, 168, 0, 0.15);
+		border: 1px solid #ffa800;
+		color: #ffa800;
+	}
+
+	.score-badge--easy {
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid #00ff88;
+		color: #00ff88;
+	}
+
+	.score-num {
+		font-size: 1.15rem;
+		line-height: 1;
+	}
+	.score-denom {
+		font-size: 0.75rem;
+		opacity: 0.8;
+	}
+
+	.difficulty-callout {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.6rem;
+		border-radius: 8px;
+		padding: 0.75rem 0.85rem;
+		margin-bottom: 1.25rem;
+		font-size: 0.875rem;
+		line-height: 1.45;
+	}
+
+	.difficulty-callout--nightmare {
+		background: rgba(255, 68, 68, 0.08);
+		border: 1px solid rgba(255, 68, 68, 0.2);
+		color: #fca5a5;
+	}
+
+	.difficulty-callout--hard {
+		background: rgba(255, 168, 0, 0.08);
+		border: 1px solid rgba(255, 168, 0, 0.2);
+		color: #fcd34d;
+	}
+
+	.difficulty-callout--easy {
+		background: rgba(0, 255, 136, 0.06);
+		border: 1px solid rgba(0, 255, 136, 0.15);
+		color: #86efac;
+	}
+
+	.callout-icon {
+		font-size: 1rem;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.callout-text {
+		margin: 0;
+	}
+
+	.card-specs {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.5rem;
+		border-top: 1px solid #1a1a1a;
+		border-bottom: 1px solid #1a1a1a;
+		padding: 0.75rem 0;
+		margin-bottom: 1.25rem;
+	}
+
+	.spec-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.spec-label {
+		font-size: 0.6875rem;
+		color: #737373;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.spec-value {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: #d4d4d4;
+	}
+
+	.method-pill {
+		text-transform: capitalize;
+	}
+	.method-pill--in-person {
+		color: #ff6b6b;
+		font-weight: 600;
+	}
+	.method-pill--phone {
+		color: #ffa800;
+	}
+	.method-pill--online {
+		color: #86efac;
+	}
+
+	.card-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.btn-cancelkit-action {
+		background: #ff4444;
+		color: #ffffff;
+		border: none;
+		border-radius: 8px;
+		padding: 0.7rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-decoration: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		transition: background 0.15s ease, transform 0.15s ease;
+	}
+
+	.btn-cancelkit-action:hover {
+		background: #ff2222;
+		transform: translateY(-1px);
+	}
+
+	.btn-guide-link {
+		color: #a3a3a3;
+		font-size: 0.8125rem;
+		text-align: center;
+		text-decoration: none;
+		transition: color 0.15s ease;
+	}
+	.btn-guide-link:hover {
+		color: #ffffff;
+		text-decoration: underline;
+	}
+
+	.btn-guide-link--primary {
+		background: #141414;
+		border: 1px solid #282828;
+		border-radius: 8px;
+		padding: 0.65rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: #ffffff;
+		display: block;
+	}
+	.btn-guide-link--primary:hover {
+		background: #1e1e1e;
+		border-color: #3e3e3e;
+		text-decoration: none;
+	}
+
+	.btn-cancelkit-subtle {
+		color: #00ff88;
+		font-size: 0.8125rem;
+		text-align: center;
+		text-decoration: none;
+		font-weight: 500;
+	}
+	.btn-cancelkit-subtle:hover {
+		text-decoration: underline;
+	}
+
+	/* Interstitial CTA */
+	.conversion-interstitial {
+		background: linear-gradient(180deg, #111111 0%, #0a0a0a 100%);
+		border: 1px solid #262626;
+		border-radius: 16px;
+		padding: 2.5rem 2rem;
+		text-align: center;
+		margin: 3.5rem 0;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.conversion-interstitial::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 300px;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, #00ff88, transparent);
+	}
+
+	.interstitial-badge {
+		display: inline-block;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #00ff88;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin-bottom: 0.75rem;
+	}
+
+	.interstitial-title {
+		font-size: clamp(1.5rem, 3vw, 2rem);
+		font-weight: 800;
+		margin: 0 auto 0.75rem;
+		letter-spacing: -0.03em;
+		max-width: 600px;
+	}
+
+	.interstitial-desc {
+		font-size: 1rem;
+		color: #a3a3a3;
+		max-width: 640px;
+		margin: 0 auto 1.75rem;
+		line-height: 1.6;
+	}
+
+	.interstitial-actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+	.btn-interstitial-primary {
+		background: #00ff88;
+		color: #000000;
+		font-weight: 700;
+		padding: 0.8rem 1.5rem;
+		border-radius: 8px;
+		text-decoration: none;
+		transition: background 0.15s ease, transform 0.15s ease;
+	}
+	.btn-interstitial-primary:hover {
+		background: #1aff96;
+		transform: translateY(-1px);
+	}
+
+	.btn-interstitial-secondary {
+		background: #171717;
+		border: 1px solid #2e2e2e;
+		color: #ffffff;
+		padding: 0.8rem 1.5rem;
+		border-radius: 8px;
+		font-weight: 500;
+		text-decoration: none;
+		transition: background 0.15s ease;
+	}
+	.btn-interstitial-secondary:hover {
+		background: #242424;
+	}
+
+	/* Methodology Section */
+	.methodology-section {
+		margin-bottom: 4rem;
+	}
+
+	.methodology-card {
+		background: #0a0a0a;
+		border: 1px solid #1e1e1e;
+		border-radius: 16px;
+		padding: 2.5rem;
+	}
+
+	.methodology-tag {
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #00ff88;
+	}
+
+	.methodology-title {
+		font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+		font-weight: 700;
+		margin: 0.5rem 0 0.75rem;
+		letter-spacing: -0.02em;
+	}
+
+	.methodology-sub {
+		font-size: 1rem;
+		color: #888888;
+		max-width: 720px;
+		margin: 0 0 2rem;
+		line-height: 1.6;
+	}
+
+	.criteria-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 2.5rem;
+	}
+
+	.criteria-item {
+		background: #111111;
+		border: 1px solid #202020;
+		border-radius: 12px;
+		padding: 1.5rem;
+	}
+
+	.criteria-score-box {
+		display: inline-block;
+		padding: 0.2rem 0.6rem;
+		border-radius: 6px;
+		font-weight: 800;
+		font-family: var(--font-mono, monospace);
+		font-size: 0.875rem;
+		margin-bottom: 0.75rem;
+	}
+	.score-green { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+	.score-orange { background: rgba(255, 168, 0, 0.15); color: #ffa800; border: 1px solid #ffa800; }
+	.score-red { background: rgba(255, 68, 68, 0.15); color: #ff4444; border: 1px solid #ff4444; }
+
+	.criteria-name {
+		font-size: 1.1rem;
+		font-weight: 600;
+		margin: 0 0 0.5rem;
+	}
+
+	.criteria-desc {
+		font-size: 0.875rem;
+		color: #999999;
+		margin: 0;
+		line-height: 1.55;
+	}
+
+	.journalist-box {
+		background: #141414;
+		border: 1px solid #282828;
+		border-radius: 12px;
+		padding: 1.5rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem;
+	}
+
+	.journalist-text h4 {
+		margin: 0 0 0.25rem;
+		font-size: 1rem;
+		font-weight: 600;
+	}
+	.journalist-text p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: #888888;
+	}
+	.journalist-text code {
+		background: #202020;
+		padding: 0.15rem 0.4rem;
+		border-radius: 4px;
+		color: #00ff88;
+		font-size: 0.8125rem;
+	}
+
+	.btn-copy-citation {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: #000;
+		border: 1px solid #333;
+		color: #ffffff;
+		padding: 0.65rem 1.1rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: border-color 0.15s ease;
+	}
+	.btn-copy-citation:hover {
+		border-color: #00ff88;
+	}
+
+	/* Bottom CTA Section */
+	.bottom-cta-card {
+		background: radial-gradient(circle at 50% 0%, #171717 0%, #0d0d0d 100%);
+		border: 1px solid #222222;
+		border-radius: 20px;
+		padding: 3.5rem 2rem;
+		text-align: center;
+	}
+
+	.bottom-cta-title {
+		font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		margin: 0 auto 1rem;
+		max-width: 650px;
+	}
+
+	.bottom-cta-desc {
+		font-size: 1.05rem;
+		color: #999999;
+		max-width: 580px;
+		margin: 0 auto 2rem;
+		line-height: 1.6;
+	}
+
+	.bottom-cta-btn-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.btn-cta-large {
+		background: #00ff88;
+		color: #000000;
+		font-size: 1.1rem;
+		font-weight: 700;
+		padding: 0.95rem 2.25rem;
+		border-radius: 10px;
+		text-decoration: none;
+		transition: transform 0.15s ease, background 0.15s ease;
+	}
+	.btn-cta-large:hover {
+		background: #1aff96;
+		transform: translateY(-2px);
+	}
+
+	.cta-guarantee {
+		font-size: 0.8125rem;
+		color: #666666;
+	}
+
+	/* Empty State */
+	.no-results-state {
+		text-align: center;
+		padding: 4rem 1.5rem;
+		background: #0c0c0c;
+		border: 1px dashed #242424;
+		border-radius: 14px;
+	}
+	.no-results-icon {
+		font-size: 2.5rem;
+		margin-bottom: 0.75rem;
+	}
+	.no-results-state h3 {
+		font-size: 1.25rem;
+		margin: 0 0 0.5rem;
+	}
+	.no-results-state p {
+		color: #888888;
+		margin: 0 0 1.5rem;
+	}
+	.btn-reset-large {
+		background: #1c1c1c;
+		border: 1px solid #333333;
+		color: #ffffff;
+		padding: 0.65rem 1.25rem;
+		border-radius: 8px;
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	/* Modal Backdrop & Body */
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.8);
+		backdrop-filter: blur(4px);
+		z-index: 1000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.5rem;
+	}
+	.modal-backdrop[hidden] {
+		display: none !important;
+	}
+
+	.modal-card {
+		background: #111111;
+		border: 1px solid #282828;
+		border-radius: 16px;
+		width: 100%;
+		max-width: 580px;
+		max-height: 90vh;
+		overflow-y: auto;
+		padding: 1.75rem;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+	}
+
+	.modal-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+	}
+
+	.modal-header h3 {
+		font-size: 1.25rem;
+		font-weight: 700;
+		margin: 0;
+	}
+
+	.modal-close-btn {
+		background: transparent;
+		border: none;
+		color: #888;
+		font-size: 1.75rem;
+		cursor: pointer;
+		line-height: 1;
+		padding: 0;
+	}
+	.modal-close-btn:hover {
+		color: #fff;
+	}
+
+	.modal-intro {
+		font-size: 0.875rem;
+		color: #999;
+		margin-bottom: 1.25rem;
+		line-height: 1.5;
+	}
+
+	.embed-field-group {
+		margin-bottom: 1.25rem;
+	}
+
+	.embed-label {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: #d4d4d4;
+		margin-bottom: 0.4rem;
+	}
+
+	.embed-code-box {
+		position: relative;
+	}
+
+	.embed-code-box textarea {
+		width: 100%;
+		background: #080808;
+		border: 1px solid #222;
+		border-radius: 8px;
+		padding: 0.65rem 4.5rem 0.65rem 0.75rem;
+		font-family: var(--font-mono, monospace);
+		font-size: 0.75rem;
+		color: #a3a3a3;
+		resize: none;
+		outline: none;
+	}
+
+	.btn-copy-snippet {
+		position: absolute;
+		right: 0.5rem;
+		top: 0.5rem;
+		background: #202020;
+		border: 1px solid #333;
+		color: #ffffff;
+		border-radius: 6px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		padding: 0.35rem 0.65rem;
+		cursor: pointer;
+		transition: background 0.15s ease;
+	}
+	.btn-copy-snippet:hover {
+		background: #333333;
+	}
+	.btn-copy-snippet.is-copied {
+		background: #00ff88;
+		color: #000;
+		border-color: #00ff88;
+	}
+
+	.modal-footer {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid #1e1e1e;
+	}
+
+	.btn-modal-done {
+		background: #ffffff;
+		color: #000000;
+		border: none;
+		border-radius: 8px;
+		padding: 0.55rem 1.25rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	/* Responsive Media Queries */
+	@media (max-width: 768px) {
+		.hero-section {
+			padding: 3.5rem 0 2rem;
+		}
+		.service-cards-grid {
+			grid-template-columns: 1fr;
+		}
+		.card-specs {
+			grid-template-columns: repeat(3, 1fr);
+		}
+		.tier-tabs {
+			overflow-x: auto;
+			padding-bottom: 0.25rem;
+		}
+		.search-sort-row {
+			flex-direction: column;
+			align-items: stretch;
+		}
+		.sort-wrap {
+			justify-content: space-between;
+		}
+		.methodology-card {
+			padding: 1.5rem;
+		}
+		.conversion-interstitial {
+			padding: 2rem 1.25rem;
+		}
+	}
+</style>

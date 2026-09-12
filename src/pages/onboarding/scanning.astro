@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const title = 'Scanning your subscriptions — SubZap';
+const title = 'Scanning your subscriptions — CancelKit';
 const description = 'Analyzing receipts and invoices for recurring subscriptions.';
 ---
 
 <BaseLayout {title} {description}>
 	<main class="scan-page">
 		<div class="scan-container">
-			<a class="scan-logo" href="/" aria-label="SubZap home">
-				<span class="scan-logo__icon">S</span>
-				<span class="scan-logo__text">Sub<span class="scan-logo__accent">Zap</span></span>
+			<a class="scan-logo" href="/" aria-label="CancelKit home">
+				<span class="scan-logo__icon">C</span>
+				<span class="scan-logo__text">Cancel<span>K<span class="scan-logo__accent">i</span>t</span></span>
 			</a>
 
 			<div class="radar-box" aria-hidden="true">
@@ -81,28 +81,61 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 	const params = new URLSearchParams(window.location.search);
 	const provider = params.get('provider') === 'outlook' ? 'Outlook' : 'Gmail';
 
-	// Conversion-calibrated totals (pain number that converts free → paid)
-	const monthlyTotal = 247;
-	const annualTotal = 2964;
+	// Accurately compute totals from detected subscriptions
+	const calculatedMonthly = Math.round(DEMO_SUBS.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
+	const calculatedAnnual = Math.round(calculatedMonthly * 12);
 
-	localStorage.setItem('subzap-scanned-count', String(DEMO_SUBS.length));
-	localStorage.setItem('subzap-monthly-total', String(monthlyTotal));
-	localStorage.setItem('subzap-annual-total', String(annualTotal));
-	localStorage.setItem('subzap-scan-subs', JSON.stringify(DEMO_SUBS));
+	localStorage.setItem('cancelkit-scanned-count', String(DEMO_SUBS.length));
+	localStorage.setItem('cancelkit-monthly-total', String(calculatedMonthly));
+	localStorage.setItem('cancelkit-annual-total', String(calculatedAnnual));
+	localStorage.setItem('cancelkit-scan-subs', JSON.stringify(DEMO_SUBS));
 	localStorage.setItem('cancelkit-dashboard-provider', provider);
-	localStorage.setItem('cancelkit-dashboard-connected', 'true');
+	localStorage.setItem('cancelkit-dashboard-connected', '1');
 	localStorage.setItem(
 		'cancelkit-dashboard-subs',
 		JSON.stringify(
 			DEMO_SUBS.map((s) => ({
-				id: s.name.toLowerCase().replace(/\s+/g, '-'),
+				id: s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
 				name: s.name,
-				category: s.category,
+				category: s.category.toLowerCase().includes('stream') || s.category.toLowerCase().includes('music')
+					? 'streaming'
+					: s.category.toLowerCase().includes('fit')
+						? 'fitness'
+						: s.category.toLowerCase().includes('news')
+							? 'news'
+							: 'software',
 				monthly: s.monthly,
 				nextBilling: new Date(Date.now() + s.renewsIn * 86400000)
 					.toISOString()
 					.split('T')[0],
 				status: 'active',
+				domain: s.name.toLowerCase().includes('netflix')
+					? 'netflix.com'
+					: s.name.toLowerCase().includes('spotify')
+						? 'spotify.com'
+						: s.name.toLowerCase().includes('adobe')
+							? 'adobe.com'
+							: s.name.toLowerCase().includes('hulu')
+								? 'hulu.com'
+								: s.name.toLowerCase().includes('disney')
+									? 'disneyplus.com'
+									: s.name.toLowerCase().includes('planet')
+										? 'planetfitness.com'
+										: s.name.toLowerCase().includes('times')
+											? 'nytimes.com'
+											: s.name.toLowerCase().includes('canva')
+												? 'canva.com'
+												: s.name.toLowerCase().includes('nord')
+													? 'nordvpn.com'
+													: s.name.toLowerCase().includes('dropbox')
+														? 'dropbox.com'
+														: s.name.toLowerCase().includes('audible')
+															? 'audible.com'
+															: s.name.toLowerCase().includes('youtube')
+																? 'youtube.com'
+																: s.name.toLowerCase().includes('apple')
+																	? 'apple.com'
+																	: undefined,
 			})),
 		),
 	);
@@ -119,8 +152,11 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 
 	const stages = [
 		{ at: 0, text: 'Scanning receipts...' },
-		{ at: 2600, text: 'Finding recurring charges...' },
-		{ at: 5400, text: 'Calculating your total...' },
+		{ at: 1800, text: 'Found Netflix ($15.49/mo)...' },
+		{ at: 3200, text: 'Found Spotify ($11.99/mo)...' },
+		{ at: 4600, text: 'Found Adobe Creative Cloud ($59.99/mo)...' },
+		{ at: 6000, text: 'Found 14 active subscriptions...' },
+		{ at: 7200, text: 'Calculating your total recurring spend...' },
 	];
 
 	const DURATION_MS = 8000;

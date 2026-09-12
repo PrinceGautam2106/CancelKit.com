@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { services } from '../../data/services';
 
-const title = 'Add Subscriptions Manually — SubZap';
+const title = 'Add Subscriptions Manually — CancelKit';
 const description = 'Add your recurring subscriptions manually without connecting an email inbox.';
 
 const serviceOptions = services.map((s) => ({
@@ -18,9 +18,9 @@ const priceMapJson = JSON.stringify(
 <BaseLayout {title} {description}>
 	<main class="manual-page">
 		<div class="manual-card">
-			<a class="manual-logo" href="/" aria-label="SubZap home">
-				<span class="manual-logo__icon">S</span>
-				<span class="manual-logo__text">Sub<span class="manual-logo__accent">Zap</span></span>
+			<a class="manual-logo" href="/" aria-label="CancelKit home">
+				<span class="manual-logo__icon">C</span>
+				<span class="manual-logo__text">Cancel<span>K<span class="manual-logo__accent">i</span>t</span></span>
 			</a>
 
 			<header class="manual-header">
@@ -236,10 +236,10 @@ const priceMapJson = JSON.stringify(
 				renewsIn: daysUntil(s.renewal),
 			}));
 
-		localStorage.setItem('subzap-scanned-count', String(subscriptions.length));
-		localStorage.setItem('subzap-monthly-total', String(monthly));
-		localStorage.setItem('subzap-annual-total', String(annual));
-		localStorage.setItem('subzap-scan-subs', JSON.stringify(scanSubs));
+		localStorage.setItem('cancelkit-scanned-count', String(subscriptions.length));
+		localStorage.setItem('cancelkit-monthly-total', String(monthly));
+		localStorage.setItem('cancelkit-annual-total', String(annual));
+		localStorage.setItem('cancelkit-scan-subs', JSON.stringify(scanSubs));
 		localStorage.setItem(
 			'cancelkit-dashboard-subs',
 			JSON.stringify(

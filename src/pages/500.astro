@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Something went wrong — CancelKit';
+const description = "We're on it. Try again in a minute.";
+---
+
+<BaseLayout {title} {description}>
+	<!-- Auto-refresh after 30 seconds -->
+	<meta http-equiv="refresh" content="30" slot="head" />
+
+	<main class="err">
+		<a class="err__logo" href="/" aria-label="CancelKit home">
+			<span class="err__logo-icon">C</span>
+			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>t</span></span>
+		</a>
+
+		<p class="err__code" aria-hidden="true">500</p>
+		<h1>Something went wrong on our end.</h1>
+		<p class="err__sub">We're on it. Try again in a minute.</p>
+		<p class="err__refresh" id="refresh-note">This page refreshes automatically in <span id="refresh-secs">30</span>s.</p>
+
+		<div class="err__actions">
+			<button type="button" class="err__btn err__btn--primary" id="retry-btn">Try again now →</button>
+			<a class="err__btn err__btn--ghost" href="/">Go home</a>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	const secsEl = document.getElementById('refresh-secs');
+	const retryBtn = document.getElementById('retry-btn');
+	let remaining = 30;
+
+	const tick = window.setInterval(() => {
+		remaining -= 1;
+		if (secsEl) secsEl.textContent = String(Math.max(0, remaining));
+		if (remaining <= 0) {
+			clearInterval(tick);
+			window.location.reload();
+		}
+	}, 1000);
+
+	retryBtn?.addEventListener('click', () => {
+		clearInterval(tick);
+		window.location.reload();
+	});
+
+	// Meta refresh fallback if slot/head isn't supported
+	setTimeout(() => {
+		if (document.visibilityState !== 'hidden') window.location.reload();
+	}, 30_000);
+</script>
+
+<style>
+	.err {
+		min-height: 100svh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 2.5rem 1.25rem;
+		background:
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255, 68, 68, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.err__logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 2.5rem;
+	}
+
+	.err__logo-icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.err__logo-text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.err__logo-accent {
+		color: var(--color-accent);
+	}
+
+	.err__code {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-danger);
+	}
+
+	.err h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.65rem, 4.5vw, 2.25rem);
+		font-weight: 750;
+		letter-spacing: -0.04em;
+		line-height: 1.2;
+		color: #fff;
+		max-width: 20ch;
+	}
+
+	.err__sub {
+		margin: 0.9rem 0 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+	}
+
+	.err__refresh {
+		margin: 0.75rem 0 0;
+		font-size: 0.82rem;
+		color: var(--color-faint);
+		font-family: var(--font-mono);
+	}
+
+	.err__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+
+	.err__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.85rem 1.35rem;
+		border-radius: var(--radius-pill);
+		font-weight: 700;
+		font-size: 0.95rem;
+		text-decoration: none;
+		border: 0;
+		cursor: pointer;
+		font-family: inherit;
+		transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+	}
+
+	.err__btn--primary {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.err__btn--primary:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 6px 22px rgba(0, 255, 136, 0.28);
+	}
+
+	.err__btn--ghost {
+		border: 1px solid var(--color-border);
+		background: transparent;
+		color: #ddd;
+	}
+
+	.err__btn--ghost:hover {
+		background: #111;
+		border-color: var(--color-border-hover);
+	}
+</style>

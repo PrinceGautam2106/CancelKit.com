@@ -7,10 +7,10 @@ const apiKey =
 
 export const resend = new Resend(apiKey);
 
-export const EMAIL_FROM = 'SubZaps <hello@subzaps.com>';
+export const EMAIL_FROM = 'CancelKit <hello@cancelkits.com>';
 
 /** Audience-level defaults shared across every outbound email. */
 export const EMAIL_DEFAULTS = {
 	from: EMAIL_FROM,
-	replyTo: 'support@subzaps.com',
+	replyTo: 'support@cancelkits.com',
 } as const;

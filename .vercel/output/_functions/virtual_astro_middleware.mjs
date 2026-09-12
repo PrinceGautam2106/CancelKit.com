@@ -1,4 +1,4 @@
-import { rt as defineMiddleware, t as sequence } from "./chunks/sequence_B-6XR2Ys.mjs";
+import { M as defineMiddleware, t as sequence } from "./chunks/sequence_BMgTzxkS.mjs";
 import { t as supabase } from "./chunks/supabase_DfPB-doj.mjs";
 //#region src/middleware.ts
 var PROTECTED_ROUTES = [

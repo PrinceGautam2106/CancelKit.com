@@ -3,8 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const title = 'Unsubscribe — SubZaps';
-const description = 'Manage your SubZaps email preferences.';
+const title = 'Unsubscribe — CancelKit';
+const description = 'Manage your CancelKit email preferences.';
 ---
 
 <BaseLayout {title} {description}>
@@ -12,9 +12,9 @@ const description = 'Manage your SubZaps email preferences.';
 	<main class="unsub-page">
 		<div class="unsub-card">
 			<div class="unsub-card__header">
-				<a class="unsub-logo" href="/" aria-label="SubZaps home">
-					<span class="unsub-logo__icon">S</span>
-					<span class="unsub-logo__text">Sub<span class="unsub-logo__accent">Zaps</span></span>
+				<a class="unsub-logo" href="/" aria-label="CancelKit home">
+					<span class="unsub-logo__icon">C</span>
+					<span class="unsub-logo__text">Cancel<span>K<span class="unsub-logo__accent">i</span>t</span></span>
 				</a>
 			</div>
 
@@ -33,7 +33,7 @@ const description = 'Manage your SubZaps email preferences.';
 					</svg>
 				</div>
 				<h1>You've been unsubscribed</h1>
-				<p class="unsub-body">You will no longer receive marketing or recap emails from SubZaps. Transactional emails (password resets, security alerts) will still be delivered.</p>
+				<p class="unsub-body">You will no longer receive marketing or recap emails from CancelKit. Transactional emails (password resets, security alerts) will still be delivered.</p>
 				<button type="button" class="unsub-resubscribe-btn" id="resubscribe-btn">
 					Changed your mind? Re-subscribe
 				</button>
@@ -61,7 +61,7 @@ const description = 'Manage your SubZaps email preferences.';
 					</svg>
 				</div>
 				<h1>Something went wrong</h1>
-				<p class="unsub-body" id="unsub-error-message">We couldn't process your unsubscribe request. Please try again or contact support@subzaps.com.</p>
+				<p class="unsub-body" id="unsub-error-message">We couldn't process your unsubscribe request. Please try again or contact support@cancelkits.com.</p>
 			</div>
 		</div>
 	</main>

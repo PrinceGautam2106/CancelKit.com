@@ -30,7 +30,7 @@ export const testimonials: Testimonial[] = [
 		savedAmount: 142,
 		subscriptionsCancelled: 5,
 		quote:
-			'I thought I only had Netflix and Spotify. SubZaps found a gym membership I stopped going to in 2024. Instant win.',
+			'I thought I only had Netflix and Spotify. CancelKit found a gym membership I stopped going to in 2024. Instant win.',
 		plan: 'Pro',
 		date: '2026-07',
 	},
@@ -74,7 +74,7 @@ export const testimonials: Testimonial[] = [
 		savedAmount: 204,
 		subscriptionsCancelled: 7,
 		quote:
-			'Between streaming stacks and cloud storage I was bleeding money. SubZaps showed the damage in one red number.',
+			'Between streaming stacks and cloud storage I was bleeding money. CancelKit showed the damage in one red number.',
 		plan: 'Family',
 		date: '2026-07',
 	},
@@ -140,7 +140,7 @@ export const testimonials: Testimonial[] = [
 		savedAmount: 129,
 		subscriptionsCancelled: 5,
 		quote:
-			'Cancelled meal kits I never cooked and a VPN I forgot existed. SubZaps made the boring money stuff actually satisfying.',
+			'Cancelled meal kits I never cooked and a VPN I forgot existed. CancelKit made the boring money stuff actually satisfying.',
 		plan: 'Pro',
 		date: '2026-07',
 	},

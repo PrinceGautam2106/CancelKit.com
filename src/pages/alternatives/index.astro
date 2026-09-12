@@ -1,0 +1,6 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'; import Nav from '../../components/Nav.astro'; import { services } from '../../data/services'; import AlternativeCard from '../../components/AlternativeCard.astro';
+const netflix = services.find((service) => service.slug === 'netflix')!;
+---
+<BaseLayout title="Best Free Netflix Alternatives | CancelKit" description="The best free and affordable Netflix alternatives, compared."><Nav /><main class="alternatives-page"><p>ALTERNATIVES</p><h1>The best free and cheap alternatives to expensive subscriptions</h1><p>Looking for free Netflix alternatives? Compare lower-cost streaming choices before your next renewal.</p><AlternativeCard service={netflix} /></main></BaseLayout>
+<style>.alternatives-page{background:#000;color:#fff;min-height:80vh;padding:8rem max(1.25rem,calc((100% - 68rem)/2))}.alternatives-page>p{color:var(--color-muted);max-width:42rem}.alternatives-page>p:first-child{color:var(--color-accent);font-size:.75rem;font-weight:600;letter-spacing:.09em}.alternatives-page h1{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:-.06em;max-width:52rem}</style>

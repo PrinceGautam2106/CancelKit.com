@@ -1,0 +1,653 @@
+---
+import Nav from '../components/Nav.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Pricing — CancelKit';
+const description =
+	'See the damage free. Kill subscriptions with CancelKit Pro at $9/mo. Family plans for households. 7-day free trial.';
+
+const faqs = [
+	{
+		q: 'What if I’m on a free trial that auto-renews?',
+		a: 'CancelKit flags trials before they convert. On Pro, you get a renewal alert 7 days out so you can cancel before the first charge hits.',
+	},
+	{
+		q: 'Can CancelKit cancel on my behalf?',
+		a: 'Yes on Pro and Family. One-click cancel handles supported services for you. Free still includes step-by-step cancel guides if you want to do it yourself.',
+	},
+	{
+		q: 'Is my email data safe?',
+		a: 'We use read-only access to scan for subscription receipts. We never send email as you, never sell your data, and you can disconnect anytime.',
+	},
+	{
+		q: 'What payment methods do you accept?',
+		a: 'Cards via Stripe: Visa, Mastercard, Amex, and most debit cards. Annual plans are billed once per year; monthly plans renew each month until you cancel.',
+	},
+];
+
+const tiers = [
+	{
+		id: 'free',
+		name: 'See the damage',
+		blurb: 'Find what’s draining you.',
+		monthly: 0,
+		yearly: 0,
+		cta: 'Start free',
+		href: '/start',
+		featured: false,
+		features: [
+			'Scan up to 10 subscriptions',
+			'See your monthly total',
+			'Cancel guides (manual steps)',
+			'No credit card required',
+		],
+	},
+	{
+		id: 'pro',
+		name: 'Kill them all',
+		blurb: 'One-click cancels. Real savings.',
+		monthly: 9,
+		yearly: 79,
+		yearlyNote: 'save 27%',
+		badge: 'Most popular',
+		cta: 'Start killing subscriptions →',
+		href: '/start?plan=pro',
+		featured: true,
+		features: [
+			'Unlimited subscription scanning',
+			'One-click cancellation',
+			'Auto-detect new subscriptions',
+			'Renewal alerts (7 days before)',
+			'Savings dashboard',
+			'Priority cancel support',
+		],
+	},
+	{
+		id: 'family',
+		name: 'Protect the household',
+		blurb: 'Pro for everyone under one roof.',
+		monthly: 19,
+		yearly: 159,
+		cta: 'Protect my family',
+		href: '/start?plan=family',
+		featured: false,
+		features: [
+			'Everything in Pro',
+			'Up to 5 family members',
+			'Shared savings dashboard',
+			'Parent controls',
+		],
+	},
+] as const;
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="pricing" data-pricing>
+		<header class="pricing__header">
+			<p class="pricing__eyebrow">Pricing</p>
+			<h1 class="pricing__title">Stop paying for stuff you forgot</h1>
+			<p class="pricing__lede">Pick a plan. Cancel the noise. Keep the money.</p>
+
+			<div class="pricing__toggle" role="group" aria-label="Billing period">
+				<button type="button" class="is-active" data-billing="monthly" aria-pressed="true">Monthly</button>
+				<button type="button" data-billing="yearly" aria-pressed="false">
+					Annual <span class="pricing__toggle-save">save 27%</span>
+				</button>
+			</div>
+		</header>
+
+		<section class="pricing__grid" aria-label="Pricing plans">
+			{
+				tiers.map((tier) => (
+					<article class:list={['pricing__card', tier.featured && 'is-featured']} data-tier={tier.id}>
+						{tier.featured && 'badge' in tier && tier.badge ? <p class="pricing__badge">{tier.badge}</p> : null}
+						<h2 class="pricing__name">{tier.name}</h2>
+						<p class="pricing__blurb">{tier.blurb}</p>
+						<p class="pricing__price">
+							{tier.monthly === 0 ? (
+								<>
+									<span class="pricing__amount" data-price-display>
+										$0
+									</span>
+									<span class="pricing__period" data-price-period>
+										/forever
+									</span>
+								</>
+							) : (
+								<>
+									<span
+										class="pricing__amount"
+										data-price-display
+										data-monthly={tier.monthly}
+										data-yearly={tier.yearly}
+									>
+										${tier.monthly}
+									</span>
+									<span class="pricing__period" data-price-period>
+										/month
+									</span>
+								</>
+							)}
+						</p>
+						{'yearlyNote' in tier && tier.yearlyNote ? (
+							<p class="pricing__yearly-note" data-yearly-note hidden>
+								${tier.yearly}/year — {tier.yearlyNote}
+							</p>
+						) : tier.monthly > 0 ? (
+							<p class="pricing__yearly-note" data-yearly-note hidden>
+								${tier.yearly}/year
+							</p>
+						) : (
+							<p class="pricing__yearly-note pricing__yearly-note--spacer" aria-hidden="true">
+								&nbsp;
+							</p>
+						)}
+						<ul class="pricing__features">
+							{tier.features.map((feature) => (
+								<li>{feature}</li>
+							))}
+						</ul>
+						<a class:list={['pricing__cta', tier.featured && 'is-primary']} href={tier.href}>
+							{tier.cta}
+						</a>
+					</article>
+				))
+			}
+		</section>
+
+		<p class="pricing__assurance">7-day free trial on Pro. Cancel anytime. No questions asked.</p>
+
+		<section class="pricing__faq" aria-labelledby="faq-heading">
+			<h2 id="faq-heading">FAQ</h2>
+			<div class="pricing__faq-list">
+				{
+					faqs.map((faq) => (
+						<details class="pricing__faq-item">
+							<summary>{faq.q}</summary>
+							<p>{faq.a}</p>
+						</details>
+					))
+				}
+			</div>
+		</section>
+
+		<section class="pricing__roi" aria-labelledby="roi-heading" data-roi>
+			<h2 id="roi-heading">ROI calculator</h2>
+			<p class="pricing__roi-lede">How many unused subscriptions do you have?</p>
+
+			<label class="pricing__slider">
+				<span class="sr-only">Unused subscriptions</span>
+				<input type="range" min="1" max="20" value="5" data-roi-slider />
+				<div class="pricing__slider-meta">
+					<span>1</span>
+					<strong data-roi-count>5</strong>
+					<span>20</span>
+				</div>
+			</label>
+
+			<p class="pricing__roi-waste" data-roi-waste>You’re wasting $75/month = $900/year</p>
+			<p class="pricing__roi-break" data-roi-break>
+				CancelKit Pro costs $9/month. You break even in 4 days.
+			</p>
+			<a class="pricing__roi-cta" href="/start?plan=pro">Start killing subscriptions →</a>
+		</section>
+	</main>
+</BaseLayout>
+
+<script>
+	const AVG_SUB_COST = 15;
+	const PRO_MONTHLY = 9;
+
+	const root = document.querySelector('[data-pricing]');
+	const billingButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-billing]'));
+	const priceDisplays = Array.from(document.querySelectorAll<HTMLElement>('[data-price-display][data-monthly]'));
+	const periods = Array.from(document.querySelectorAll<HTMLElement>('[data-price-period]'));
+	const yearlyNotes = Array.from(document.querySelectorAll<HTMLElement>('[data-yearly-note]'));
+
+	let billing: 'monthly' | 'yearly' = 'monthly';
+
+	function setBilling(next: 'monthly' | 'yearly') {
+		billing = next;
+		root?.setAttribute('data-billing', billing);
+
+		billingButtons.forEach((btn) => {
+			const active = btn.dataset.billing === billing;
+			btn.classList.toggle('is-active', active);
+			btn.setAttribute('aria-pressed', String(active));
+		});
+
+		priceDisplays.forEach((el) => {
+			const monthly = Number(el.dataset.monthly);
+			const yearly = Number(el.dataset.yearly);
+			if (billing === 'yearly') {
+				const perMonth = Math.round((yearly / 12) * 100) / 100;
+				el.textContent = `$${perMonth % 1 === 0 ? perMonth : perMonth.toFixed(2)}`;
+			} else {
+				el.textContent = `$${monthly}`;
+			}
+		});
+
+		periods.forEach((el) => {
+			if (el.textContent?.includes('forever')) return;
+			el.textContent = billing === 'yearly' ? '/month, billed yearly' : '/month';
+		});
+
+		yearlyNotes.forEach((el) => {
+			if (el.classList.contains('pricing__yearly-note--spacer')) return;
+			el.toggleAttribute('hidden', billing !== 'yearly');
+		});
+	}
+
+	billingButtons.forEach((btn) => {
+		btn.addEventListener('click', () => setBilling((btn.dataset.billing as 'monthly' | 'yearly') || 'monthly'));
+	});
+
+	const slider = document.querySelector<HTMLInputElement>('[data-roi-slider]');
+	const countEl = document.querySelector<HTMLElement>('[data-roi-count]');
+	const wasteEl = document.querySelector<HTMLElement>('[data-roi-waste]');
+	const breakEl = document.querySelector<HTMLElement>('[data-roi-break]');
+
+	function money(n: number) {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+			maximumFractionDigits: 0,
+		}).format(n);
+	}
+
+	function updateRoi() {
+		const count = Number(slider?.value || 5);
+		const monthlyWaste = count * AVG_SUB_COST;
+		const yearlyWaste = monthlyWaste * 12;
+		const breakEvenDays = Math.max(1, Math.ceil((PRO_MONTHLY / monthlyWaste) * 30));
+
+		if (countEl) countEl.textContent = String(count);
+		if (wasteEl) {
+			wasteEl.textContent = `You’re wasting ${money(monthlyWaste)}/month = ${money(yearlyWaste)}/year`;
+		}
+		if (breakEl) {
+			breakEl.textContent = `CancelKit Pro costs $9/month. You break even in ${breakEvenDays} day${breakEvenDays === 1 ? '' : 's'}.`;
+		}
+	}
+
+	slider?.addEventListener('input', updateRoi);
+	setBilling('monthly');
+	updateRoi();
+</script>
+
+<style>
+	.pricing {
+		padding: 2.75rem 0 5rem;
+		background: #000;
+	}
+
+	.pricing__header,
+	.pricing__grid,
+	.pricing__assurance,
+	.pricing__faq,
+	.pricing__roi {
+		width: min(100% - 2.5rem, 68rem);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.pricing__eyebrow {
+		margin: 0;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.pricing__title {
+		margin: 0.85rem 0 0;
+		max-width: 14ch;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 3rem);
+		font-weight: 600;
+		letter-spacing: -0.055em;
+		line-height: 1.02;
+		color: #fff;
+	}
+
+	.pricing__lede {
+		margin: 1rem 0 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+		line-height: 1.55;
+	}
+
+	.pricing__toggle {
+		display: inline-flex;
+		margin-top: 1.75rem;
+		padding: 0.25rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-input);
+		background: var(--color-surface);
+		gap: 0.15rem;
+	}
+
+	.pricing__toggle button {
+		appearance: none;
+		border: 0;
+		background: transparent;
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.875rem;
+		font-weight: 500;
+		padding: 0.5rem 0.85rem;
+		border-radius: 3px;
+		cursor: pointer;
+	}
+
+	.pricing__toggle button.is-active {
+		background: #111;
+		color: #fff;
+	}
+
+	.pricing__toggle-save {
+		margin-left: 0.35rem;
+		color: var(--color-accent);
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.pricing__grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+		align-items: stretch;
+		margin-top: 2.5rem;
+	}
+
+	.pricing__card {
+		display: flex;
+		flex-direction: column;
+		padding: 1.35rem 1.25rem 1.25rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+	}
+
+	.pricing__card.is-featured {
+		border-color: #00ff88;
+		transform: scale(1.03);
+		z-index: 1;
+	}
+
+	.pricing__badge {
+		margin: 0 0 0.75rem;
+		width: fit-content;
+		padding: 0.2rem 0.45rem;
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		border-radius: var(--radius-input);
+		color: var(--color-accent);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.pricing__name {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.pricing__blurb {
+		margin: 0.4rem 0 0;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+		line-height: 1.45;
+	}
+
+	.pricing__price {
+		margin: 1.25rem 0 0;
+		display: flex;
+		align-items: baseline;
+		gap: 0.25rem;
+	}
+
+	.pricing__amount {
+		font-family: var(--font-display);
+		font-size: 2.35rem;
+		font-weight: 600;
+		letter-spacing: -0.05em;
+		font-variant-numeric: tabular-nums;
+		color: #fff;
+		line-height: 1;
+	}
+
+	.pricing__period {
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.pricing__yearly-note {
+		margin: 0.45rem 0 0;
+		min-height: 1.2em;
+		font-size: 0.8rem;
+		color: var(--color-accent);
+	}
+
+	.pricing__yearly-note--spacer {
+		visibility: hidden;
+	}
+
+	.pricing__features {
+		margin: 1.25rem 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.65rem;
+		flex: 1;
+	}
+
+	.pricing__features li {
+		position: relative;
+		padding-left: 1.1rem;
+		font-size: 0.9rem;
+		line-height: 1.4;
+		color: #ddd;
+	}
+
+	.pricing__features li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.45rem;
+		width: 0.4rem;
+		height: 0.4rem;
+		border-radius: 1px;
+		background: var(--color-accent);
+	}
+
+	.pricing__cta {
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 1.5rem;
+		padding: 0.75rem 1rem;
+		border-radius: var(--radius-input);
+		border: 1px solid var(--color-border);
+		background: transparent;
+		color: #fff;
+		font-size: 0.9rem;
+		font-weight: 600;
+		text-decoration: none;
+		text-align: center;
+		transition: opacity 0.15s ease;
+	}
+
+	.pricing__cta:hover {
+		opacity: 0.9;
+	}
+
+	.pricing__cta.is-primary {
+		border-color: transparent;
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.pricing__assurance {
+		margin-top: 1.75rem;
+		text-align: center;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+	}
+
+	.pricing__faq {
+		margin-top: 4rem;
+	}
+
+	.pricing__faq h2,
+	.pricing__roi h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.pricing__faq-list {
+		margin-top: 1.15rem;
+		display: grid;
+		gap: 0.65rem;
+		max-width: 44rem;
+	}
+
+	.pricing__faq-item {
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		padding: 0.95rem 1rem;
+	}
+
+	.pricing__faq-item summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: #fff;
+		list-style: none;
+	}
+
+	.pricing__faq-item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.pricing__faq-item[open] summary {
+		margin-bottom: 0.65rem;
+	}
+
+	.pricing__faq-item p {
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.55;
+		font-size: 0.95rem;
+	}
+
+	.pricing__roi {
+		margin-top: 4rem;
+		padding: 1.5rem 1.35rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		max-width: 44rem;
+	}
+
+	.pricing__roi-lede {
+		margin: 0.65rem 0 0;
+		color: var(--color-muted);
+	}
+
+	.pricing__slider {
+		display: block;
+		margin-top: 1.35rem;
+	}
+
+	.pricing__slider input[type='range'] {
+		width: 100%;
+		accent-color: var(--color-accent);
+		cursor: pointer;
+	}
+
+	.pricing__slider-meta {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: 0.5rem;
+		font-size: 0.8rem;
+		color: #666;
+	}
+
+	.pricing__slider-meta strong {
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.pricing__roi-waste {
+		margin: 1.5rem 0 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		line-height: 1.3;
+		color: #ff4444;
+	}
+
+	.pricing__roi-break {
+		margin: 0.75rem 0 0;
+		font-size: 1rem;
+		line-height: 1.5;
+		color: #fff;
+	}
+
+	.pricing__roi-cta {
+		display: inline-flex;
+		margin-top: 1.35rem;
+		padding: 0.75rem 1.1rem;
+		border-radius: var(--radius-input);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		font-size: 0.9rem;
+		text-decoration: none;
+	}
+
+	.pricing__roi-cta:hover {
+		opacity: 0.9;
+	}
+
+	@media (max-width: 900px) {
+		.pricing__grid {
+			grid-template-columns: 1fr;
+			max-width: 26rem;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.pricing__card.is-featured {
+			transform: none;
+			order: -1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.pricing__card.is-featured {
+			transform: none;
+		}
+
+		.pricing__cta,
+		.pricing__roi-cta {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'; import Nav from '../../../components/Nav.astro'; import { locales, type Locale } from '../../../i18n/translations';
+const titles = { es: 'Cómo cancelar Netflix', fr: 'Comment annuler Netflix', de: 'Netflix kündigen: Anleitung', pt: 'Como cancelar a Netflix', en: 'How to cancel Netflix' } as const;
+export function getStaticPaths() { return locales.map((lang) => ({ params: { lang, service: 'netflix' } })); }
+const lang = Astro.params.lang as Locale; const title = titles[lang];
+const guide = {
+	en: ['Sign in to your Netflix account.', 'Open your account settings.', 'Select cancel membership and confirm.'],
+	es: ['Inicia sesión en tu cuenta de Netflix.', 'Abre la configuración de tu cuenta.', 'Selecciona cancelar membresía y confirma.'],
+	fr: ['Connectez-vous à votre compte Netflix.', 'Ouvrez les paramètres de votre compte.', 'Sélectionnez Résilier l’abonnement et confirmez.'],
+	de: ['Melde dich bei deinem Netflix-Konto an.', 'Öffne deine Kontoeinstellungen.', 'Wähle Mitgliedschaft kündigen und bestätige.'],
+	pt: ['Entre na sua conta Netflix.', 'Abra as configurações da sua conta.', 'Selecione cancelar assinatura e confirme.'],
+}[lang];
+---
+<BaseLayout lang={lang} title={title} description={`${title} with CancelKit.`}><Nav /><main class="guide"><h1>{title}</h1><p>CancelKit makes subscription cancellation simple.</p><ol>{guide.map((step) => <li>{step}</li>)}</ol></main></BaseLayout>
+<style>.guide{background:#000;color:#fff;min-height:80vh;padding:10rem max(1.25rem,calc((100% - 44rem)/2))}.guide h1{font-family:var(--font-display);font-size:clamp(2.25rem,5vw,4rem);letter-spacing:-.06em}.guide p,.guide li{color:var(--color-muted);line-height:1.7}.guide ol{padding-left:1.25rem}</style>

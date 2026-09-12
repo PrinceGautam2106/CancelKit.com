@@ -1,0 +1,123 @@
+---
+import type { Translation } from '../i18n/translations';
+interface Props { t?: Translation; }
+const { t } = Astro.props;
+const subscriptions = [
+	{ name: 'Netflix', renewal: 'Renews May 18', amount: '$22.99' },
+	{ name: 'Adobe', renewal: 'Renews May 23', amount: '$59.99' },
+	{ name: 'Audible', renewal: 'Renews Jun 02', amount: '$14.95' },
+];
+---
+
+<section id="how-it-works" class="how-it-works" aria-labelledby="how-it-works-title">
+	<div class="how-it-works__container">
+		<header class="how-it-works__header">
+			<p class="how-it-works__eyebrow">HOW IT WORKS</p>
+			<h2 id="how-it-works-title">{t?.how_title ?? 'A clean exit, in three steps.'}</h2>
+		</header>
+
+		<div class="how-it-works__steps">
+			<article class="step-card">
+				<div class="step-card__visual step-card__visual--envelope" aria-hidden="true">
+					<svg width="78" height="62" viewBox="0 0 78 62" fill="none">
+						<rect x="4" y="7" width="58" height="43" rx="4" stroke="currentColor" stroke-width="1.5" />
+						<path d="m7 11 26 20 26-20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+						<circle cx="59" cy="45" r="14" fill="#00FF88" />
+						<path d="m53 45 4 4 8-9" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</div>
+				<h3>Connect your email</h3>
+				<p>CancelKit scans your inbox for subscription receipts. Read-only access. We never touch your emails.</p>
+			</article>
+
+			<article class="step-card">
+				<div class="step-card__visual dashboard" aria-label="Example subscription dashboard">
+					<div class="dashboard__heading"><span>Subscriptions</span><span>$97.93/mo</span></div>
+					{subscriptions.map((subscription) => <div class="dashboard__row"><div><strong>{subscription.name}</strong><small>{subscription.renewal}</small></div><span>{subscription.amount}</span></div>)}
+				</div>
+				<h3>See everything draining you</h3>
+				<p>Your full subscription map appears in seconds. Every charge, renewal date, and total monthly burn.</p>
+			</article>
+
+			<article class="step-card">
+				<div class="step-card__visual cancel-demo" aria-label="Cancellation confirmation example">
+					<span class="cancel-demo__service">StreamPlus</span>
+					<span class="cancel-demo__amount">$18.99/mo</span>
+					<button type="button" class="cancel-demo__button">Cancel subscription <span aria-hidden="true">×</span></button>
+					<p class="cancel-demo__confirmation">Cancellation confirmed</p>
+				</div>
+				<h3>Cancel with one click</h3>
+				<p>Hit cancel on anything. We handle the cancellation process. You get a confirmation.</p>
+			</article>
+		</div>
+
+		<div class="trust-strip">
+			<div class="trust-strip__copy">
+				<h2>Your data never leaves your control</h2>
+				<ul>
+					<li><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2" /><path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2M10 11v3" /></svg><span>Read-only email scanning — we can't send emails</span></li>
+					<li><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2" /><path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2M10 11v3" /></svg><span>Bank-level 256-bit encryption</span></li>
+					<li><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2" /><path d="M6.5 8V6a3.5 3.5 0 0 1 7 0v2M10 11v3" /></svg><span>Delete your data anytime, instantly</span></li>
+				</ul>
+			</div>
+			<aside class="security-badge" aria-label="Security commitments">
+				<p class="security-badge__label">SECURITY</p>
+				<strong>SOC 2-ready practices</strong>
+				<p>We don't store your email password.</p>
+				<p class="security-badge__verified">Verified by <span>security partner</span></p>
+			</aside>
+		</div>
+	</div>
+</section>
+
+<style>
+	.how-it-works { background: #000; color: #fff; padding: 7rem 0; }
+	.how-it-works__container { width: min(100% - 2.5rem, 72rem); margin: 0 auto; }
+	.how-it-works__header { max-width: 38rem; }
+	.how-it-works__eyebrow, .security-badge__label { color: var(--color-accent); font-size: .75rem; font-weight: 600; letter-spacing: .09em; margin: 0 0 .75rem; }
+	.how-it-works h2, .step-card h3 { font-family: var(--font-display); letter-spacing: -.045em; }
+	.how-it-works h2 { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 600; line-height: 1.05; margin: 0; }
+
+	.how-it-works__steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; }
+	.step-card { border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); padding: 1.5rem; }
+	.step-card__visual { align-items: center; display: flex; height: 11.5rem; justify-content: center; margin-bottom: 2rem; }
+	.step-card__visual--envelope { color: var(--color-accent); }
+	.step-card h3 { font-size: 1.25rem; font-weight: 600; margin: 0; }
+	.step-card > p { color: var(--color-muted); font-size: .9375rem; line-height: 1.65; margin: .75rem 0 0; }
+
+	.dashboard { border: 1px solid var(--color-border); border-radius: var(--radius-input); background: #000; box-sizing: border-box; display: block; height: auto; margin: 0 0 2rem; padding: .75rem; }
+	.dashboard__heading, .dashboard__row { align-items: center; display: flex; justify-content: space-between; }
+	.dashboard__heading { border-bottom: 1px solid var(--color-border); color: #fff; font-size: .6875rem; font-weight: 600; padding-bottom: .625rem; }
+	.dashboard__heading span:last-child { color: var(--color-accent); }
+	.dashboard__row { border-bottom: 1px solid var(--color-border); padding: .5rem 0; }
+	.dashboard__row:last-child { border: 0; padding-bottom: 0; }
+	.dashboard__row div { display: grid; gap: .125rem; }
+	.dashboard__row strong { font-size: .6875rem; font-weight: 500; }
+	.dashboard__row small { color: var(--color-muted); font-size: .5625rem; }
+	.dashboard__row > span { color: #fff; font-size: .6875rem; }
+
+	.cancel-demo { align-content: center; background: #000; border: 1px solid var(--color-border); border-radius: var(--radius-input); box-sizing: border-box; display: grid; grid-template-columns: 1fr auto; height: auto; margin: 0 0 2rem; padding: .875rem; row-gap: .875rem; }
+	.cancel-demo__service { font-size: .75rem; font-weight: 600; position: relative; }
+	.cancel-demo__service::after { background: var(--color-accent); content: ''; height: 1px; left: -2px; position: absolute; top: 50%; transform: scaleX(0); transform-origin: left; width: calc(100% + 4px); animation: cancel-strike 2.6s ease-in-out infinite; }
+	.cancel-demo__amount { color: var(--color-muted); font-size: .6875rem; }
+	.cancel-demo__button { background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-input); color: #fff; cursor: default; font: inherit; font-size: .6875rem; grid-column: 1 / -1; padding: .5rem; text-align: left; }
+	.cancel-demo__button span { color: var(--color-accent); float: right; font-size: 1rem; line-height: .6; }
+	.cancel-demo__confirmation { color: var(--color-accent); font-size: .625rem; grid-column: 1 / -1; margin: 0; }
+	@keyframes cancel-strike { 0%, 22% { transform: scaleX(0); } 45%, 80% { transform: scaleX(1); } 100% { transform: scaleX(0); transform-origin: right; } }
+
+	.trust-strip { border-top: 1px solid var(--color-border); display: grid; gap: 3rem; grid-template-columns: 1fr minmax(16rem, .7fr); margin-top: 6rem; padding-top: 4rem; }
+	.trust-strip__copy h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); max-width: 28rem; }
+	.trust-strip ul { display: grid; gap: .875rem; list-style: none; margin: 1.75rem 0 0; padding: 0; }
+	.trust-strip li { align-items: center; color: var(--color-muted); display: flex; font-size: .875rem; gap: .625rem; }
+	.trust-strip li svg { fill: none; flex: none; height: 1.125rem; stroke: var(--color-accent); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.35; width: 1.125rem; }
+	.security-badge { align-self: start; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); padding: 1.5rem; }
+	.security-badge__label { margin-bottom: 1.5rem; }
+	.security-badge strong { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: -.03em; }
+	.security-badge > p:not(.security-badge__label) { color: var(--color-muted); font-size: .875rem; line-height: 1.5; margin: .75rem 0 0; }
+	.security-badge__verified { border-top: 1px solid var(--color-border); margin-top: 1.5rem !important; padding-top: .875rem; }
+	.security-badge__verified span { color: #fff; }
+
+	@media (max-width: 48rem) { .how-it-works { padding: 5rem 0; } .how-it-works__steps, .trust-strip { grid-template-columns: 1fr; } .trust-strip { gap: 2rem; margin-top: 4rem; padding-top: 3rem; } }
+	@media (max-width: 34rem) { .how-it-works__container { width: min(100% - 2rem, 72rem); } }
+	@media (prefers-reduced-motion: reduce) { .cancel-demo__service::after { animation-play-state: paused; } }
+</style>

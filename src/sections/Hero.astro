@@ -1,0 +1,248 @@
+---
+import type { Translation } from '../i18n/translations';
+const subscriptions = ['Netflix', 'Spotify', 'Adobe', 'Hulu', 'Disney+', 'Planet Fitness', 'NYT', 'Audible'];
+interface Props { t?: Translation; }
+const { t } = Astro.props;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+	<div class="hero__content">
+		<div class="hero__intro">
+			<p class="hero__eyebrow"><span></span> FIND AND STOP RECURRING CHARGES</p>
+			<h1 id="hero-title" class="hero__title">
+				<span>{t?.hero_headline_1 ?? "You're paying for"}</span>
+				<span class="hero__title-accent">{t?.hero_headline_2 ?? '8 subscriptions'}</span>
+				<span>{t?.hero_headline_3 ?? 'you forgot about.'}</span>
+			</h1>
+			<p class="hero__description">
+				{t?.hero_sub ?? 'The average American wastes $219/month on forgotten subscriptions. CancelKit finds them. CancelKit kills them.'}
+			</p>
+		</div>
+
+		<form class="hero__form" action="/start" method="get">
+			<div class="hero__field-row">
+				<input
+					class="hero__input"
+					type="email"
+					name="email"
+					autocomplete="email"
+					aria-label="Email address"
+					placeholder={t?.email_placeholder ?? 'you@example.com'}
+					required
+				/>
+				<button class="hero__button" type="submit">{t?.cta_button ?? 'Find my subscriptions →'}</button>
+			</div>
+			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card. Scans in 30 seconds.'}</p>
+		</form>
+
+		<div class="hero__proof" aria-label="CancelKit customer results">
+			<p><strong>47,293</strong> <span>subscriptions cancelled</span></p>
+			<p><strong>$2.1M</strong> <span>saved this month</span></p>
+			<p><strong>4.9 ★</strong> <span>rating</span></p>
+		</div>
+	</div>
+
+	<div class="hero__ticker" aria-label="Services cancelled with CancelKit">
+		<div class="hero__ticker-track">
+			<div class="hero__ticker-group">
+				{subscriptions.map((subscription) => <span class="hero__ticker-pill">{subscription}</span>)}
+			</div>
+			<div class="hero__ticker-group" aria-hidden="true">
+				{subscriptions.map((subscription) => <span class="hero__ticker-pill">{subscription}</span>)}
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero {
+		min-height: 100svh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		background: #000;
+		overflow: hidden;
+	}
+
+	.hero__content {
+		width: min(100% - 2.5rem, 68rem);
+		margin: auto;
+		padding: 5rem 0 3rem;
+		text-align: center;
+	}
+	.hero__eyebrow { align-items:center; color:var(--color-muted); display:flex; font-size:.7rem; font-weight:600; gap:.5rem; justify-content:center; letter-spacing:.12em; margin:0 0 1.5rem; }
+	.hero__eyebrow span { background:var(--color-accent); border-radius:50%; height:.45rem; width:.45rem; }
+
+	.hero__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 40px;
+		font-weight: 600;
+		letter-spacing: -0.065em;
+		line-height: 0.98;
+		color: #fff;
+	}
+
+	.hero__title span {
+		display: block;
+	}
+
+	.hero__title-accent {
+		color: #00ff88;
+	}
+
+	.hero__description {
+		margin: 1.75rem auto 0;
+		max-width: 38rem;
+		font-size: 1.0625rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.hero__form {
+		max-width: 39rem;
+		margin: 2.25rem auto 0;
+	}
+
+	.hero__field-row {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.hero__input {
+		min-width: 0;
+		flex: 1;
+		padding: 0.875rem 1rem;
+		border: 1px solid #1a1a1a;
+		border-radius: 4px;
+		background: #0a0a0a;
+		color: #fff;
+		font: inherit;
+	}
+
+	.hero__input::placeholder {
+		color: var(--color-muted);
+	}
+
+	.hero__input:focus-visible,
+	.hero__button:focus-visible {
+		outline: 2px solid #00ff88;
+		outline-offset: 3px;
+	}
+
+	.hero__button {
+		flex: none;
+		border: 0;
+		border-radius: 8px;
+		padding: 0.875rem 1.125rem;
+		background: #00ff88;
+		color: #000;
+		font: inherit;
+		font-weight: 600;
+		cursor: pointer;
+		transition: transform .2s ease, opacity .2s ease;
+	}
+	.hero__button:hover { opacity:.9; transform:translateY(-1px); }
+
+	.hero__reassurance {
+		margin: 0.625rem 0 0;
+		color: var(--color-muted);
+		font-size: 12px;
+	}
+
+	.hero__proof {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		margin: 2.5rem auto 0;
+		color: var(--color-muted);
+	}
+
+	.hero__proof p {
+		margin: 0;
+		padding: 0 1rem;
+		font-size: 0.8125rem;
+		white-space: nowrap;
+	}
+
+	.hero__proof p + p {
+		border-left: 1px solid #1a1a1a;
+	}
+
+	.hero__proof strong {
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.hero__ticker {
+		width: 100%;
+		padding: 1rem 0 2rem;
+	}
+
+	.hero__ticker-track {
+		display: flex;
+		width: max-content;
+		animation: ticker-scroll 28s linear infinite;
+	}
+
+	.hero__ticker-group {
+		display: flex;
+		gap: 0.625rem;
+		padding-right: 0.625rem;
+	}
+
+	.hero__ticker-pill {
+		border: 1px solid #1a1a1a;
+		border-radius: 8px;
+		background: #0a0a0a;
+		color: #fff;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.8125rem;
+		white-space: nowrap;
+	}
+
+	@keyframes ticker-scroll {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+
+	@media (min-width: 48rem) {
+		.hero__content {
+			padding-top: 6rem;
+		}
+
+		.hero__title {
+			font-size: 72px;
+		}
+	}
+
+	@media (max-width: 34rem) {
+		.hero__content {
+			width: min(100% - 2rem, 68rem);
+			padding-top: 4rem;
+		}
+
+		.hero__field-row {
+			flex-direction: column;
+		}
+
+		.hero__button {
+			width: 100%;
+		}
+
+		.hero__proof p {
+			padding: 0.35rem 0.75rem;
+		}
+
+		.hero__desktop-break {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero__ticker-track {
+			animation-play-state: paused;
+		}
+	}
+</style>

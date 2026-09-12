@@ -1,0 +1,907 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Dashboard — CancelKit';
+const description = 'See every subscription draining your account and cancel what you do not need.';
+---
+
+<BaseLayout {title} {description}>
+	<div class="dash" data-dashboard data-connected="false">
+		<!-- EMPTY STATE -->
+		<section class="dash__empty" data-empty-state aria-labelledby="empty-title">
+			<div class="dash__empty-inner">
+				<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+				<h1 id="empty-title">Connect your email to see what's draining you</h1>
+				<p class="dash__empty-copy">We’ll scan receipts for recurring charges. Nothing is cancelled until you say so.</p>
+				<div class="dash__empty-actions">
+					<button type="button" class="dash__btn dash__btn--primary" data-connect="gmail">Connect Gmail</button>
+					<button type="button" class="dash__btn dash__btn--ghost" data-connect="outlook">Connect Outlook</button>
+				</div>
+				<p class="dash__privacy">Read-only access. We never send email or store your password.</p>
+			</div>
+		</section>
+
+		<!-- APP SHELL -->
+		<div class="dash__shell" data-app-shell hidden>
+			<aside class="dash__sidebar" aria-label="Dashboard navigation">
+				<a class="dash__wordmark dash__wordmark--side" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+				<nav class="dash__nav">
+					<a class="is-active" href="/dashboard" data-nav="dashboard">Dashboard</a>
+					<a href="#subscriptions" data-nav="subscriptions">Subscriptions</a>
+					<a href="#savings" data-nav="savings">Savings</a>
+					<a href="#history" data-nav="history">Cancel History</a>
+					<a href="#settings" data-nav="settings">Settings</a>
+				</nav>
+				<div class="dash__connected">
+					<span class="dash__status-dot" aria-hidden="true"></span>
+					<span data-connected-label>Connected: Gmail</span>
+				</div>
+			</aside>
+
+			<section class="dash__main" id="subscriptions" aria-labelledby="subs-heading">
+				<header class="dash__main-header">
+					<div class="dash__main-title-row">
+						<h1 id="subs-heading">Your subscriptions</h1>
+						<div class="dash__filters" role="tablist" aria-label="Filter subscriptions">
+							<button type="button" class="is-active" role="tab" aria-selected="true" data-filter="all">All</button>
+							<button type="button" role="tab" aria-selected="false" data-filter="active">Active</button>
+							<button type="button" role="tab" aria-selected="false" data-filter="cancelled">Cancelled</button>
+							<button type="button" role="tab" aria-selected="false" data-filter="trial">Trial</button>
+						</div>
+					</div>
+					<div class="dash__sort" aria-label="Sort subscriptions">
+						<span class="dash__sort-label">Sort</span>
+						<button type="button" class="is-active" data-sort="amount">By amount</button>
+						<button type="button" data-sort="renewal">By renewal date</button>
+						<button type="button" data-sort="category">By category</button>
+					</div>
+				</header>
+
+				<div class="dash__table-wrap">
+					<table class="dash__table">
+						<thead>
+							<tr>
+								<th scope="col">Service</th>
+								<th scope="col">Amount</th>
+								<th scope="col">Next billing</th>
+								<th scope="col"><span class="sr-only">Actions</span></th>
+							</tr>
+						</thead>
+						<tbody data-sub-list></tbody>
+					</table>
+					<p class="dash__table-empty" data-table-empty hidden>No subscriptions in this view.</p>
+				</div>
+			</section>
+
+			<aside class="dash__panel" id="savings" aria-labelledby="burn-heading">
+				<div class="dash__stat">
+					<p class="dash__stat-label" id="burn-heading">Monthly burn</p>
+					<p class="dash__stat-value dash__stat-value--danger" data-burn-before>$0/mo</p>
+					<p class="dash__stat-meta">Before CancelKit</p>
+				</div>
+
+				<div class="dash__arrow" aria-hidden="true">↓</div>
+
+				<div class="dash__stat">
+					<p class="dash__stat-label">After cancellations</p>
+					<p class="dash__stat-value dash__stat-value--accent" data-burn-after>$0/mo</p>
+					<p class="dash__stat-meta" data-saved-monthly>You saved $0/mo</p>
+				</div>
+
+				<p class="dash__yearly" data-saved-yearly>Yearly saving: $0</p>
+
+				<a class="dash__btn dash__btn--primary dash__btn--block" href="/cancel">Cancel more →</a>
+
+				<section class="dash__history" id="history" aria-labelledby="history-heading">
+					<h2 id="history-heading">Cancel History</h2>
+					<ul data-history-list></ul>
+				</section>
+			</aside>
+		</div>
+	</div>
+</BaseLayout>
+
+<script>
+	type SubStatus = 'active' | 'cancelled' | 'trial';
+	type SubCategory = 'streaming' | 'software' | 'fitness' | 'news';
+
+	interface Subscription {
+		id: string;
+		name: string;
+		category: SubCategory;
+		monthly: number;
+		nextBilling: string; // ISO date
+		status: SubStatus;
+		domain?: string;
+	}
+
+	const STORAGE_KEY = 'cancelkit-dashboard-connected';
+	const PROVIDER_KEY = 'cancelkit-dashboard-provider';
+	const SUBS_KEY = 'cancelkit-dashboard-subs';
+
+	const seed: Subscription[] = [
+		{ id: 'netflix', name: 'Netflix', category: 'streaming', monthly: 15.49, nextBilling: '2026-09-18', status: 'active', domain: 'netflix.com' },
+		{ id: 'spotify', name: 'Spotify', category: 'streaming', monthly: 11.99, nextBilling: '2026-09-12', status: 'active', domain: 'spotify.com' },
+		{ id: 'adobe', name: 'Adobe Creative Cloud', category: 'software', monthly: 59.99, nextBilling: '2026-09-22', status: 'active', domain: 'adobe.com' },
+		{ id: 'hulu', name: 'Hulu', category: 'streaming', monthly: 17.99, nextBilling: '2026-09-09', status: 'cancelled', domain: 'hulu.com' },
+		{ id: 'nyt', name: 'The New York Times', category: 'news', monthly: 17.0, nextBilling: '2026-10-01', status: 'active', domain: 'nytimes.com' },
+		{ id: 'planet', name: 'Planet Fitness', category: 'fitness', monthly: 22.99, nextBilling: '2026-09-15', status: 'active', domain: 'planetfitness.com' },
+		{ id: 'canva', name: 'Canva Pro', category: 'software', monthly: 14.99, nextBilling: '2026-09-28', status: 'trial', domain: 'canva.com' },
+		{ id: 'disney', name: 'Disney+', category: 'streaming', monthly: 15.99, nextBilling: '2026-09-20', status: 'cancelled', domain: 'disneyplus.com' },
+		{ id: 'dropbox', name: 'Dropbox', category: 'software', monthly: 11.99, nextBilling: '2026-09-25', status: 'active', domain: 'dropbox.com' },
+		{ id: 'audible', name: 'Audible', category: 'news', monthly: 14.95, nextBilling: '2026-09-14', status: 'active', domain: 'audible.com' },
+		{ id: 'nord', name: 'NordVPN', category: 'software', monthly: 12.99, nextBilling: '2026-10-05', status: 'trial', domain: 'nordvpn.com' },
+		{ id: 'linkedin', name: 'LinkedIn Premium', category: 'software', monthly: 29.99, nextBilling: '2026-09-30', status: 'active', domain: 'linkedin.com' },
+	];
+
+	const root = document.querySelector<HTMLElement>('[data-dashboard]');
+	const emptyState = document.querySelector<HTMLElement>('[data-empty-state]');
+	const appShell = document.querySelector<HTMLElement>('[data-app-shell]');
+	const listEl = document.querySelector<HTMLElement>('[data-sub-list]');
+	const emptyTable = document.querySelector<HTMLElement>('[data-table-empty]');
+	const historyList = document.querySelector<HTMLElement>('[data-history-list]');
+	const connectedLabel = document.querySelector<HTMLElement>('[data-connected-label]');
+	const burnBeforeEl = document.querySelector<HTMLElement>('[data-burn-before]');
+	const burnAfterEl = document.querySelector<HTMLElement>('[data-burn-after]');
+	const savedMonthlyEl = document.querySelector<HTMLElement>('[data-saved-monthly]');
+	const savedYearlyEl = document.querySelector<HTMLElement>('[data-saved-yearly]');
+
+	let filter: 'all' | SubStatus = 'all';
+	let sort: 'amount' | 'renewal' | 'category' = 'amount';
+	let subs: Subscription[] = loadSubs();
+
+	function loadSubs(): Subscription[] {
+		try {
+			const raw = localStorage.getItem(SUBS_KEY);
+			if (raw) return JSON.parse(raw) as Subscription[];
+		} catch {
+			/* ignore */
+		}
+		return structuredClone(seed);
+	}
+
+	function saveSubs() {
+		localStorage.setItem(SUBS_KEY, JSON.stringify(subs));
+	}
+
+	function money(n: number) {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+			maximumFractionDigits: 2,
+		}).format(n);
+	}
+
+	function formatDate(iso: string) {
+		const d = new Date(`${iso}T12:00:00`);
+		return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+	}
+
+	function initial(name: string) {
+		return name.trim().charAt(0).toUpperCase();
+	}
+
+	function faviconUrl(domain?: string) {
+		if (!domain) return '';
+		return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
+	}
+
+	function isConnected() {
+		const params = new URLSearchParams(window.location.search);
+		if (params.get('empty') === '1') return false;
+		if (params.get('connected') === '1') return true;
+		return localStorage.getItem(STORAGE_KEY) === '1';
+	}
+
+	function setConnected(provider: string) {
+		localStorage.setItem(STORAGE_KEY, '1');
+		localStorage.setItem(PROVIDER_KEY, provider);
+		const label = provider === 'outlook' ? 'Outlook' : 'Gmail';
+		if (connectedLabel) connectedLabel.textContent = `Connected: ${label}`;
+		showApp(true);
+	}
+
+	function showApp(connected: boolean) {
+		root?.setAttribute('data-connected', String(connected));
+		emptyState?.toggleAttribute('hidden', connected);
+		appShell?.toggleAttribute('hidden', !connected);
+		if (connected) {
+			const provider = localStorage.getItem(PROVIDER_KEY) || 'gmail';
+			const label = provider === 'outlook' ? 'Outlook' : 'Gmail';
+			if (connectedLabel) connectedLabel.textContent = `Connected: ${label}`;
+			render();
+		}
+	}
+
+	function visibleSubs() {
+		let rows = [...subs];
+		if (filter !== 'all') rows = rows.filter((s) => s.status === filter);
+
+		rows.sort((a, b) => {
+			if (sort === 'amount') return b.monthly - a.monthly;
+			if (sort === 'renewal') return a.nextBilling.localeCompare(b.nextBilling);
+			return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
+		});
+
+		return rows;
+	}
+
+	function totals() {
+		const before = subs.reduce((sum, s) => sum + s.monthly, 0);
+		const after = subs.filter((s) => s.status !== 'cancelled').reduce((sum, s) => sum + s.monthly, 0);
+		const saved = before - after;
+		return { before, after, saved, yearly: saved * 12 };
+	}
+
+	function renderStats() {
+		const { before, after, saved, yearly } = totals();
+		if (burnBeforeEl) burnBeforeEl.textContent = `${money(before)}/mo`;
+		if (burnAfterEl) burnAfterEl.textContent = `${money(after)}/mo`;
+		if (savedMonthlyEl) savedMonthlyEl.textContent = `You saved ${money(saved)}/mo`;
+		if (savedYearlyEl) savedYearlyEl.textContent = `Yearly saving: ${money(yearly)}`;
+	}
+
+	function renderHistory() {
+		if (!historyList) return;
+		const cancelled = subs.filter((s) => s.status === 'cancelled');
+		historyList.innerHTML = cancelled.length
+			? cancelled
+					.map(
+						(s) =>
+							`<li><span>${escapeHtml(s.name)}</span><span class="dash__saved-inline">Saved ${money(s.monthly)}/mo</span></li>`,
+					)
+					.join('')
+			: `<li class="dash__history-empty">No cancellations yet.</li>`;
+	}
+
+	function escapeHtml(value: string) {
+		return value
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;');
+	}
+
+	function renderList() {
+		if (!listEl) return;
+		const rows = visibleSubs();
+		emptyTable?.toggleAttribute('hidden', rows.length > 0);
+
+		listEl.innerHTML = rows
+			.map((s) => {
+				const cancelled = s.status === 'cancelled';
+				const annual = s.monthly * 12;
+				const icon = faviconUrl(s.domain);
+				const nameClass = cancelled ? 'dash__svc-name is-cancelled' : 'dash__svc-name';
+				const action = cancelled
+					? `<span class="dash__saved-badge">Saved ${money(s.monthly)}</span>`
+					: `<button type="button" class="dash__cancel" data-cancel="${escapeHtml(s.id)}">Cancel</button>`;
+
+				return `<tr class="${cancelled ? 'is-cancelled-row' : ''}" data-id="${escapeHtml(s.id)}">
+					<td>
+						<div class="dash__svc">
+							<span class="dash__logo" data-initial="${initial(s.name)}">
+								${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}
+							</span>
+							<div>
+								<div class="${nameClass}">${escapeHtml(s.name)}</div>
+								<span class="dash__tag">${escapeHtml(s.category)}</span>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class="dash__amount">${money(s.monthly)}</div>
+						<div class="dash__annual">${money(annual)}/yr</div>
+					</td>
+					<td class="dash__date">${formatDate(s.nextBilling)}</td>
+					<td class="dash__actions">${action}</td>
+				</tr>`;
+			})
+			.join('');
+	}
+
+	function render() {
+		renderList();
+		renderStats();
+		renderHistory();
+	}
+
+	function cancelSub(id: string) {
+		const item = subs.find((s) => s.id === id);
+		if (!item || item.status === 'cancelled') return;
+		item.status = 'cancelled';
+		saveSubs();
+		render();
+	}
+
+	// Events
+	document.querySelectorAll<HTMLButtonElement>('[data-connect]').forEach((btn) => {
+		btn.addEventListener('click', () => setConnected(btn.dataset.connect || 'gmail'));
+	});
+
+	document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			filter = (btn.dataset.filter || 'all') as typeof filter;
+			document.querySelectorAll('[data-filter]').forEach((el) => {
+				const active = el === btn;
+				el.classList.toggle('is-active', active);
+				el.setAttribute('aria-selected', String(active));
+			});
+			renderList();
+		});
+	});
+
+	document.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			sort = (btn.dataset.sort || 'amount') as typeof sort;
+			document.querySelectorAll('[data-sort]').forEach((el) => el.classList.toggle('is-active', el === btn));
+			renderList();
+		});
+	});
+
+	listEl?.addEventListener('click', (event) => {
+		const target = event.target as HTMLElement | null;
+		const btn = target?.closest<HTMLButtonElement>('[data-cancel]');
+		if (!btn?.dataset.cancel) return;
+		cancelSub(btn.dataset.cancel);
+	});
+
+	document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((link) => {
+		link.addEventListener('click', () => {
+			document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('is-active', el === link));
+		});
+	});
+
+	showApp(isConnected());
+</script>
+
+<style>
+	.dash {
+		min-height: 100svh;
+		background: #000;
+		color: #fff;
+		font-family: var(--font-body);
+	}
+
+	.dash__wordmark {
+		font-family: var(--font-display);
+		font-size: 1.05rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+		text-decoration: none;
+	}
+
+	.dash__wordmark-i {
+		color: var(--color-accent);
+	}
+
+	/* Empty */
+	.dash__empty {
+		min-height: 100svh;
+		display: grid;
+		place-items: center;
+		padding: 2rem 1.25rem;
+	}
+
+	.dash__empty-inner {
+		width: min(100%, 26rem);
+		text-align: center;
+	}
+
+	.dash__empty-inner .dash__wordmark {
+		display: inline-block;
+		margin-bottom: 2rem;
+	}
+
+	.dash__empty h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.5rem, 3.5vw, 1.85rem);
+		font-weight: 600;
+		letter-spacing: -0.045em;
+		line-height: 1.2;
+	}
+
+	.dash__empty-copy {
+		margin: 0.85rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		line-height: 1.5;
+	}
+
+	.dash__empty-actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.65rem;
+		margin-top: 1.75rem;
+	}
+
+	.dash__privacy {
+		margin: 1.25rem 0 0;
+		font-size: 0.8rem;
+		line-height: 1.45;
+		color: var(--color-muted);
+	}
+
+	/* Buttons */
+	.dash__btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.65rem 1rem;
+		border-radius: var(--radius-input);
+		border: 1px solid transparent;
+		font: inherit;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		text-decoration: none;
+		transition: opacity 0.15s ease;
+	}
+
+	.dash__btn:hover {
+		opacity: 0.9;
+	}
+
+	.dash__btn--primary {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.dash__btn--ghost {
+		background: transparent;
+		border-color: var(--color-border);
+		color: #fff;
+	}
+
+	.dash__btn--block {
+		width: 100%;
+		margin-top: 1.5rem;
+	}
+
+	/* Shell */
+	.dash__shell {
+		display: grid;
+		grid-template-columns: 240px minmax(0, 1fr) 320px;
+		min-height: 100svh;
+	}
+
+	.dash__shell[hidden],
+	.dash__empty[hidden] {
+		display: none !important;
+	}
+
+	/* Sidebar */
+	.dash__sidebar {
+		display: flex;
+		flex-direction: column;
+		border-right: 1px solid var(--color-border);
+		padding: 1.25rem 1rem;
+		background: #000;
+	}
+
+	.dash__wordmark--side {
+		padding: 0.35rem 0.5rem 1.25rem;
+	}
+
+	.dash__nav {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		flex: 1;
+	}
+
+	.dash__nav a {
+		padding: 0.55rem 0.65rem;
+		border-radius: var(--radius-input);
+		color: var(--color-muted);
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+	}
+
+	.dash__nav a:hover {
+		color: #fff;
+		background: var(--color-surface);
+	}
+
+	.dash__nav a.is-active {
+		color: #fff;
+		background: var(--color-surface);
+	}
+
+	.dash__connected {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 0.65rem 0.25rem;
+		border-top: 1px solid var(--color-border);
+		margin-top: 1rem;
+		font-size: 0.8rem;
+		color: var(--color-muted);
+	}
+
+	.dash__status-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 999px;
+		background: var(--color-accent);
+		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+	}
+
+	/* Main */
+	.dash__main {
+		padding: 1.35rem 1.5rem 2rem;
+		border-right: 1px solid var(--color-border);
+		min-width: 0;
+	}
+
+	.dash__main-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.dash__main-title-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem 1rem;
+	}
+
+	.dash__main h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 600;
+		letter-spacing: -0.03em;
+	}
+
+	.dash__filters,
+	.dash__sort {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.dash__filters button,
+	.dash__sort button {
+		appearance: none;
+		border: 0;
+		background: transparent;
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.8rem;
+		font-weight: 500;
+		padding: 0.35rem 0.55rem;
+		border-radius: var(--radius-input);
+		cursor: pointer;
+	}
+
+	.dash__filters button.is-active,
+	.dash__sort button.is-active {
+		color: #fff;
+		background: var(--color-surface);
+	}
+
+	.dash__sort-label {
+		font-size: 0.75rem;
+		color: #555;
+		margin-right: 0.25rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	/* Table */
+	.dash__table-wrap {
+		margin-top: 0.5rem;
+		overflow-x: auto;
+	}
+
+	.dash__table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.875rem;
+	}
+
+	.dash__table th {
+		padding: 0.65rem 0.5rem;
+		border-bottom: 1px solid var(--color-border);
+		text-align: left;
+		font-size: 0.7rem;
+		font-weight: 500;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: #555;
+	}
+
+	.dash__table td {
+		padding: 0.85rem 0.5rem;
+		border-bottom: 1px solid #1a1a1a;
+		vertical-align: middle;
+	}
+
+	.dash__table tr:last-child td {
+		border-bottom-color: transparent;
+	}
+
+	.dash__svc {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 12rem;
+	}
+
+	.dash__logo {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		flex-shrink: 0;
+		border-radius: 6px;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		overflow: hidden;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--color-muted);
+	}
+
+	.dash__logo::before {
+		content: attr(data-initial);
+	}
+
+	.dash__logo img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		background: #111;
+	}
+
+	.dash__svc-name {
+		font-weight: 500;
+		color: #fff;
+		line-height: 1.25;
+	}
+
+	.dash__svc-name.is-cancelled {
+		text-decoration: line-through;
+		color: var(--color-muted);
+	}
+
+	.dash__tag {
+		display: inline-block;
+		margin-top: 0.2rem;
+		font-size: 0.7rem;
+		color: var(--color-muted);
+		text-transform: lowercase;
+	}
+
+	.dash__amount {
+		font-weight: 500;
+		color: #fff;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.dash__annual {
+		margin-top: 0.15rem;
+		font-size: 0.75rem;
+		color: var(--color-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.dash__date {
+		color: var(--color-muted);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	.dash__actions {
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.dash__cancel {
+		appearance: none;
+		border: 1px solid rgba(255, 68, 68, 0.35);
+		background: transparent;
+		color: #ff4444;
+		font: inherit;
+		font-size: 0.75rem;
+		font-weight: 600;
+		padding: 0.3rem 0.55rem;
+		border-radius: var(--radius-input);
+		cursor: pointer;
+	}
+
+	.dash__cancel:hover {
+		background: rgba(255, 68, 68, 0.1);
+	}
+
+	.dash__saved-badge {
+		display: inline-flex;
+		padding: 0.25rem 0.45rem;
+		border-radius: var(--radius-input);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		font-size: 0.72rem;
+		font-weight: 600;
+	}
+
+	.dash__table-empty {
+		margin: 2rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.9rem;
+	}
+
+	/* Right panel */
+	.dash__panel {
+		padding: 1.35rem 1.25rem 2rem;
+		background: #000;
+	}
+
+	.dash__stat {
+		padding: 1rem 0;
+	}
+
+	.dash__stat + .dash__arrow + .dash__stat {
+		border-top: 0;
+	}
+
+	.dash__stat-label {
+		margin: 0;
+		font-size: 0.75rem;
+		font-weight: 500;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: #666;
+	}
+
+	.dash__stat-value {
+		margin: 0.45rem 0 0;
+		font-family: var(--font-display);
+		font-size: 2rem;
+		font-weight: 600;
+		letter-spacing: -0.05em;
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+	}
+
+	.dash__stat-value--danger {
+		color: #ff4444;
+	}
+
+	.dash__stat-value--accent {
+		color: var(--color-accent);
+	}
+
+	.dash__stat-meta {
+		margin: 0.5rem 0 0;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.dash__arrow {
+		color: #444;
+		font-size: 1rem;
+		padding: 0.15rem 0;
+	}
+
+	.dash__yearly {
+		margin: 1.25rem 0 0;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--color-border);
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.dash__history {
+		margin-top: 2rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.dash__history h2 {
+		margin: 0 0 0.75rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: #666;
+	}
+
+	.dash__history ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.55rem;
+	}
+
+	.dash__history li {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.75rem;
+		font-size: 0.8rem;
+		color: #ccc;
+	}
+
+	.dash__history-empty {
+		color: var(--color-muted);
+	}
+
+	.dash__saved-inline {
+		color: var(--color-accent);
+		font-weight: 500;
+		white-space: nowrap;
+	}
+
+	@media (max-width: 1100px) {
+		.dash__shell {
+			grid-template-columns: 200px minmax(0, 1fr);
+		}
+
+		.dash__panel {
+			grid-column: 1 / -1;
+			border-top: 1px solid var(--color-border);
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0 1.5rem;
+		}
+
+		.dash__yearly,
+		.dash__btn--block,
+		.dash__history {
+			grid-column: 1 / -1;
+		}
+
+		.dash__main {
+			border-right: 0;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.dash__shell {
+			grid-template-columns: 1fr;
+		}
+
+		.dash__sidebar {
+			border-right: 0;
+			border-bottom: 1px solid var(--color-border);
+		}
+
+		.dash__nav {
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: 0.25rem;
+		}
+
+		.dash__connected {
+			border-top: 0;
+			margin-top: 0.5rem;
+			padding-top: 0;
+		}
+
+		.dash__panel {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.dash__btn {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,234 @@
+---
+import { getCollection } from 'astro:content';
+import Nav from '../../components/Nav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogCategoryLabel, type BlogCategory } from '../../data/blog';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const title = 'Blog — Subscription tips, cancel guides, and savings | CancelKit';
+const description =
+	'High-intent guides on finding forgotten subscriptions, stopping mystery charges, and saving money in 2026.';
+
+const categories: Array<BlogCategory | 'all'> = ['all', 'cancel-guides', 'save-money', 'subscription-tips'];
+
+function formatDate(date: Date) {
+	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="blog">
+		<header class="blog__header">
+			<p class="blog__eyebrow">Blog</p>
+			<h1 class="blog__title">Stop the bleed. Keep the money.</h1>
+			<p class="blog__lede">
+				Practical writing on forgotten subscriptions, free-trial traps, and cancel tactics that actually work.
+			</p>
+			<div class="blog__filters" role="tablist" aria-label="Filter by category">
+				{
+					categories.map((category) => (
+						<button
+							type="button"
+							class={category === 'all' ? 'is-active' : undefined}
+							role="tab"
+							aria-selected={category === 'all' ? 'true' : 'false'}
+							data-filter={category}
+						>
+							{category === 'all' ? 'All' : blogCategoryLabel[category]}
+						</button>
+					))
+				}
+			</div>
+		</header>
+
+		<ul class="blog__grid" data-blog-grid>
+			{
+				posts.map((post) => (
+					<li data-post-card data-category={post.data.category}>
+						<a href={`/blog/${post.id}`}>
+							<span class="blog__cat">{blogCategoryLabel[post.data.category as BlogCategory]}</span>
+							<h2>{post.data.title}</h2>
+							<p class="blog__excerpt">{post.data.description}</p>
+							<p class="blog__card-meta">
+								<span>{post.data.readTime}</span>
+								<span aria-hidden="true">·</span>
+								<time datetime={post.data.publishDate.toISOString()}>
+									{formatDate(post.data.publishDate)}
+								</time>
+							</p>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+
+		<p class="blog__empty hidden" data-empty>No posts in this category.</p>
+	</main>
+</BaseLayout>
+
+<script>
+	const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+	const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-post-card]'));
+	const empty = document.querySelector<HTMLElement>('[data-empty]');
+
+	buttons.forEach((button) => {
+		button.addEventListener('click', () => {
+			const filter = button.dataset.filter || 'all';
+			buttons.forEach((el) => {
+				const active = el === button;
+				el.classList.toggle('is-active', active);
+				el.setAttribute('aria-selected', String(active));
+			});
+
+			let visible = 0;
+			cards.forEach((card) => {
+				const show = filter === 'all' || card.dataset.category === filter;
+				card.classList.toggle('hidden', !show);
+				if (show) visible += 1;
+			});
+			empty?.classList.toggle('hidden', visible > 0);
+		});
+	});
+</script>
+
+<style>
+	.blog {
+		padding: 2.5rem 0 5rem;
+		background:
+			radial-gradient(ellipse 70% 40% at 50% -10%, rgba(0, 255, 136, 0.06), transparent),
+			#000;
+	}
+
+	.blog__header,
+	.blog__grid,
+	.blog__empty {
+		width: min(100% - 2.5rem, 68rem);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.blog__eyebrow {
+		margin: 0;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.blog__title {
+		margin: 0.85rem 0 0;
+		max-width: 16ch;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 3rem);
+		font-weight: 600;
+		letter-spacing: -0.055em;
+		line-height: 1.02;
+		color: #fff;
+	}
+
+	.blog__lede {
+		margin: 1rem 0 0;
+		max-width: 36rem;
+		color: var(--color-muted);
+		line-height: 1.55;
+	}
+
+	.blog__filters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin-top: 1.75rem;
+	}
+
+	.blog__filters button {
+		appearance: none;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.8rem;
+		font-weight: 500;
+		padding: 0.4rem 0.7rem;
+		border-radius: var(--radius-input);
+		cursor: pointer;
+	}
+
+	.blog__filters button.is-active {
+		border-color: rgba(0, 255, 136, 0.35);
+		color: #fff;
+	}
+
+	.blog__grid {
+		margin: 2.5rem 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+		gap: 1rem;
+	}
+
+	.blog__grid a {
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+		padding: 1.15rem 1.1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		text-decoration: none;
+		transition: border-color 0.15s ease;
+	}
+
+	.blog__grid a:hover {
+		border-color: rgba(0, 255, 136, 0.35);
+	}
+
+	.blog__cat {
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.blog__grid h2 {
+		margin: 0.65rem 0 0;
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		line-height: 1.25;
+		color: #fff;
+	}
+
+	.blog__excerpt {
+		margin: 0.65rem 0 0;
+		flex: 1;
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--color-muted);
+	}
+
+	.blog__card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin: 1rem 0 0;
+		font-size: 0.8rem;
+		color: #666;
+	}
+
+	.blog__empty {
+		margin-top: 2rem;
+		color: var(--color-muted);
+	}
+
+	.hidden {
+		display: none !important;
+	}
+</style>

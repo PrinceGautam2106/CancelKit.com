@@ -1,0 +1,475 @@
+---
+import Nav from '../../components/Nav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { cancelGuideBlogLinks } from '../../data/blog';
+import AlternativeCard from '../../components/AlternativeCard.astro';
+import {
+	buildFaqs,
+	difficultyLabel,
+	formatPrice,
+	getRelatedServices,
+	services,
+	type CancelDifficulty,
+	type Service,
+} from '../../data/services';
+
+export function getStaticPaths() {
+	return services.map((service) => ({
+		params: { service: service.slug },
+		props: { service },
+	}));
+}
+
+interface Props {
+	service: Service;
+}
+
+const { service } = Astro.props;
+const related = getRelatedServices(service);
+const faqs = buildFaqs(service);
+const yearlyCost = service.monthlyPrice * 12;
+
+const howToSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'HowTo',
+	name: `How to Cancel ${service.name}`,
+	description: service.metaDescription,
+	totalTime: `PT${service.timeToCancel.includes('minute') ? service.timeToCancel.replace(/[^0-9]/g, '') || '5' : '15'}M`,
+	step: service.steps.map((text, index) => ({
+		'@type': 'HowToStep',
+		position: index + 1,
+		name: `Step ${index + 1}`,
+		text,
+	})),
+};
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: faqs.map((faq) => ({
+		'@type': 'Question',
+		name: faq.question,
+		acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+	})),
+};
+
+const difficultyClass: Record<CancelDifficulty, string> = {
+	easy: 'is-easy',
+	medium: 'is-medium',
+	hard: 'is-hard',
+	nightmare: 'is-nightmare',
+};
+---
+
+<BaseLayout title={service.metaTitle} description={service.metaDescription}>
+	<Nav />
+	<main class="guide">
+		<article class="guide__article">
+			<header class="guide__header">
+				<p class="guide__eyebrow">Cancel guide · {service.category}</p>
+				<h1 class="guide__title">How to Cancel {service.name} in 2026</h1>
+				<p class="guide__lede">
+					{service.name} costs about {formatPrice(service.monthlyPrice)}/month ({formatPrice(yearlyCost)}/year).
+					Cancel via {service.cancelMethod} in about {service.timeToCancel}.
+				</p>
+				<div class="guide__meta">
+					<span class:list={['guide__badge', difficultyClass[service.cancelDifficulty]]}>
+						{difficultyLabel(service.cancelDifficulty)} to cancel
+					</span>
+					<span class="guide__chip">{service.cancelMethod}</span>
+					<span class="guide__chip">{service.timeToCancel}</span>
+					<span class="guide__chip">{formatPrice(service.monthlyPrice)}/mo</span>
+				</div>
+			</header>
+
+			<section class="guide__steps" aria-labelledby="steps-heading">
+				<h2 id="steps-heading">Step-by-step: cancel {service.name}</h2>
+				<ol class="guide__step-list">
+					{
+						service.steps.map((step, index) => (
+							<li>
+								<span class="guide__step-num" aria-hidden="true">
+									{index + 1}
+								</span>
+								<p>{step}</p>
+							</li>
+						))
+					}
+				</ol>
+				{
+					service.willTheyOfferDiscount && (
+						<p class="guide__note">
+							Expect a retention offer before you finish. Decline it if you want the cancel to stick.
+						</p>
+					)
+				}
+			</section>
+
+			<aside class="guide__cta" aria-labelledby="cta-heading">
+				<h2 id="cta-heading">Skip the hassle — cancel {service.name} with CancelKit in one click</h2>
+				<p>
+					CancelKit finds {service.name}, cancels it for you, and watches for surprise renewals so you do not
+					pay another month by accident.
+				</p>
+				<a class="guide__cta-button" href="/start">Cancel {service.name} with CancelKit →</a>
+			</aside>
+			<AlternativeCard {service} />
+
+			<section class="guide__faq" aria-labelledby="faq-heading">
+				<h2 id="faq-heading">Frequently asked questions</h2>
+				<div class="guide__faq-list">
+					{
+						faqs.map((faq) => (
+							<details class="guide__faq-item">
+								<summary>{faq.question}</summary>
+								<p>{faq.answer}</p>
+							</details>
+						))
+					}
+				</div>
+			</section>
+
+			<section class="guide__related" aria-labelledby="related-heading">
+				<h2 id="related-heading">Related cancellations</h2>
+				<ul class="guide__related-list">
+					{
+						related.map((item) => (
+							<li>
+								<a href={`/cancel/${item.slug}`}>
+									<span class="guide__related-name">{item.name}</span>
+									<span class:list={['guide__related-diff', difficultyClass[item.cancelDifficulty]]}>
+										{difficultyLabel(item.cancelDifficulty)}
+									</span>
+									<span class="guide__related-price">{formatPrice(item.monthlyPrice)}/mo</span>
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</section>
+
+			<section class="guide__blog" aria-labelledby="blog-heading">
+				<h2 id="blog-heading">From the blog</h2>
+				<ul class="guide__blog-list">
+					{
+						cancelGuideBlogLinks.map((post) => (
+							<li>
+								<a href={`/blog/${post.slug}`}>{post.title}</a>
+							</li>
+						))
+					}
+				</ul>
+			</section>
+		</article>
+	</main>
+	<script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+	<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</BaseLayout>
+
+<style>
+	.guide {
+		padding: 2.5rem 0 5rem;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 255, 136, 0.08), transparent),
+			#000;
+	}
+
+	.guide__article {
+		width: min(100% - 2.5rem, 44rem);
+		margin: 0 auto;
+	}
+
+	.guide__eyebrow {
+		margin: 0;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.guide__title {
+		margin: 0.85rem 0 0;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 2.75rem);
+		font-weight: 600;
+		letter-spacing: -0.055em;
+		line-height: 1.05;
+		color: #fff;
+	}
+
+	.guide__lede {
+		margin: 1.1rem 0 0;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.guide__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.guide__badge,
+	.guide__chip,
+	.guide__related-diff {
+		display: inline-flex;
+		align-items: center;
+		border-radius: var(--radius-input);
+		font-size: 0.8rem;
+		font-weight: 600;
+	}
+
+	.guide__badge {
+		padding: 0.35rem 0.65rem;
+	}
+
+	.guide__badge.is-easy,
+	.guide__related-diff.is-easy {
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+	}
+
+	.guide__badge.is-medium,
+	.guide__related-diff.is-medium {
+		background: rgba(245, 197, 66, 0.14);
+		color: #f5c542;
+	}
+
+	.guide__badge.is-hard,
+	.guide__related-diff.is-hard {
+		background: rgba(255, 140, 66, 0.14);
+		color: #ff8c42;
+	}
+
+	.guide__badge.is-nightmare,
+	.guide__related-diff.is-nightmare {
+		background: rgba(255, 68, 68, 0.14);
+		color: var(--color-danger);
+	}
+
+	.guide__chip {
+		padding: 0.35rem 0.65rem;
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: #fff;
+		font-weight: 500;
+		text-transform: capitalize;
+	}
+
+	.guide__steps,
+	.guide__faq,
+	.guide__related,
+	.guide__blog {
+		margin-top: 3rem;
+	}
+
+	.guide__steps h2,
+	.guide__faq h2,
+	.guide__related h2,
+	.guide__blog h2,
+	.guide__cta h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.45rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.guide__step-list {
+		margin: 1.25rem 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.guide__step-list li {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.9rem;
+		align-items: start;
+		padding: 1rem 1.1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+	}
+
+	.guide__step-num {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 999px;
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.guide__step-list p,
+	.guide__note,
+	.guide__cta p,
+	.guide__faq-item p {
+		margin: 0;
+		line-height: 1.55;
+		color: var(--color-muted);
+	}
+
+	.guide__step-list p {
+		color: #e8e8e8;
+		padding-top: 0.15rem;
+	}
+
+	.guide__note {
+		margin-top: 1rem;
+		padding: 0.85rem 1rem;
+		border-left: 2px solid #f5c542;
+		color: #f5c542;
+		background: rgba(245, 197, 66, 0.06);
+	}
+
+	.guide__cta {
+		margin-top: 3rem;
+		padding: 1.5rem 1.35rem;
+		border: 1px solid rgba(0, 255, 136, 0.28);
+		border-radius: var(--radius-card);
+		background:
+			linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent 55%),
+			var(--color-surface);
+	}
+
+	.guide__cta p {
+		margin-top: 0.75rem;
+	}
+
+	.guide__cta-button {
+		display: inline-flex;
+		margin-top: 1.15rem;
+		padding: 0.8rem 1.15rem;
+		border-radius: var(--radius-input);
+		background: var(--color-accent);
+		color: #000;
+		font-size: 0.95rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition: opacity 0.15s ease;
+	}
+
+	.guide__cta-button:hover {
+		opacity: 0.9;
+	}
+
+	.guide__faq-list {
+		margin-top: 1.1rem;
+		display: grid;
+		gap: 0.65rem;
+	}
+
+	.guide__faq-item {
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		padding: 0.9rem 1rem;
+	}
+
+	.guide__faq-item summary {
+		cursor: pointer;
+		font-weight: 600;
+		color: #fff;
+		list-style: none;
+	}
+
+	.guide__faq-item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.guide__faq-item[open] summary {
+		margin-bottom: 0.65rem;
+	}
+
+	.guide__related-list {
+		margin: 1.15rem 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.65rem;
+	}
+
+	.guide__related-list a {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		gap: 0.75rem;
+		align-items: center;
+		padding: 0.95rem 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		text-decoration: none;
+		transition: border-color 0.15s ease;
+	}
+
+	.guide__related-list a:hover {
+		border-color: rgba(0, 255, 136, 0.35);
+	}
+
+	.guide__related-name {
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.guide__related-diff {
+		padding: 0.2rem 0.45rem;
+		font-size: 0.72rem;
+	}
+
+	.guide__related-price {
+		color: var(--color-muted);
+		font-size: 0.85rem;
+	}
+
+	.guide__blog-list {
+		margin: 1rem 0 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.55rem;
+	}
+
+	.guide__blog-list a {
+		display: block;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		color: #fff;
+		font-weight: 500;
+		text-decoration: none;
+		transition: border-color 0.15s ease;
+	}
+
+	.guide__blog-list a:hover {
+		border-color: rgba(0, 255, 136, 0.35);
+	}
+
+	@media (max-width: 560px) {
+		.guide__related-list a {
+			grid-template-columns: 1fr auto;
+		}
+
+		.guide__related-price {
+			grid-column: 1 / -1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.guide__cta-button,
+		.guide__related-list a {
+			transition: none;
+		}
+	}
+</style>

@@ -1,0 +1,269 @@
+---
+import { getCollection, render } from 'astro:content';
+import Nav from '../../components/Nav.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogCategoryLabel, type BlogCategory } from '../../data/blog';
+import AdUnit from '../../components/AdUnit.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: { post },
+	}));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const category = post.data.category as BlogCategory;
+
+const title = `${post.data.title} | CancelKit Blog`;
+const description = post.data.description;
+
+const articleSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Article',
+	headline: post.data.title,
+	description: post.data.description,
+	datePublished: post.data.publishDate.toISOString(),
+	dateModified: post.data.updatedDate.toISOString(),
+	keywords: post.data.keywords.join(', '),
+	author: { '@type': 'Organization', name: 'CancelKit' },
+	publisher: { '@type': 'Organization', name: 'CancelKit', url: 'https://cancelkit.com' },
+	mainEntityOfPage: `https://cancelkit.com/blog/${post.id}`,
+};
+
+function formatDate(date: Date) {
+	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="post">
+		<article class="post__article">
+			<header class="post__header">
+				<p class="post__meta">
+					<a href="/blog">Blog</a>
+					<span aria-hidden="true">/</span>
+					<span>{blogCategoryLabel[category]}</span>
+				</p>
+				<h1 class="post__title">{post.data.title}</h1>
+				<p class="post__desc">{post.data.description}</p>
+				<p class="post__byline">
+					<time datetime={post.data.publishDate.toISOString()}>{formatDate(post.data.publishDate)}</time>
+					<span aria-hidden="true">·</span>
+					<span>{post.data.readTime} read</span>
+					<span aria-hidden="true">·</span>
+					<span>Updated {formatDate(post.data.updatedDate)}</span>
+				</p>
+			</header>
+
+			<div class="post__content">
+				<Content />
+			</div>
+
+			<aside class="post__cta" aria-labelledby="post-cta">
+				<h2 id="post-cta">Stop reading about it — cancel with CancelKit in 30 seconds</h2>
+				<p>Connect your email, see the burn, and kill what you do not use.</p>
+				<a href="/start">Start free →</a>
+			</aside>
+			<AdUnit />
+		</article>
+	</main>
+	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+</BaseLayout>
+
+<style>
+	.post {
+		padding: 2.5rem 0 5rem;
+		background: #000;
+	}
+
+	.post__article {
+		width: min(100% - 2.5rem, 42rem);
+		margin: 0 auto;
+	}
+
+	.post__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		margin: 0;
+		font-size: 0.8rem;
+		color: var(--color-muted);
+	}
+
+	.post__meta a {
+		color: var(--color-accent);
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.post__title {
+		margin: 0.85rem 0 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.85rem, 4.5vw, 2.6rem);
+		font-weight: 600;
+		letter-spacing: -0.05em;
+		line-height: 1.08;
+		color: #fff;
+	}
+
+	.post__desc {
+		margin: 1rem 0 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+		line-height: 1.55;
+	}
+
+	.post__byline {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		margin: 1.1rem 0 0;
+		font-size: 0.85rem;
+		color: #666;
+	}
+
+	.post__content {
+		margin-top: 2.5rem;
+		font-size: 1.02rem;
+		line-height: 1.7;
+		color: #d4d4d4;
+	}
+
+	.post__content :global(h2) {
+		margin: 2.25rem 0 0.85rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.post__content :global(h3) {
+		margin: 1.75rem 0 0.65rem;
+		font-family: var(--font-display);
+		font-size: 1.1rem;
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.post__content :global(p),
+	.post__content :global(ul),
+	.post__content :global(ol),
+	.post__content :global(blockquote) {
+		margin: 0.9rem 0 0;
+	}
+
+	.post__content :global(ul),
+	.post__content :global(ol) {
+		padding-left: 1.25rem;
+	}
+
+	.post__content :global(li + li) {
+		margin-top: 0.35rem;
+	}
+
+	.post__content :global(a) {
+		color: var(--color-accent);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.post__content :global(strong) {
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.post__content :global(blockquote) {
+		padding: 0.75rem 1rem;
+		border-left: 2px solid var(--color-border);
+		color: var(--color-muted);
+		background: var(--color-surface);
+	}
+
+	.post__content :global(table) {
+		width: 100%;
+		margin: 1.1rem 0 0;
+		border-collapse: collapse;
+		font-size: 0.9rem;
+	}
+
+	.post__content :global(th),
+	.post__content :global(td) {
+		padding: 0.55rem 0.45rem;
+		border-bottom: 1px solid var(--color-border);
+		text-align: left;
+	}
+
+	.post__content :global(th) {
+		color: #888;
+		font-weight: 500;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.post__content :global(pre),
+	.post__content :global(code) {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 0.85em;
+	}
+
+	.post__content :global(pre) {
+		margin: 1rem 0 0;
+		padding: 0.9rem 1rem;
+		overflow-x: auto;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		color: #ccc;
+	}
+
+	.post__content :global(code) {
+		padding: 0.1rem 0.3rem;
+		border-radius: 3px;
+		background: var(--color-surface);
+	}
+
+	.post__content :global(pre code) {
+		padding: 0;
+		background: transparent;
+	}
+
+	.post__cta {
+		margin-top: 3rem;
+		padding: 1.35rem 1.25rem;
+		border: 1px solid rgba(0, 255, 136, 0.28);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+	}
+
+	.post__cta h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.post__cta p {
+		margin: 0.6rem 0 0;
+		color: var(--color-muted);
+		line-height: 1.5;
+	}
+
+	.post__cta a {
+		display: inline-flex;
+		margin-top: 1rem;
+		padding: 0.75rem 1.05rem;
+		border-radius: var(--radius-input);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		text-decoration: none;
+	}
+</style>

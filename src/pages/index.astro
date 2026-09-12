@@ -1,0 +1,17 @@
+---
+import Nav from '../components/Nav.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../sections/Hero.astro';
+import HowItWorks from '../sections/HowItWorks.astro';
+import Pricing from '../sections/Pricing.astro';
+import { translations } from '../i18n/translations';
+---
+
+<BaseLayout>
+	<Nav />
+	<main>
+		<Hero t={translations.en} />
+		<HowItWorks t={translations.en} />
+		<Pricing t={translations.en} />
+	</main>
+</BaseLayout>

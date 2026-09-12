@@ -1,0 +1,7 @@
+---
+import type { Service } from '../data/services';
+interface Props { service: Service; }
+const { service } = Astro.props;
+---
+{service.alternatives.length > 0 && <section class="alternatives"><p><strong>{service.name} cancelled.</strong> Save {`$${service.monthlyPrice.toFixed(2)}`}/mo — here’s what CancelKit users switch to:</p><div>{service.alternatives.slice(0, 3).map((alt) => <article><span class="logo">{alt.name.slice(0, 1)}</span><h3>{alt.name}</h3><small>{alt.description}</small><p>{service.name}: ${service.monthlyPrice.toFixed(2)}/mo → <b>{alt.monthlyCost === 0 ? 'FREE' : `$${alt.monthlyCost}/mo`}</b></p><a href={alt.affiliateUrl} target="_blank" rel="sponsored noopener">Try it free →</a></article>)}</div></section>}
+<style>.alternatives{border-top:1px solid var(--color-border);margin-top:3rem;padding-top:2rem}.alternatives>p{color:var(--color-muted)}.alternatives>div{display:grid;gap:1rem;grid-template-columns:repeat(3,1fr)}.alternatives article{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);padding:1rem}.logo{align-items:center;background:#000;border:1px solid var(--color-border);border-radius:50%;color:var(--color-accent);display:inline-flex;height:2rem;justify-content:center}.alternatives h3{margin:.7rem 0 .2rem}.alternatives small,.alternatives article p{color:var(--color-muted)}.alternatives b{color:var(--color-accent)}.alternatives a{color:var(--color-accent);font-weight:600;text-decoration:none}@media(max-width:40rem){.alternatives>div{grid-template-columns:1fr}}</style>

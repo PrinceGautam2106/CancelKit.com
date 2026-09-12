@@ -2,7 +2,7 @@
 import '../styles/global.css';
 
 interface Props { title?: string; description?: string; ogImage?: string; }
-const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png' } = Astro.props;
+const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png', lang = 'en' } = Astro.props;
 const siteUrl = Astro.site ?? new URL('https://cancelkit.com');
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
 const imageUrl = new URL(ogImage, siteUrl).href;
@@ -11,7 +11,7 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,7 +33,7 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={imageUrl} />
-		<link rel="alternate" hreflang="en" href={new URL(`/en${languagePath}`, siteUrl).href} />
+		<link rel="alternate" hreflang="en" href={new URL(languagePath || '/', siteUrl).href} />
 		<link rel="alternate" hreflang="es" href={new URL(`/es${languagePath}`, siteUrl).href} />
 		<link rel="alternate" hreflang="fr" href={new URL(`/fr${languagePath}`, siteUrl).href} />
 		<link rel="alternate" hreflang="de" href={new URL(`/de${languagePath}`, siteUrl).href} />

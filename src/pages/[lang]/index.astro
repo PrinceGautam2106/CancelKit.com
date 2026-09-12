@@ -1,0 +1,6 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'; import Nav from '../../components/Nav.astro'; import Hero from '../../sections/Hero.astro'; import HowItWorks from '../../sections/HowItWorks.astro'; import Pricing from '../../sections/Pricing.astro'; import { locales, translations, type Locale } from '../../i18n/translations';
+export function getStaticPaths() { return locales.filter((lang) => lang !== 'en').map((lang) => ({ params: { lang } })); }
+const lang = Astro.params.lang as Locale; const t = translations[lang];
+---
+<BaseLayout lang={lang} title={t.meta_title} description={t.meta_description}><Nav /><main><Hero t={t} /><HowItWorks t={t} /><Pricing t={t} /></main></BaseLayout>

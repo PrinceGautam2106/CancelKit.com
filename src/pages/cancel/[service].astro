@@ -1,5 +1,6 @@
 ---
 import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { cancelGuideBlogLinks } from '../../data/blog';
 import AlternativeCard from '../../components/AlternativeCard.astro';
@@ -29,6 +30,11 @@ const related = getRelatedServices(service);
 const faqs = buildFaqs(service);
 const yearlyCost = service.monthlyPrice * 12;
 
+// Try to parse out the direct URL if present in steps
+const urlMatch = service.steps.join(' ').match(/([a-zA-Z0-9-]+\.[a-zA-Z]{2,}\/[^\s,\)]+)/i) || 
+                 service.steps.join(' ').match(/([a-zA-Z0-9-]+\.(?:com|org|net|io|co|app))/i);
+const extractedUrl = urlMatch ? `https://${urlMatch[1].replace(/^(https?:\/\/)/, '')}` : null;
+
 const howToSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'HowTo',
@@ -53,6 +59,16 @@ const faqSchema = {
 	})),
 };
 
+const breadcrumbSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: [
+		{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://cancelkit.com/' },
+		{ '@type': 'ListItem', position: 2, name: 'Cancel Guides', item: 'https://cancelkit.com/cancel/' },
+		{ '@type': 'ListItem', position: 3, name: `Cancel ${service.name}`, item: `https://cancelkit.com/cancel/${service.slug}` },
+	],
+};
+
 const difficultyClass: Record<CancelDifficulty, string> = {
 	easy: 'is-easy',
 	medium: 'is-medium',
@@ -65,316 +81,896 @@ const difficultyClass: Record<CancelDifficulty, string> = {
 	<Nav />
 	<main class="guide">
 		<article class="guide__article">
+			<!-- Breadcrumb Navigation -->
+			<nav class="guide__breadcrumb" aria-label="Breadcrumb">
+				<a href="/">Home</a>
+				<span aria-hidden="true">/</span>
+				<a href="/cancel">Cancel Guides</a>
+				<span aria-hidden="true">/</span>
+				<span>{service.category}</span>
+			</nav>
+
+			<!-- Header -->
 			<header class="guide__header">
-				<p class="guide__eyebrow">Cancel guide · {service.category}</p>
-				<h1 class="guide__title">How to Cancel {service.name} in 2026</h1>
-				<p class="guide__lede">
-					{service.name} costs about {formatPrice(service.monthlyPrice)}/month ({formatPrice(yearlyCost)}/year).
-					Cancel via {service.cancelMethod} in about {service.timeToCancel}.
-				</p>
-				<div class="guide__meta">
+				<div class="guide__badge-row">
+					<span class="guide__eyebrow-pill">CANCEL PLAYBOOK</span>
 					<span class:list={['guide__badge', difficultyClass[service.cancelDifficulty]]}>
 						{difficultyLabel(service.cancelDifficulty)} to cancel
 					</span>
-					<span class="guide__chip">{service.cancelMethod}</span>
-					<span class="guide__chip">{service.timeToCancel}</span>
-					<span class="guide__chip">{formatPrice(service.monthlyPrice)}/mo</span>
 				</div>
+
+				<h1 class="guide__title">How to Cancel {service.name} (2026 Guide)</h1>
+				<p class="guide__lede">
+					Follow this step-by-step interactive checklist to permanently stop {service.name} from billing your card.
+				</p>
+
+				<!-- Cost & Speed Metrics Dashboard -->
+				<div class="guide__metrics">
+					<div class="guide__metric-card">
+						<span class="guide__metric-label">Monthly Cost</span>
+						<strong class="guide__metric-val">{formatPrice(service.monthlyPrice)}</strong>
+						<span class="guide__metric-sub">per month</span>
+					</div>
+					<div class="guide__metric-card guide__metric-card--highlight">
+						<span class="guide__metric-label">Yearly Savings</span>
+						<strong class="guide__metric-val text-accent">{formatPrice(yearlyCost)}</strong>
+						<span class="guide__metric-sub">back in your pocket</span>
+					</div>
+					<div class="guide__metric-card">
+						<span class="guide__metric-label">Est. Time</span>
+						<strong class="guide__metric-val">{service.timeToCancel}</strong>
+						<span class="guide__metric-sub">via {service.cancelMethod}</span>
+					</div>
+				</div>
+
+				{extractedUrl && (
+					<div class="guide__direct-action">
+						<a href={extractedUrl} target="_blank" rel="noopener noreferrer" class="guide__direct-link">
+							<span>Open Official {service.name} Account Page</span>
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+						</a>
+						<span class="guide__direct-tip">Opens official login page in new tab</span>
+					</div>
+				)}
 			</header>
 
-			<section class="guide__steps" aria-labelledby="steps-heading">
-				<h2 id="steps-heading">Step-by-step: cancel {service.name}</h2>
-				<ol class="guide__step-list">
-					{
-						service.steps.map((step, index) => (
-							<li>
-								<span class="guide__step-num" aria-hidden="true">
-									{index + 1}
-								</span>
-								<p>{step}</p>
-							</li>
-						))
-					}
-				</ol>
-				{
-					service.willTheyOfferDiscount && (
-						<p class="guide__note">
-							Expect a retention offer before you finish. Decline it if you want the cancel to stick.
+			<!-- Retention Trap Warning -->
+			{service.willTheyOfferDiscount && (
+				<aside class="guide__warning-box" aria-label="Retention Trap Alert">
+					<div class="guide__warning-icon">⚠️</div>
+					<div class="guide__warning-content">
+						<strong>Watch out for retention dark patterns</strong>
+						<p>
+							{service.name} often shows a retention discount (e.g. 50% off for 3 months) or a "pause subscription" offer right before the final cancel screen. If you want to stop all future charges, decline promotional offers and continue to the final confirmation button.
 						</p>
-					)
-				}
-			</section>
+					</div>
+				</aside>
+			)}
 
-			<aside class="guide__cta" aria-labelledby="cta-heading">
-				<h2 id="cta-heading">Skip the hassle — cancel {service.name} with CancelKit in one click</h2>
-				<p>
-					CancelKit finds {service.name}, cancels it for you, and watches for surprise renewals so you do not
-					pay another month by accident.
-				</p>
-				<a class="guide__cta-button" href="/start">Cancel {service.name} with CancelKit →</a>
-			</aside>
-			<AlternativeCard {service} />
+			<!-- Interactive Step-by-Step Checklist -->
+			<section class="guide__steps" aria-labelledby="steps-heading">
+				<div class="guide__steps-header">
+					<div>
+						<h2 id="steps-heading">Step-by-Step Cancellation Checklist</h2>
+						<p class="guide__steps-sub">Click each step as you complete it to track your progress.</p>
+					</div>
+					<div class="guide__progress-badge" data-progress-badge>
+						<span data-completed-count>0</span> of {service.steps.length} done
+					</div>
+				</div>
 
-			<section class="guide__faq" aria-labelledby="faq-heading">
-				<h2 id="faq-heading">Frequently asked questions</h2>
-				<div class="guide__faq-list">
-					{
-						faqs.map((faq) => (
-							<details class="guide__faq-item">
-								<summary>{faq.question}</summary>
-								<p>{faq.answer}</p>
-							</details>
-						))
-					}
+				<div class="guide__checklist" role="list">
+					{service.steps.map((step, index) => (
+						<label class="guide__check-item" data-step-index={index}>
+							<input type="checkbox" class="guide__checkbox" data-step-check />
+							<div class="guide__check-indicator" aria-hidden="true">
+								<span class="guide__check-num">{index + 1}</span>
+								<svg class="guide__check-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+							</div>
+							<div class="guide__check-text">
+								<p>{step}</p>
+							</div>
+						</label>
+					))}
+				</div>
+
+				<!-- Congratulations Banner (Appears when all steps are checked) -->
+				<div class="guide__done-banner hidden" data-done-banner>
+					<div class="guide__done-icon">🎉</div>
+					<div class="guide__done-text">
+						<strong>You're done! Cancellation submitted.</strong>
+						<p>Check your email for written confirmation and verify your next billing date has been removed.</p>
+					</div>
 				</div>
 			</section>
 
-			<section class="guide__related" aria-labelledby="related-heading">
-				<h2 id="related-heading">Related cancellations</h2>
-				<ul class="guide__related-list">
-					{
-						related.map((item) => (
-							<li>
-								<a href={`/cancel/${item.slug}`}>
-									<span class="guide__related-name">{item.name}</span>
-									<span class:list={['guide__related-diff', difficultyClass[item.cancelDifficulty]]}>
-										{difficultyLabel(item.cancelDifficulty)}
-									</span>
-									<span class="guide__related-price">{formatPrice(item.monthlyPrice)}/mo</span>
-								</a>
-							</li>
-						))
-					}
+			<!-- Copy-Paste Formal Cancellation Notice -->
+			<section class="guide__script-section">
+				<div class="guide__script-header">
+					<div class="guide__script-title-row">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+						<h3>Formal Cancellation Script (Email / Support Chat)</h3>
+					</div>
+					<button type="button" class="guide__script-copy-btn" data-copy-script>
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+						<span data-script-btn-text>Copy Script</span>
+					</button>
+				</div>
+				<p class="guide__script-desc">Use this copy-paste message if you need to contact customer support, send an email, or retain written proof for your bank:</p>
+				<div class="guide__script-box">
+					<pre data-script-content>Subject: Immediate Cancellation Notice — {service.name} Account
+
+Dear {service.name} Support Team,
+
+I am writing to formally request the immediate cancellation of my {service.name} subscription associated with this email address.
+
+Please confirm:
+1. That my subscription has been terminated and will not auto-renew.
+2. The final date of access.
+3. That my payment card has been removed from future recurring debits.
+
+Thank you,
+[Your Full Name]
+[Your Account Email / Phone Number]</pre>
+				</div>
+			</section>
+
+			<!-- 3-Point Proof of Cancellation Checklist -->
+			<section class="guide__proof-card">
+				<h3>How to Prove You Actually Cancelled (Avoid Surprise Charges)</h3>
+				<ul class="guide__proof-list">
+					<li>
+						<span class="guide__proof-bullet">✓</span>
+						<div>
+							<strong>Save the Confirmation Email:</strong> Search your inbox for a message titled <em>"{service.name} Cancellation Confirmation"</em>. Keep this for 90 days.
+						</div>
+					</li>
+					<li>
+						<span class="guide__proof-bullet">✓</span>
+						<div>
+							<strong>Check Account Status:</strong> Refresh your account page. It should now state <em>"Membership expires on [Date]"</em> instead of <em>"Renews on [Date]"</em>.
+						</div>
+					</li>
+					<li>
+						<span class="guide__proof-bullet">✓</span>
+						<div>
+							<strong>Take a Screenshot:</strong> Screenshot the final confirmation screen showing your account ID and cancellation date. If a future charge occurs, your bank will reverse it immediately with this proof.
+						</div>
+					</li>
 				</ul>
 			</section>
 
+			<!-- CancelKit 1-Click Fast Track -->
+			<aside class="guide__cta" aria-labelledby="cta-heading">
+				<div class="guide__cta-glow" aria-hidden="true"></div>
+				<div class="guide__cta-content">
+					<span class="guide__cta-tag">AUTOMATED EXIT</span>
+					<h2 id="cta-heading">Too busy to deal with {service.name}?</h2>
+					<p>
+						CancelKit connects securely to your accounts and handles the entire cancellation process for you — plus watches for sneaky renewal attempts so you never pay by accident again.
+					</p>
+					<div class="guide__cta-actions">
+						<a class="guide__cta-button" href={`/start?service=${service.slug}`}>
+							Cancel {service.name} with CancelKit →
+						</a>
+						<span class="guide__cta-fine">Free 14-day trial · No credit card required · 30-sec scan</span>
+					</div>
+				</div>
+			</aside>
+
+			<!-- Alternatives Component -->
+			<AlternativeCard {service} />
+
+			<!-- FAQs -->
+			<section class="guide__faq" aria-labelledby="faq-heading">
+				<h2 id="faq-heading">Frequently Asked Questions</h2>
+				<div class="guide__faq-list">
+					{faqs.map((faq) => (
+						<details class="guide__faq-item">
+							<summary>
+								<span>{faq.question}</span>
+								<svg class="guide__faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+							</summary>
+							<p>{faq.answer}</p>
+						</details>
+					))}
+				</div>
+			</section>
+
+			<!-- Related Services Grid -->
+			<section class="guide__related" aria-labelledby="related-heading">
+				<h2 id="related-heading">Other {service.category} Cancellations</h2>
+				<div class="guide__related-grid">
+					{related.map((item) => (
+						<a href={`/cancel/${item.slug}`} class="guide__related-card">
+							<div class="guide__related-top">
+								<span class="guide__related-name">{item.name}</span>
+								<span class:list={['guide__related-diff', difficultyClass[item.cancelDifficulty]]}>
+									{difficultyLabel(item.cancelDifficulty)}
+								</span>
+							</div>
+							<div class="guide__related-bottom">
+								<span class="guide__related-price">{formatPrice(item.monthlyPrice)}/mo</span>
+								<span class="guide__related-link">Cancel guide →</span>
+							</div>
+						</a>
+					))}
+				</div>
+			</section>
+
+			<!-- From the Blog -->
 			<section class="guide__blog" aria-labelledby="blog-heading">
-				<h2 id="blog-heading">From the blog</h2>
+				<h2 id="blog-heading">Helpful Guides & Savings Playbooks</h2>
 				<ul class="guide__blog-list">
-					{
-						cancelGuideBlogLinks.map((post) => (
-							<li>
-								<a href={`/blog/${post.slug}`}>{post.title}</a>
-							</li>
-						))
-					}
+					{cancelGuideBlogLinks.map((post) => (
+						<li>
+							<a href={`/blog/${post.slug}`}>
+								<span>{post.title}</span>
+								<span class="arrow" aria-hidden="true">→</span>
+							</a>
+						</li>
+					))}
 				</ul>
 			</section>
 		</article>
 	</main>
+
+	<Footer />
+
 	<script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
 	<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+	<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 </BaseLayout>
+
+<script>
+	// Interactive Checklist logic
+	const checkboxes = document.querySelectorAll<HTMLInputElement>('[data-step-check]');
+	const countEl = document.querySelector<HTMLElement>('[data-completed-count]');
+	const doneBanner = document.querySelector<HTMLElement>('[data-done-banner]');
+
+	function updateProgress() {
+		let completed = 0;
+		checkboxes.forEach((cb) => {
+			const item = cb.closest('.guide__check-item');
+			if (cb.checked) {
+				completed++;
+				item?.classList.add('is-checked');
+			} else {
+				item?.classList.remove('is-checked');
+			}
+		});
+
+		if (countEl) countEl.textContent = String(completed);
+		if (doneBanner) {
+			doneBanner.classList.toggle('hidden', completed < checkboxes.length || checkboxes.length === 0);
+		}
+	}
+
+	checkboxes.forEach((cb) => {
+		cb.addEventListener('change', updateProgress);
+	});
+
+	// Copy Script logic
+	const copyScriptBtn = document.querySelector<HTMLButtonElement>('[data-copy-script]');
+	const copyScriptText = document.querySelector<HTMLElement>('[data-script-btn-text]');
+	const scriptContent = document.querySelector<HTMLElement>('[data-script-content]');
+
+	copyScriptBtn?.addEventListener('click', async () => {
+		if (!scriptContent) return;
+		try {
+			await navigator.clipboard.writeText(scriptContent.innerText);
+			if (copyScriptText) copyScriptText.textContent = 'Copied to Clipboard!';
+			setTimeout(() => {
+				if (copyScriptText) copyScriptText.textContent = 'Copy Script';
+			}, 2500);
+		} catch {
+			if (copyScriptText) copyScriptText.textContent = 'Copied!';
+		}
+	});
+</script>
 
 <style>
 	.guide {
-		padding: 2.5rem 0 5rem;
+		padding: 3rem 0 6rem;
 		background:
-			radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 255, 136, 0.08), transparent),
-			#000;
+			radial-gradient(ellipse 80% 40% at 50% -10%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
 	}
 
 	.guide__article {
-		width: min(100% - 2.5rem, 44rem);
+		width: min(100% - 3rem, 46rem);
 		margin: 0 auto;
 	}
 
-	.guide__eyebrow {
-		margin: 0;
-		font-size: 0.75rem;
+	/* Breadcrumb */
+	.guide__breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8rem;
+		color: var(--color-muted);
+		margin-bottom: 1.5rem;
+	}
+
+	.guide__breadcrumb a {
+		color: var(--color-muted);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.guide__breadcrumb a:hover {
+		color: #fff;
+	}
+
+	/* Badges */
+	.guide__badge-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.guide__eyebrow-pill {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
 		font-weight: 600;
-		letter-spacing: 0.09em;
-		text-transform: uppercase;
+		letter-spacing: 0.1em;
 		color: var(--color-accent);
 	}
 
-	.guide__title {
-		margin: 0.85rem 0 0;
-		font-family: var(--font-display);
-		font-size: clamp(2rem, 5vw, 2.75rem);
+	.guide__badge {
+		padding: 0.25rem 0.65rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.75rem;
 		font-weight: 600;
-		letter-spacing: -0.055em;
+	}
+
+	.guide__badge.is-easy {
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+	}
+
+	.guide__badge.is-medium {
+		background: rgba(245, 197, 66, 0.14);
+		color: #f5c542;
+		border: 1px solid rgba(245, 197, 66, 0.3);
+	}
+
+	.guide__badge.is-hard {
+		background: rgba(255, 140, 66, 0.14);
+		color: #ff8c42;
+		border: 1px solid rgba(255, 140, 66, 0.3);
+	}
+
+	.guide__badge.is-nightmare {
+		background: rgba(255, 68, 68, 0.14);
+		color: var(--color-danger);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+	}
+
+	.guide__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(2.2rem, 5vw, 3.2rem);
+		font-weight: 600;
+		letter-spacing: -0.05em;
 		line-height: 1.05;
 		color: #fff;
 	}
 
 	.guide__lede {
-		margin: 1.1rem 0 0;
-		font-size: 1.05rem;
+		margin: 1.15rem 0 0;
+		font-size: 1.125rem;
 		line-height: 1.6;
 		color: var(--color-muted);
 	}
 
-	.guide__meta {
+	/* Metrics Dashboard */
+	.guide__metrics {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.guide__metric-card {
+		padding: 1.25rem;
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-top: 1.5rem;
+		flex-direction: column;
 	}
 
-	.guide__badge,
-	.guide__chip,
-	.guide__related-diff {
-		display: inline-flex;
-		align-items: center;
-		border-radius: var(--radius-input);
-		font-size: 0.8rem;
-		font-weight: 600;
+	.guide__metric-card--highlight {
+		border-color: rgba(0, 255, 136, 0.3);
+		background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, transparent 70%), var(--color-surface);
 	}
 
-	.guide__badge {
-		padding: 0.35rem 0.65rem;
+	.guide__metric-label {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--color-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
 	}
 
-	.guide__badge.is-easy,
-	.guide__related-diff.is-easy {
-		background: rgba(0, 255, 136, 0.12);
+	.guide__metric-val {
+		font-family: var(--font-display);
+		font-size: 1.6rem;
+		font-weight: 700;
+		color: #fff;
+		margin: 0.35rem 0 0.1rem;
+	}
+
+	.text-accent {
 		color: var(--color-accent);
 	}
 
-	.guide__badge.is-medium,
-	.guide__related-diff.is-medium {
-		background: rgba(245, 197, 66, 0.14);
+	.guide__metric-sub {
+		font-size: 0.78rem;
+		color: var(--color-faint);
+	}
+
+	/* Direct Action Link */
+	.guide__direct-action {
+		margin-top: 1.5rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1.25rem;
+	}
+
+	.guide__direct-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.25rem;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+		font-weight: 600;
+		font-size: 0.9rem;
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.guide__direct-link:hover {
+		background: rgba(255, 255, 255, 0.14);
+		border-color: rgba(255, 255, 255, 0.3);
+		transform: translateY(-1px);
+	}
+
+	.guide__direct-tip {
+		font-size: 0.8rem;
+		color: var(--color-faint);
+	}
+
+	/* Warning Box */
+	.guide__warning-box {
+		margin-top: 2.5rem;
+		padding: 1.25rem 1.5rem;
+		border-radius: var(--radius-card);
+		border: 1px solid rgba(245, 197, 66, 0.35);
+		background: rgba(245, 197, 66, 0.06);
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+	}
+
+	.guide__warning-icon {
+		font-size: 1.4rem;
+		line-height: 1;
+	}
+
+	.guide__warning-content strong {
+		display: block;
 		color: #f5c542;
+		font-size: 0.95rem;
 	}
 
-	.guide__badge.is-hard,
-	.guide__related-diff.is-hard {
-		background: rgba(255, 140, 66, 0.14);
-		color: #ff8c42;
+	.guide__warning-content p {
+		margin: 0.35rem 0 0;
+		color: #d8c28a;
+		font-size: 0.88rem;
+		line-height: 1.5;
 	}
 
-	.guide__badge.is-nightmare,
-	.guide__related-diff.is-nightmare {
-		background: rgba(255, 68, 68, 0.14);
-		color: var(--color-danger);
+	/* Steps Checklist */
+	.guide__steps {
+		margin-top: 3.5rem;
 	}
 
-	.guide__chip {
-		padding: 0.35rem 0.65rem;
+	.guide__steps-header {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.guide__steps h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.guide__steps-sub {
+		margin: 0.35rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+	}
+
+	.guide__progress-badge {
+		padding: 0.35rem 0.75rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.guide__checklist {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.guide__check-item {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 1rem;
+		align-items: center;
+		padding: 1.15rem 1.25rem;
+		border-radius: var(--radius-card);
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);
+		cursor: pointer;
+		user-select: none;
+		transition: all 0.2s ease;
+	}
+
+	.guide__check-item:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		background: #0c0c0c;
+	}
+
+	.guide__check-item.is-checked {
+		border-color: rgba(0, 255, 136, 0.25);
+		background: rgba(0, 255, 136, 0.03);
+	}
+
+	.guide__check-item.is-checked .guide__check-text p {
+		color: var(--color-muted);
+		text-decoration: line-through;
+	}
+
+	.guide__checkbox {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.guide__check-indicator {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		border: 2px solid var(--color-border);
+		background: #050505;
+		color: var(--color-muted);
+		font-weight: 700;
+		font-size: 0.85rem;
+		transition: all 0.2s;
+	}
+
+	.guide__check-svg {
+		display: none;
+	}
+
+	.guide__check-item.is-checked .guide__check-indicator {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+	}
+
+	.guide__check-item.is-checked .guide__check-num {
+		display: none;
+	}
+
+	.guide__check-item.is-checked .guide__check-svg {
+		display: block;
+	}
+
+	.guide__check-text p {
+		margin: 0;
+		color: #e2e2e2;
+		font-size: 0.98rem;
+		line-height: 1.5;
+	}
+
+	/* Done Banner */
+	.guide__done-banner {
+		margin-top: 1rem;
+		padding: 1.25rem 1.5rem;
+		border-radius: var(--radius-card);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		animation: banner-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	@keyframes banner-pop {
+		from { opacity: 0; transform: translateY(6px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.guide__done-icon {
+		font-size: 1.75rem;
+	}
+
+	.guide__done-text strong {
+		color: var(--color-accent);
+		font-size: 1rem;
+	}
+
+	.guide__done-text p {
+		margin: 0.25rem 0 0;
+		color: #ccc;
+		font-size: 0.85rem;
+	}
+
+	/* Copy Script Section */
+	.guide__script-section {
+		margin-top: 3.5rem;
+		padding: 2rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+	}
+
+	.guide__script-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.guide__script-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+
+	.guide__script-title-row h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 600;
 		color: #fff;
-		font-weight: 500;
-		text-transform: capitalize;
 	}
 
-	.guide__steps,
-	.guide__faq,
-	.guide__related,
-	.guide__blog {
-		margin-top: 3rem;
+	.guide__script-copy-btn {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.45rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: var(--color-accent);
+		font: inherit;
+		font-size: 0.8rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
 	}
 
-	.guide__steps h2,
-	.guide__faq h2,
-	.guide__related h2,
-	.guide__blog h2,
+	.guide__script-copy-btn:hover {
+		background: rgba(0, 255, 136, 0.2);
+	}
+
+	.guide__script-desc {
+		margin: 0.75rem 0 1.25rem;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.5;
+	}
+
+	.guide__script-box {
+		padding: 1.25rem;
+		border-radius: var(--radius-card);
+		background: #050505;
+		border: 1px solid var(--color-border);
+		overflow-x: auto;
+	}
+
+	.guide__script-box pre {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		color: #bbb;
+		line-height: 1.6;
+		white-space: pre-wrap;
+	}
+
+	/* Proof Card */
+	.guide__proof-card {
+		margin-top: 3.5rem;
+		padding: 2rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+	}
+
+	.guide__proof-card h3 {
+		margin: 0 0 1.25rem;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.guide__proof-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.guide__proof-list li {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.85rem;
+		align-items: start;
+		color: #d0d0d0;
+		font-size: 0.925rem;
+		line-height: 1.5;
+	}
+
+	.guide__proof-bullet {
+		display: grid;
+		place-items: center;
+		width: 1.4rem;
+		height: 1.4rem;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		font-weight: 700;
+		font-size: 0.75rem;
+	}
+
+	.guide__proof-list strong {
+		color: #fff;
+	}
+
+	/* Automated CTA Box */
+	.guide__cta {
+		position: relative;
+		margin-top: 4.5rem;
+		padding: 3.5rem 2.5rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		background: var(--color-surface);
+		overflow: hidden;
+		text-align: center;
+	}
+
+	.guide__cta-glow {
+		position: absolute;
+		top: -60%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 140%;
+		height: 200%;
+		background: radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 65%);
+		pointer-events: none;
+	}
+
+	.guide__cta-content {
+		position: relative;
+		z-index: 1;
+		max-width: 40rem;
+		margin: 0 auto;
+	}
+
+	.guide__cta-tag {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.75rem;
+	}
+
 	.guide__cta h2 {
 		margin: 0;
 		font-family: var(--font-display);
-		font-size: 1.45rem;
+		font-size: clamp(1.75rem, 4vw, 2.4rem);
 		font-weight: 600;
 		letter-spacing: -0.04em;
 		color: #fff;
 	}
 
-	.guide__step-list {
-		margin: 1.25rem 0 0;
-		padding: 0;
-		list-style: none;
-		display: grid;
-		gap: 0.85rem;
-	}
-
-	.guide__step-list li {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 0.9rem;
-		align-items: start;
-		padding: 1rem 1.1rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-card);
-		background: var(--color-surface);
-	}
-
-	.guide__step-num {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 1.75rem;
-		height: 1.75rem;
-		border-radius: 999px;
-		background: rgba(0, 255, 136, 0.12);
-		color: var(--color-accent);
-		font-size: 0.85rem;
-		font-weight: 700;
-	}
-
-	.guide__step-list p,
-	.guide__note,
-	.guide__cta p,
-	.guide__faq-item p {
-		margin: 0;
-		line-height: 1.55;
-		color: var(--color-muted);
-	}
-
-	.guide__step-list p {
-		color: #e8e8e8;
-		padding-top: 0.15rem;
-	}
-
-	.guide__note {
-		margin-top: 1rem;
-		padding: 0.85rem 1rem;
-		border-left: 2px solid #f5c542;
-		color: #f5c542;
-		background: rgba(245, 197, 66, 0.06);
-	}
-
-	.guide__cta {
-		margin-top: 3rem;
-		padding: 1.5rem 1.35rem;
-		border: 1px solid rgba(0, 255, 136, 0.28);
-		border-radius: var(--radius-card);
-		background:
-			linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent 55%),
-			var(--color-surface);
-	}
-
 	.guide__cta p {
-		margin-top: 0.75rem;
+		margin: 0.95rem 0 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+		line-height: 1.6;
+	}
+
+	.guide__cta-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+		margin-top: 2rem;
 	}
 
 	.guide__cta-button {
 		display: inline-flex;
-		margin-top: 1.15rem;
-		padding: 0.8rem 1.15rem;
-		border-radius: var(--radius-input);
+		align-items: center;
+		padding: 0.9rem 2rem;
+		border-radius: var(--radius-pill);
 		background: var(--color-accent);
 		color: #000;
 		font-size: 0.95rem;
 		font-weight: 700;
 		text-decoration: none;
-		transition: opacity 0.15s ease;
+		transition: transform 0.2s, box-shadow 0.2s;
 	}
 
 	.guide__cta-button:hover {
-		opacity: 0.9;
+		transform: translateY(-2px);
+		box-shadow: 0 6px 25px rgba(0, 255, 136, 0.25);
+	}
+
+	.guide__cta-fine {
+		color: var(--color-faint);
+		font-size: 0.8rem;
+	}
+
+	/* FAQ */
+	.guide__faq {
+		margin-top: 4.5rem;
+	}
+
+	.guide__faq h2 {
+		margin: 0 0 1.5rem;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
 	}
 
 	.guide__faq-list {
-		margin-top: 1.1rem;
 		display: grid;
-		gap: 0.65rem;
+		gap: 0.75rem;
 	}
 
 	.guide__faq-item {
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-card);
 		background: var(--color-surface);
-		padding: 0.9rem 1rem;
+		padding: 1.15rem 1.25rem;
+		transition: border-color 0.2s;
+	}
+
+	.guide__faq-item[open] {
+		border-color: rgba(255, 255, 255, 0.15);
 	}
 
 	.guide__faq-item summary {
@@ -382,94 +978,178 @@ const difficultyClass: Record<CancelDifficulty, string> = {
 		font-weight: 600;
 		color: #fff;
 		list-style: none;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: 1.02rem;
 	}
 
 	.guide__faq-item summary::-webkit-details-marker {
 		display: none;
 	}
 
-	.guide__faq-item[open] summary {
-		margin-bottom: 0.65rem;
+	.guide__faq-chevron {
+		color: var(--color-muted);
+		transition: transform 0.2s;
+		flex-shrink: 0;
 	}
 
-	.guide__related-list {
-		margin: 1.15rem 0 0;
+	.guide__faq-item[open] .guide__faq-chevron {
+		transform: rotate(180deg);
+	}
+
+	.guide__faq-item p {
+		margin: 0.85rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+
+	/* Related Grid */
+	.guide__related {
+		margin-top: 4.5rem;
+	}
+
+	.guide__related h2 {
+		margin: 0 0 1.5rem;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.guide__related-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 1rem;
+	}
+
+	.guide__related-card {
+		padding: 1.25rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		text-decoration: none;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		transition: all 0.2s;
+	}
+
+	.guide__related-card:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		transform: translateY(-2px);
+	}
+
+	.guide__related-top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.guide__related-name {
+		color: #fff;
+		font-weight: 600;
+		font-size: 1rem;
+	}
+
+	.guide__related-diff {
+		padding: 0.2rem 0.5rem;
+		border-radius: var(--radius-sm);
+		font-size: 0.72rem;
+		font-weight: 600;
+	}
+
+	.guide__related-bottom {
+		margin-top: 1.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.825rem;
+	}
+
+	.guide__related-price {
+		color: var(--color-muted);
+	}
+
+	.guide__related-link {
+		color: var(--color-accent);
+		font-weight: 600;
+	}
+
+	/* Blog Links */
+	.guide__blog {
+		margin-top: 4.5rem;
+		padding-top: 3rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.guide__blog h2 {
+		margin: 0 0 1.25rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.guide__blog-list {
+		margin: 0;
 		padding: 0;
 		list-style: none;
 		display: grid;
 		gap: 0.65rem;
 	}
 
-	.guide__related-list a {
-		display: grid;
-		grid-template-columns: 1fr auto auto;
-		gap: 0.75rem;
-		align-items: center;
-		padding: 0.95rem 1rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-card);
-		background: var(--color-surface);
-		text-decoration: none;
-		transition: border-color 0.15s ease;
-	}
-
-	.guide__related-list a:hover {
-		border-color: rgba(0, 255, 136, 0.35);
-	}
-
-	.guide__related-name {
-		color: #fff;
-		font-weight: 600;
-	}
-
-	.guide__related-diff {
-		padding: 0.2rem 0.45rem;
-		font-size: 0.72rem;
-	}
-
-	.guide__related-price {
-		color: var(--color-muted);
-		font-size: 0.85rem;
-	}
-
-	.guide__blog-list {
-		margin: 1rem 0 0;
-		padding: 0;
-		list-style: none;
-		display: grid;
-		gap: 0.55rem;
-	}
-
 	.guide__blog-list a {
-		display: block;
-		padding: 0.85rem 1rem;
-		border: 1px solid var(--color-border);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.95rem 1.25rem;
 		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
 		background: var(--color-surface);
-		color: #fff;
+		color: #e0e0e0;
 		font-weight: 500;
+		font-size: 0.925rem;
 		text-decoration: none;
-		transition: border-color 0.15s ease;
+		transition: all 0.2s;
 	}
 
 	.guide__blog-list a:hover {
-		border-color: rgba(0, 255, 136, 0.35);
+		border-color: rgba(0, 255, 136, 0.3);
+		color: #fff;
 	}
 
-	@media (max-width: 560px) {
-		.guide__related-list a {
-			grid-template-columns: 1fr auto;
-		}
+	.guide__blog-list .arrow {
+		color: var(--color-accent);
+	}
 
-		.guide__related-price {
-			grid-column: 1 / -1;
-		}
+	.hidden {
+		display: none !important;
+	}
+
+	@media (max-width: 48rem) {
+		.guide { padding: 2rem 0 3.5rem; }
+		.guide__article { width: min(100% - 1.5rem, 46rem); }
+		.guide__metrics { grid-template-columns: 1fr; gap: 0.75rem; }
+		.guide__direct-action { flex-direction: column; align-items: stretch; }
+		.guide__direct-link { width: 100%; justify-content: center; }
+		.guide__steps-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+		.guide__check-item { padding: 1rem 0.85rem; gap: 0.75rem; }
+		.guide__script-section, .guide__proof-card { padding: 1.35rem 1rem; }
+		.guide__script-header { flex-direction: column; align-items: flex-start; gap: 0.65rem; }
+		.guide__script-copy-btn { width: 100%; justify-content: center; min-height: 40px; }
+		.guide__script-box pre { font-size: 0.8rem; }
+		.guide__cta { padding: 2.25rem 1.25rem; }
+		.guide__cta-button { width: 100%; justify-content: center; min-height: 48px; }
+		.guide__related-grid { grid-template-columns: 1fr; }
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.guide__cta-button,
-		.guide__related-list a {
-			transition: none;
-		}
+		.guide__check-item, .guide__related-card, .guide__cta-button { transition: none; }
+		.guide__check-item:hover, .guide__related-card:hover { transform: none; }
 	}
 </style>

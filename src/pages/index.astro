@@ -1,9 +1,14 @@
 ---
 import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../sections/Hero.astro';
+import PressStrip from '../components/PressStrip.astro';
+import Features from '../sections/Features.astro';
 import HowItWorks from '../sections/HowItWorks.astro';
 import Pricing from '../sections/Pricing.astro';
+import TestimonialGrid from '../components/TestimonialGrid.astro';
+import CTABand from '../sections/CTABand.astro';
 import { translations } from '../i18n/translations';
 ---
 
@@ -11,7 +16,12 @@ import { translations } from '../i18n/translations';
 	<Nav />
 	<main>
 		<Hero t={translations.en} />
+		<PressStrip />
+		<Features />
 		<HowItWorks t={translations.en} />
 		<Pricing t={translations.en} />
+		<TestimonialGrid limit={6} />
+		<CTABand />
 	</main>
+	<Footer />
 </BaseLayout>

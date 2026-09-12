@@ -1,0 +1,406 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Cookie Policy — SubZaps';
+const description = 'SubZaps Cookie Policy. Clear information on session cookies, Stripe payment cookies, and privacy-preserving analytics.';
+const lastUpdated = 'September 12, 2026';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="legal-page">
+		<div class="legal-container">
+			<header class="legal-header">
+				<span class="legal-badge">Cookie Disclosure</span>
+				<h1>Cookie Policy</h1>
+				<p class="legal-updated">Last Updated: {lastUpdated}</p>
+			</header>
+
+			<article class="legal-content">
+				<section>
+					<h2>1. What Are Cookies?</h2>
+					<p>
+						Cookies are small text files placed on your computer, tablet, or mobile phone by websites that you visit. They are widely used across the web to ensure web applications function properly, remember user authentication sessions, enhance navigation speed, and provide aggregated analytics to site operators.
+					</p>
+					<p>
+						This Cookie Policy explains how <strong>SubZaps</strong> ("we", "us", or "our") uses cookies and similar storage technologies on <code>subzaps.com</code> in compliance with the <strong>EU ePrivacy Directive</strong> and <strong>GDPR</strong>.
+					</p>
+				</section>
+
+				<section>
+					<h2>2. Categories of Cookies We Use</h2>
+					<p>
+						We believe in minimal data footprint. We do not use intrusive third-party cross-site advertising trackers. We categorize cookies into three specific operational groups:
+					</p>
+
+					<!-- Category 1: Essential / Session Cookies -->
+					<div class="cookie-group-card">
+						<div class="cookie-group-header">
+							<h3>1. Essential & Authentication Cookies (Strictly Necessary)</h3>
+							<span class="cookie-type-badge">Required</span>
+						</div>
+						<p>
+							These cookies are indispensable for you to log in, navigate between secure dashboard routes, and maintain your session state. Without these cookies, authenticated features cannot function.
+						</p>
+						<div class="legal-table-wrap">
+							<table class="legal-table">
+								<thead>
+									<tr>
+										<th>Cookie Name</th>
+										<th>Provider</th>
+										<th>Purpose</th>
+										<th>Duration</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td><code>sb-access-token</code></td>
+										<td>Supabase Auth</td>
+										<td>Maintains encrypted JWT authentication session</td>
+										<td>7 days</td>
+									</tr>
+									<tr>
+										<td><code>sb-refresh-token</code></td>
+										<td>Supabase Auth</td>
+										<td>Silently refreshes expired login credentials</td>
+										<td>30 days</td>
+									</tr>
+									<tr>
+										<td><code>subzap-cookie-consent</code></td>
+										<td>SubZaps</td>
+										<td>Remembers your cookie consent selection</td>
+										<td>1 year</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- Category 2: Stripe Payment Cookies -->
+					<div class="cookie-group-card">
+						<div class="cookie-group-header">
+							<h3>2. Stripe Payment & Fraud Prevention Cookies</h3>
+							<span class="cookie-type-badge">Security</span>
+						</div>
+						<p>
+							When upgrading to SubZaps Pro or Family, our payment provider <strong>Stripe</strong> sets technical cookies to process card transactions, detect payment fraud, and meet PCI-DSS Level 1 compliance standards.
+						</p>
+						<div class="legal-table-wrap">
+							<table class="legal-table">
+								<thead>
+									<tr>
+										<th>Cookie Name</th>
+										<th>Provider</th>
+										<th>Purpose</th>
+										<th>Duration</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td><code>__stripe_mid</code></td>
+										<td>Stripe Inc.</td>
+										<td>Machine identification for fraud detection</td>
+										<td>1 year</td>
+									</tr>
+									<tr>
+										<td><code>__stripe_sid</code></td>
+										<td>Stripe Inc.</td>
+										<td>Session identifier during secure checkout</td>
+										<td>30 minutes</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<!-- Category 3: Analytics Cookies -->
+					<div class="cookie-group-card">
+						<div class="cookie-group-header">
+							<h3>3. Analytics & Performance Cookies</h3>
+							<span class="cookie-type-badge cookie-type-badge--opt">Performance</span>
+						</div>
+						<p>
+							These cookies help us understand how visitors interact with our cancel guides and blog articles, track page load speeds, and identify broken navigation links. All collected analytical metrics are aggregated and pseudonymized.
+						</p>
+					</div>
+				</section>
+
+				<section>
+					<h2>3. Managing & Disabling Cookies</h2>
+					<p>
+						You can configure or adjust your cookie preferences at any time using your web browser settings. Most browsers allow you to refuse cookies, alert you when a cookie is placed, or delete previously stored cookies.
+					</p>
+					<ul>
+						<li><strong>Google Chrome:</strong> Settings → Privacy and Security → Cookies and other site data</li>
+						<li><strong>Apple Safari:</strong> Preferences → Privacy → Block all cookies</li>
+						<li><strong>Mozilla Firefox:</strong> Settings → Privacy & Security → Enhanced Tracking Protection</li>
+						<li><strong>Microsoft Edge:</strong> Settings → Cookies and site permissions</li>
+					</ul>
+					<p>
+						<em>Please note:</em> Disabling strictly necessary authentication cookies will prevent you from signing in to your SubZaps account and dashboard.
+					</p>
+				</section>
+
+				<section>
+					<h2>4. Reset Your SubZaps Cookie Consent</h2>
+					<p>You can reset your consent choice on this device at any time by clicking the button below:</p>
+					<button type="button" class="btn-reset-cookie" id="reset-cookie-btn">
+						Reset Cookie Preferences
+					</button>
+					<p id="cookie-reset-status" class="cookie-status-msg" hidden></p>
+				</section>
+
+				<section>
+					<h2>5. Questions & Contact Information</h2>
+					<p>
+						For inquiries regarding our use of cookies and data privacy, please contact:
+					</p>
+					<div class="legal-contact-card">
+						<p><strong>SubZaps Privacy Team</strong></p>
+						<p>Email: <a href="mailto:privacy@subzaps.com">privacy@subzaps.com</a></p>
+						<p>Website: <a href="https://subzaps.com">https://subzaps.com</a></p>
+					</div>
+				</section>
+			</article>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	const resetBtn = document.getElementById('reset-cookie-btn');
+	const statusMsg = document.getElementById('cookie-reset-status');
+
+	resetBtn?.addEventListener('click', () => {
+		try {
+			localStorage.removeItem('subzap-cookie-consent');
+			if (statusMsg) {
+				statusMsg.hidden = false;
+				statusMsg.textContent = '✓ Preferences reset! The cookie consent banner will appear on your next page view.';
+			}
+		} catch {
+			/* ignore */
+		}
+	});
+</script>
+
+<style>
+	.legal-page {
+		min-height: 100svh;
+		padding: 4rem 1.5rem 6rem;
+		background: #050505;
+		color: #ccc;
+		font-family: var(--font-body);
+	}
+
+	.legal-container {
+		max-width: 48rem;
+		margin: 0 auto;
+	}
+
+	.legal-header {
+		margin-bottom: 3rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.legal-badge {
+		display: inline-block;
+		padding: 0.25rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		margin-bottom: 1rem;
+	}
+
+	.legal-header h1 {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 2.75rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.legal-updated {
+		margin: 0;
+		font-size: 0.88rem;
+		color: var(--color-muted);
+		font-family: var(--font-mono);
+	}
+
+	.legal-content section {
+		margin-bottom: 2.75rem;
+	}
+
+	.legal-content h2 {
+		margin: 0 0 1rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		color: #fff;
+	}
+
+	.legal-content p {
+		margin: 0 0 1rem;
+		font-size: 0.95rem;
+		line-height: 1.65;
+		color: #bbb;
+	}
+
+	.legal-content strong {
+		color: #fff;
+	}
+
+	.legal-content ul {
+		margin: 0 0 1.25rem 1.25rem;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.legal-content li {
+		font-size: 0.92rem;
+		line-height: 1.6;
+		color: #bbb;
+	}
+
+	.legal-content a {
+		color: var(--color-accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.cookie-group-card {
+		padding: 1.5rem;
+		background: #090909;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-bottom: 1.75rem;
+	}
+
+	.cookie-group-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+	}
+
+	.cookie-group-header h3 {
+		margin: 0;
+		font-size: 1.05rem;
+		color: #fff;
+		font-family: var(--font-display);
+	}
+
+	.cookie-type-badge {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 600;
+		padding: 0.2rem 0.55rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		text-transform: uppercase;
+	}
+
+	.cookie-type-badge--opt {
+		background: rgba(255, 255, 255, 0.08);
+		color: #aaa;
+		border-color: rgba(255, 255, 255, 0.15);
+	}
+
+	.legal-table-wrap {
+		overflow-x: auto;
+		margin: 1rem 0 0;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+	}
+
+	.legal-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.86rem;
+		text-align: left;
+	}
+
+	.legal-table th {
+		padding: 0.75rem 0.95rem;
+		background: #111;
+		border-bottom: 1px solid var(--color-border);
+		color: #fff;
+		font-family: var(--font-display);
+		font-weight: 600;
+	}
+
+	.legal-table td {
+		padding: 0.75rem 0.95rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		color: #aaa;
+	}
+
+	.legal-table tr:last-child td {
+		border-bottom: 0;
+	}
+
+	.legal-table code {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		background: #151515;
+		color: #00ff88;
+		padding: 0.1rem 0.35rem;
+		border-radius: 4px;
+	}
+
+	.btn-reset-cookie {
+		padding: 0.65rem 1.25rem;
+		border-radius: var(--radius-pill);
+		background: #1a1a1a;
+		border: 1px solid var(--color-border-hover);
+		color: #fff;
+		font-family: var(--font-body);
+		font-size: 0.88rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.btn-reset-cookie:hover {
+		background: #252525;
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	.cookie-status-msg {
+		margin-top: 0.75rem;
+		font-size: 0.85rem;
+		color: var(--color-accent);
+		font-weight: 500;
+	}
+
+	.legal-contact-card {
+		padding: 1.25rem 1.5rem;
+		background: #0c0c0c;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-top: 1rem;
+	}
+
+	.legal-contact-card p {
+		margin: 0 0 0.35rem;
+		font-size: 0.9rem;
+	}
+
+	.legal-contact-card p:last-child {
+		margin: 0;
+	}
+</style>

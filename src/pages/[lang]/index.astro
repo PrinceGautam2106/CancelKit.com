@@ -1,6 +1,34 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'; import Nav from '../../components/Nav.astro'; import Hero from '../../sections/Hero.astro'; import HowItWorks from '../../sections/HowItWorks.astro'; import Pricing from '../../sections/Pricing.astro'; import { locales, translations, type Locale } from '../../i18n/translations';
-export function getStaticPaths() { return locales.filter((lang) => lang !== 'en').map((lang) => ({ params: { lang } })); }
-const lang = Astro.params.lang as Locale; const t = translations[lang];
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import Hero from '../../sections/Hero.astro';
+import PressStrip from '../../components/PressStrip.astro';
+import Features from '../../sections/Features.astro';
+import HowItWorks from '../../sections/HowItWorks.astro';
+import Pricing from '../../sections/Pricing.astro';
+import TestimonialGrid from '../../components/TestimonialGrid.astro';
+import CTABand from '../../sections/CTABand.astro';
+import { locales, translations, type Locale } from '../../i18n/translations';
+
+export function getStaticPaths() {
+	return locales.filter((lang) => lang !== 'en').map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Locale;
+const t = translations[lang];
 ---
-<BaseLayout lang={lang} title={t.meta_title} description={t.meta_description}><Nav /><main><Hero t={t} /><HowItWorks t={t} /><Pricing t={t} /></main></BaseLayout>
+
+<BaseLayout lang={lang} title={t.meta_title} description={t.meta_description}>
+	<Nav />
+	<main>
+		<Hero t={t} />
+		<PressStrip />
+		<Features />
+		<HowItWorks t={t} />
+		<Pricing t={t} />
+		<TestimonialGrid limit={6} />
+		<CTABand />
+	</main>
+	<Footer />
+</BaseLayout>

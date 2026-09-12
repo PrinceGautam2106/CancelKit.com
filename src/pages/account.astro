@@ -1,0 +1,1081 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import PlanBadge from '../components/PlanBadge.astro';
+
+const title = 'Account Settings — SubZap';
+const description = 'Manage your SubZap profile, connected email accounts, subscription plan, and security settings.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="account-page">
+		<div class="account-container">
+			<header class="account-header">
+				<div class="account-breadcrumbs">
+					<a href="/dashboard">← Back to Dashboard</a>
+				</div>
+				<h1>Account Settings</h1>
+				<p>Manage your account preferences, connected receipt inboxes, and security.</p>
+			</header>
+
+			<div class="account-grid">
+				<!-- 1. EMAIL & PROFILE -->
+				<section class="account-card" aria-labelledby="email-heading">
+					<div class="card-header">
+						<h2 id="email-heading">Email Address</h2>
+						<p>Your primary login email and receipt report destination.</p>
+					</div>
+					<div class="account-fields">
+						<div class="account-field">
+							<span class="field-label">Current email</span>
+							<p class="field-current-value" id="current-email-display">Loading...</p>
+						</div>
+						<div class="account-field">
+							<label for="new-email-input">New email address</label>
+							<input
+								type="email"
+								id="new-email-input"
+								placeholder="new-email@example.com"
+								autocomplete="email"
+							/>
+							<p class="inline-error" id="email-change-error" role="alert" aria-live="polite"></p>
+						</div>
+						<div class="action-row">
+							<button type="button" class="btn-primary" id="update-email-btn">
+								<span class="btn-label">Update Email</span>
+								<span class="btn-spinner" hidden></span>
+							</button>
+						</div>
+						<div class="status-box status-box--success" id="email-change-success" hidden></div>
+					</div>
+				</section>
+
+				<!-- 2. PASSWORD SECURITY -->
+				<section class="account-card" aria-labelledby="password-heading">
+					<div class="card-header">
+						<h2 id="password-heading">Change Password</h2>
+						<p>Ensure your account is using a long, random password for security.</p>
+					</div>
+					<div class="account-fields">
+						<div class="account-field">
+							<label for="account-new-password">New password</label>
+							<input
+								type="password"
+								id="account-new-password"
+								placeholder="At least 6 characters"
+								autocomplete="new-password"
+							/>
+							<p class="inline-error" id="password-new-error" role="alert" aria-live="polite"></p>
+						</div>
+						<div class="account-field">
+							<label for="account-confirm-password">Confirm new password</label>
+							<input
+								type="password"
+								id="account-confirm-password"
+								placeholder="Confirm your new password"
+								autocomplete="new-password"
+							/>
+							<p class="inline-error" id="password-confirm-error" role="alert" aria-live="polite"></p>
+						</div>
+						<div class="action-row">
+							<button type="button" class="btn-primary" id="update-password-btn">
+								<span class="btn-label">Update Password</span>
+								<span class="btn-spinner" hidden></span>
+							</button>
+						</div>
+						<div class="status-box status-box--success" id="password-change-success" hidden></div>
+					</div>
+				</section>
+
+				<!-- 3. CONNECTED ACCOUNTS -->
+				<section class="account-card" aria-labelledby="connected-heading">
+					<div class="card-header">
+						<h2 id="connected-heading">Connected Accounts</h2>
+						<p>Email inboxes connected for automatic receipt scanning and subscription discovery.</p>
+					</div>
+					<div class="integrations-list">
+						<!-- Gmail -->
+						<div class="integration-item">
+							<div class="integration-info">
+								<div class="integration-icon">
+									<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+										<path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/>
+										<path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
+										<path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/>
+										<path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/>
+									</svg>
+								</div>
+								<div>
+									<div class="integration-title-row">
+										<span class="integration-name">Google / Gmail</span>
+										<span class="badge badge--active" id="gmail-badge">Connected</span>
+									</div>
+									<p class="integration-desc">Scanning receipts for recurring charge patterns (Read-only)</p>
+								</div>
+							</div>
+							<button type="button" class="btn-outline-sm" id="toggle-gmail-btn">Disconnect</button>
+						</div>
+
+						<!-- Outlook -->
+						<div class="integration-item">
+							<div class="integration-info">
+								<div class="integration-icon">
+									<svg width="22" height="22" viewBox="0 0 24 24" fill="#0078D4" aria-hidden="true">
+										<rect x="1" y="1" width="10" height="10"/>
+										<rect x="13" y="1" width="10" height="10"/>
+										<rect x="1" y="13" width="10" height="10"/>
+										<rect x="13" y="13" width="10" height="10"/>
+									</svg>
+								</div>
+								<div>
+									<div class="integration-title-row">
+										<span class="integration-name">Microsoft Outlook</span>
+										<span class="badge badge--inactive" id="outlook-badge">Disconnected</span>
+									</div>
+									<p class="integration-desc">Connect your Outlook or Office 365 inbox to discover subscriptions</p>
+								</div>
+							</div>
+							<button type="button" class="btn-outline-sm" id="toggle-outlook-btn">Connect</button>
+						</div>
+					</div>
+				</section>
+
+				<!-- 4. SUBSCRIPTION PLAN STATUS -->
+				<section class="account-card" aria-labelledby="plan-heading">
+					<div class="card-header">
+						<h2 id="plan-heading">Subscription Plan</h2>
+						<p>Your current SubZap membership and billing tier.</p>
+					</div>
+
+					<div class="plan-display">
+						<div class="plan-current-badge">
+							<span class="plan-label">Current Plan</span>
+							<div class="plan-name-row">
+								<h3 id="current-plan-title">Pro Plan</h3>
+								<div id="account-plan-badge-wrap">
+									<PlanBadge plan="pro" />
+								</div>
+							</div>
+							<p class="plan-pricing" id="current-plan-price">$9/month • Renews on <strong>October 15, 2026</strong></p>
+						</div>
+
+						<div class="plan-tiers">
+							<div class="tier-card" data-tier="free">
+								<div class="tier-header">
+									<h4>Free</h4>
+									<span class="tier-price">$0</span>
+								</div>
+								<p class="tier-desc">Manual tracking & cancellation guides</p>
+								<button type="button" class="btn-tier" data-switch-tier="free">Downgrade to Free</button>
+							</div>
+
+							<div class="tier-card tier-card--selected" data-tier="pro">
+								<div class="tier-header">
+									<h4>Pro</h4>
+									<span class="tier-price">$9<small>/mo</small></span>
+								</div>
+								<p class="tier-desc">Auto-scan, 1-click cancel, refund claims</p>
+								<button type="button" class="btn-tier is-current" disabled>Current Plan</button>
+							</div>
+
+							<div class="tier-card" data-tier="family">
+								<div class="tier-header">
+									<h4>Family</h4>
+									<span class="tier-price">$19<small>/mo</small></span>
+								</div>
+								<p class="tier-desc">Up to 5 inboxes & shared dashboard</p>
+								<button type="button" class="btn-tier" data-switch-tier="family">Upgrade to Family</button>
+							</div>
+						</div>
+						<div class="status-box status-box--info" id="plan-status-msg" hidden></div>
+					</div>
+				</section>
+
+				<!-- 5. DANGER ZONE -->
+				<section class="account-card account-card--danger" aria-labelledby="danger-heading">
+					<div class="card-header">
+						<div class="danger-header-row">
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="danger-icon">
+								<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+								<line x1="12" y1="9" x2="12" y2="13"/>
+								<line x1="12" y1="17" x2="12.01" y2="17"/>
+							</svg>
+							<h2 id="danger-heading">Danger Zone</h2>
+						</div>
+						<p>Irreversible actions related to your subscription and account data.</p>
+					</div>
+
+					<div class="danger-actions">
+						<div class="danger-item">
+							<div class="danger-text">
+								<strong>Cancel my SubZaps subscription</strong>
+								<p>Your subscription will remain active until the end of your current billing period, after which you won't be charged again.</p>
+							</div>
+							<button type="button" class="btn-danger-outline" id="cancel-subzaps-btn">
+								Cancel my SubZaps subscription
+							</button>
+						</div>
+
+						<div class="danger-item">
+							<div class="danger-text">
+								<strong>Delete all my data (GDPR)</strong>
+								<p>Permanently remove your account, subscription history, scanned receipts, and all personal data. This cannot be undone.</p>
+							</div>
+							<button type="button" class="btn-danger-solid" id="delete-data-btn">
+								Delete all my data
+							</button>
+						</div>
+					</div>
+
+					<div class="status-box status-box--danger" id="danger-status-msg" hidden></div>
+				</section>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	import { supabase, clearAuthCookies, setAuthCookies } from '../lib/supabase';
+
+	// Client-side guard
+	async function initAccountPage() {
+		try {
+			const { data: { session }, error } = await supabase.auth.getSession();
+			if (error || !session) {
+				window.location.href = '/signin';
+				return;
+			}
+
+			// Update cookies
+			setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+
+			const currentEmailDisplay = document.getElementById('current-email-display');
+			if (currentEmailDisplay && session.user.email) {
+				currentEmailDisplay.textContent = session.user.email;
+			}
+		} catch {
+			window.location.href = '/signin';
+		}
+	}
+	initAccountPage();
+
+	// EMAIL CHANGE
+	const newEmailInput = document.getElementById('new-email-input') as HTMLInputElement;
+	const updateEmailBtn = document.getElementById('update-email-btn') as HTMLButtonElement;
+	const emailChangeError = document.getElementById('email-change-error') as HTMLParagraphElement;
+	const emailChangeSuccess = document.getElementById('email-change-success') as HTMLDivElement;
+
+	updateEmailBtn?.addEventListener('click', async () => {
+		if (emailChangeError) emailChangeError.textContent = '';
+		if (emailChangeSuccess) emailChangeSuccess.hidden = true;
+		newEmailInput?.classList.remove('has-error');
+
+		const newEmail = newEmailInput?.value.trim();
+		if (!newEmail) {
+			if (emailChangeError) emailChangeError.textContent = 'Please enter a new email address.';
+			newEmailInput?.classList.add('has-error');
+			return;
+		}
+
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+			if (emailChangeError) emailChangeError.textContent = 'Please enter a valid email address.';
+			newEmailInput?.classList.add('has-error');
+			return;
+		}
+
+		updateEmailBtn.disabled = true;
+		const label = updateEmailBtn.querySelector('.btn-label') as HTMLElement;
+		const spinner = updateEmailBtn.querySelector('.btn-spinner') as HTMLElement;
+		if (label) label.textContent = 'Updating...';
+		if (spinner) spinner.hidden = false;
+
+		try {
+			const { error } = await supabase.auth.updateUser({ email: newEmail });
+			if (error) {
+				if (emailChangeError) emailChangeError.textContent = error.message;
+				newEmailInput?.classList.add('has-error');
+			} else {
+				if (emailChangeSuccess) {
+					emailChangeSuccess.hidden = false;
+					emailChangeSuccess.textContent = `Confirmation email sent! Please check ${newEmail} to verify your new email.`;
+				}
+				newEmailInput.value = '';
+			}
+		} catch (err: any) {
+			if (emailChangeError) emailChangeError.textContent = err?.message || 'Failed to update email.';
+		} finally {
+			updateEmailBtn.disabled = false;
+			if (label) label.textContent = 'Update Email';
+			if (spinner) spinner.hidden = true;
+		}
+	});
+
+	// PASSWORD CHANGE
+	const newPasswordInput = document.getElementById('account-new-password') as HTMLInputElement;
+	const confirmPasswordInput = document.getElementById('account-confirm-password') as HTMLInputElement;
+	const updatePasswordBtn = document.getElementById('update-password-btn') as HTMLButtonElement;
+	const passwordNewError = document.getElementById('password-new-error') as HTMLParagraphElement;
+	const passwordConfirmError = document.getElementById('password-confirm-error') as HTMLParagraphElement;
+	const passwordChangeSuccess = document.getElementById('password-change-success') as HTMLDivElement;
+
+	updatePasswordBtn?.addEventListener('click', async () => {
+		if (passwordNewError) passwordNewError.textContent = '';
+		if (passwordConfirmError) passwordConfirmError.textContent = '';
+		if (passwordChangeSuccess) passwordChangeSuccess.hidden = true;
+		newPasswordInput?.classList.remove('has-error');
+		confirmPasswordInput?.classList.remove('has-error');
+
+		const newPassword = newPasswordInput?.value;
+		const confirmPassword = confirmPasswordInput?.value;
+		let hasError = false;
+
+		if (!newPassword) {
+			if (passwordNewError) passwordNewError.textContent = 'Please enter a new password.';
+			newPasswordInput?.classList.add('has-error');
+			hasError = true;
+		} else if (newPassword.length < 6) {
+			if (passwordNewError) passwordNewError.textContent = 'Password must be at least 6 characters.';
+			newPasswordInput?.classList.add('has-error');
+			hasError = true;
+		}
+
+		if (!confirmPassword) {
+			if (passwordConfirmError) passwordConfirmError.textContent = 'Please confirm your new password.';
+			confirmPasswordInput?.classList.add('has-error');
+			hasError = true;
+		} else if (newPassword !== confirmPassword) {
+			if (passwordConfirmError) passwordConfirmError.textContent = 'Passwords do not match.';
+			confirmPasswordInput?.classList.add('has-error');
+			hasError = true;
+		}
+
+		if (hasError) return;
+
+		updatePasswordBtn.disabled = true;
+		const label = updatePasswordBtn.querySelector('.btn-label') as HTMLElement;
+		const spinner = updatePasswordBtn.querySelector('.btn-spinner') as HTMLElement;
+		if (label) label.textContent = 'Updating...';
+		if (spinner) spinner.hidden = false;
+
+		try {
+			const { error } = await supabase.auth.updateUser({ password: newPassword });
+			if (error) {
+				if (passwordNewError) passwordNewError.textContent = error.message;
+			} else {
+				if (passwordChangeSuccess) {
+					passwordChangeSuccess.hidden = false;
+					passwordChangeSuccess.textContent = 'Password successfully updated!';
+				}
+				newPasswordInput.value = '';
+				confirmPasswordInput.value = '';
+			}
+		} catch (err: any) {
+			if (passwordNewError) passwordNewError.textContent = err?.message || 'Failed to update password.';
+		} finally {
+			updatePasswordBtn.disabled = false;
+			if (label) label.textContent = 'Update Password';
+			if (spinner) spinner.hidden = true;
+		}
+	});
+
+	// CONNECTED ACCOUNTS TOGGLE
+	const toggleGmailBtn = document.getElementById('toggle-gmail-btn') as HTMLButtonElement;
+	const gmailBadge = document.getElementById('gmail-badge') as HTMLSpanElement;
+	let gmailConnected = true;
+
+	toggleGmailBtn?.addEventListener('click', () => {
+		gmailConnected = !gmailConnected;
+		if (gmailConnected) {
+			gmailBadge.textContent = 'Connected';
+			gmailBadge.className = 'badge badge--active';
+			toggleGmailBtn.textContent = 'Disconnect';
+		} else {
+			gmailBadge.textContent = 'Disconnected';
+			gmailBadge.className = 'badge badge--inactive';
+			toggleGmailBtn.textContent = 'Connect';
+		}
+	});
+
+	const toggleOutlookBtn = document.getElementById('toggle-outlook-btn') as HTMLButtonElement;
+	const outlookBadge = document.getElementById('outlook-badge') as HTMLSpanElement;
+	let outlookConnected = false;
+
+	toggleOutlookBtn?.addEventListener('click', () => {
+		outlookConnected = !outlookConnected;
+		if (outlookConnected) {
+			outlookBadge.textContent = 'Connected';
+			outlookBadge.className = 'badge badge--active';
+			toggleOutlookBtn.textContent = 'Disconnect';
+		} else {
+			outlookBadge.textContent = 'Disconnected';
+			outlookBadge.className = 'badge badge--inactive';
+			toggleOutlookBtn.textContent = 'Connect';
+		}
+	});
+
+	// PLAN SWITCHER
+	const planStatusMsg = document.getElementById('plan-status-msg') as HTMLDivElement;
+	const currentPlanTitle = document.getElementById('current-plan-title') as HTMLHeadingElement;
+	const currentPlanPrice = document.getElementById('current-plan-price') as HTMLParagraphElement;
+
+	function setAccountPlanBadge(plan: 'free' | 'pro' | 'family') {
+		const badge = document.querySelector('#account-plan-badge-wrap .plan-badge') as HTMLElement;
+		if (badge) {
+			badge.className = `plan-badge plan-badge--${plan}`;
+			badge.textContent = plan === 'pro' ? 'Pro ✓' : plan === 'family' ? 'Family' : 'Free plan';
+		}
+	}
+
+	const savedPlan = (localStorage.getItem('subzap-user-plan') || 'pro') as 'free' | 'pro' | 'family';
+	setAccountPlanBadge(savedPlan);
+
+	document.querySelectorAll<HTMLButtonElement>('[data-switch-tier]').forEach((btn) => {
+		btn.addEventListener('click', async () => {
+			const tier = btn.dataset.switchTier as 'free' | 'pro' | 'family';
+			if (!tier) return;
+
+			if (tier === 'free') {
+				localStorage.setItem('subzap-user-plan', 'free');
+				currentPlanTitle.textContent = 'Free Plan';
+				currentPlanPrice.innerHTML = '$0/month • Free forever';
+				setAccountPlanBadge('free');
+				if (planStatusMsg) {
+					planStatusMsg.hidden = false;
+					planStatusMsg.textContent = 'Your plan has been switched to Free.';
+				}
+			} else {
+				// Stripe checkout for Pro / Family
+				const origText = btn.textContent;
+				btn.disabled = true;
+				btn.textContent = 'Redirecting...';
+
+				try {
+					const { data: { session } } = await supabase.auth.getSession();
+					const priceId = tier === 'family' ? 'price_family_monthly_19' : 'price_pro_monthly_9';
+
+					const res = await fetch('/api/create-checkout', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							priceId,
+							userId: session?.user?.id || '',
+							email: session?.user?.email || '',
+						}),
+					});
+
+					const data = await res.json();
+					if (data?.url) {
+						window.location.href = data.url;
+					} else {
+						btn.disabled = false;
+						btn.textContent = origText;
+						alert(data?.error || 'Failed to open checkout');
+					}
+				} catch {
+					btn.disabled = false;
+					btn.textContent = origText;
+				}
+			}
+		});
+	});
+
+	// DANGER ZONE
+	const cancelSubzapsBtn = document.getElementById('cancel-subzaps-btn') as HTMLButtonElement;
+	const deleteDataBtn = document.getElementById('delete-data-btn') as HTMLButtonElement;
+	const dangerStatusMsg = document.getElementById('danger-status-msg') as HTMLDivElement;
+
+	// Cancel my SubZaps subscription
+	cancelSubzapsBtn?.addEventListener('click', () => {
+		const confirmed = window.confirm(
+			'Are you sure you want to cancel your SubZaps subscription? You will continue to have access until the end of your billing cycle.'
+		);
+		if (!confirmed) return;
+
+		cancelSubzapsBtn.disabled = true;
+		cancelSubzapsBtn.textContent = 'Cancelling...';
+
+		setTimeout(() => {
+			if (dangerStatusMsg) {
+				dangerStatusMsg.hidden = false;
+				dangerStatusMsg.textContent =
+					'Your SubZaps subscription has been cancelled. You will retain access until October 15, 2026.';
+			}
+			cancelSubzapsBtn.textContent = 'Subscription Cancelled';
+			const currentBadge = document.getElementById('current-plan-badge');
+			if (currentBadge) {
+				currentBadge.textContent = 'Cancelling at period end';
+				currentBadge.className = 'badge badge--inactive';
+			}
+		}, 1000);
+	});
+
+	// Delete all my data (GDPR)
+	deleteDataBtn?.addEventListener('click', async () => {
+		const confirmed = window.confirm(
+			'WARNING: This will permanently delete your SubZap account and all personal data in compliance with GDPR. This action CANNOT be reversed. Are you sure you wish to proceed?'
+		);
+		if (!confirmed) return;
+
+		deleteDataBtn.disabled = true;
+		deleteDataBtn.textContent = 'Deleting all data...';
+
+		try {
+			// Clear auth cookies & sign out from Supabase
+			await supabase.auth.signOut();
+			clearAuthCookies();
+
+			// Clear any local storage
+			if (typeof localStorage !== 'undefined') {
+				localStorage.clear();
+			}
+
+			alert('All personal data has been permanently deleted. You will now be redirected to the home page.');
+			window.location.href = '/';
+		} catch (err) {
+			console.error(err);
+			window.location.href = '/';
+		}
+	});
+</script>
+
+<style>
+	.account-page {
+		min-height: 85svh;
+		padding: 2.5rem 1rem 5rem;
+		background: #050505;
+	}
+
+	.account-container {
+		max-width: 54rem;
+		margin: 0 auto;
+	}
+
+	.account-header {
+		margin-bottom: 2rem;
+	}
+
+	.account-breadcrumbs {
+		margin-bottom: 0.75rem;
+	}
+
+	.account-breadcrumbs a {
+		color: var(--color-muted);
+		text-decoration: none;
+		font-size: 0.85rem;
+		transition: color 0.2s;
+	}
+
+	.account-breadcrumbs a:hover {
+		color: var(--color-accent);
+	}
+
+	.account-header h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 2.25rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.account-header p {
+		margin: 0.4rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+	}
+
+	.account-grid {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.account-card {
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: 1.75rem;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.card-header {
+		margin-bottom: 1.5rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		padding-bottom: 1rem;
+	}
+
+	.card-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.card-header p {
+		margin: 0.25rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+	}
+
+	.account-fields {
+		display: grid;
+		gap: 1.25rem;
+		max-width: 28rem;
+	}
+
+	.account-field {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.account-field label,
+	.field-label {
+		font-size: 0.82rem;
+		font-weight: 500;
+		color: #d0d0d0;
+	}
+
+	.field-current-value {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		background: #050505;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+	}
+
+	.account-field input {
+		width: 100%;
+		padding: 0.8rem 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #050505;
+		color: #fff;
+		font-family: var(--font-body);
+		font-size: 0.92rem;
+		outline: none;
+		box-sizing: border-box;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+
+	.account-field input:focus {
+		border-color: rgba(0, 255, 136, 0.5);
+		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+	}
+
+	.account-field input.has-error {
+		border-color: var(--color-danger);
+		box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.12);
+	}
+
+	.inline-error {
+		margin: 0.2rem 0 0;
+		color: var(--color-danger);
+		font-size: 0.8rem;
+		min-height: 1rem;
+	}
+
+	.inline-error:empty {
+		min-height: 0;
+		margin: 0;
+	}
+
+	.action-row {
+		display: flex;
+		align-items: center;
+		margin-top: 0.25rem;
+	}
+
+	.btn-primary {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.7rem 1.25rem;
+		border-radius: var(--radius-card);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-body);
+		font-weight: 600;
+		font-size: 0.88rem;
+		border: 0;
+		cursor: pointer;
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.btn-primary:hover:not(:disabled) {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 14px rgba(0, 255, 136, 0.3);
+	}
+
+	.btn-primary:disabled {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
+
+	.btn-spinner {
+		width: 14px;
+		height: 14px;
+		border: 2px solid rgba(0, 0, 0, 0.25);
+		border-top-color: #000;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	.status-box {
+		padding: 0.75rem 1rem;
+		border-radius: var(--radius-card);
+		font-size: 0.85rem;
+		line-height: 1.4;
+	}
+
+	.status-box--success {
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: #fff;
+	}
+
+	.status-box--info {
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--color-border);
+		color: #ddd;
+	}
+
+	.status-box--danger {
+		background: rgba(255, 68, 68, 0.1);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		color: #fff;
+	}
+
+	/* Integrations */
+	.integrations-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.integration-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1rem 1.25rem;
+		background: #050505;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+	}
+
+	.integration-info {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.integration-icon {
+		display: grid;
+		place-items: center;
+		width: 42px;
+		height: 42px;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		flex-shrink: 0;
+	}
+
+	.integration-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+
+	.integration-name {
+		font-weight: 600;
+		font-size: 0.95rem;
+		color: #fff;
+	}
+
+	.integration-desc {
+		margin: 0.2rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.82rem;
+	}
+
+	.badge {
+		display: inline-block;
+		padding: 0.2rem 0.55rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.72rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.badge--active {
+		background: rgba(0, 255, 136, 0.15);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+	}
+
+	.badge--inactive {
+		background: rgba(255, 255, 255, 0.06);
+		color: var(--color-muted);
+		border: 1px solid var(--color-border);
+	}
+
+	.badge--accent {
+		background: var(--color-accent);
+		color: #000;
+	}
+
+	.btn-outline-sm {
+		padding: 0.45rem 0.9rem;
+		background: transparent;
+		border: 1px solid var(--color-border-hover);
+		color: #fff;
+		border-radius: var(--radius-card);
+		font-size: 0.82rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 0.15s;
+		white-space: nowrap;
+	}
+
+	.btn-outline-sm:hover {
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	/* Subscription Plan */
+	.plan-display {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.plan-current-badge {
+		padding: 1.25rem;
+		background: #050505;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+	}
+
+	.plan-label {
+		display: block;
+		font-size: 0.75rem;
+		color: var(--color-faint);
+		text-transform: uppercase;
+		font-family: var(--font-mono);
+		letter-spacing: 0.06em;
+		margin-bottom: 0.3rem;
+	}
+
+	.plan-name-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.plan-name-row h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		color: #fff;
+	}
+
+	.plan-pricing {
+		margin: 0.4rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+	}
+
+	.plan-pricing strong {
+		color: #fff;
+	}
+
+	.plan-tiers {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+		gap: 1rem;
+	}
+
+	.tier-card {
+		padding: 1.25rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: #080808;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.tier-card--selected {
+		border-color: rgba(0, 255, 136, 0.4);
+		background: rgba(0, 255, 136, 0.03);
+	}
+
+	.tier-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+	}
+
+	.tier-header h4 {
+		margin: 0;
+		font-size: 1.15rem;
+		color: #fff;
+	}
+
+	.tier-price {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--color-accent);
+	}
+
+	.tier-price small {
+		font-size: 0.75rem;
+		color: var(--color-muted);
+		font-weight: 400;
+	}
+
+	.tier-desc {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.82rem;
+		line-height: 1.4;
+	}
+
+	.btn-tier {
+		width: 100%;
+		padding: 0.55rem;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--color-border-hover);
+		background: #121212;
+		color: #fff;
+		font-size: 0.8rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	.btn-tier:hover:not(:disabled) {
+		background: #1c1c1c;
+	}
+
+	.btn-tier.is-current {
+		background: rgba(0, 255, 136, 0.15);
+		color: var(--color-accent);
+		border-color: rgba(0, 255, 136, 0.3);
+		cursor: default;
+	}
+
+	/* DANGER ZONE - Styled in --danger (#ff4444) */
+	.account-card--danger {
+		border-color: rgba(255, 68, 68, 0.35);
+		background: linear-gradient(180deg, rgba(255, 68, 68, 0.04) 0%, var(--color-surface) 100%);
+	}
+
+	.danger-header-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.danger-icon {
+		color: var(--color-danger);
+	}
+
+	.danger-header-row h2 {
+		color: var(--color-danger) !important;
+	}
+
+	.danger-actions {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.danger-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		padding: 1.1rem 1.25rem;
+		background: rgba(255, 68, 68, 0.03);
+		border: 1px solid rgba(255, 68, 68, 0.2);
+		border-radius: var(--radius-card);
+	}
+
+	.danger-text strong {
+		display: block;
+		font-size: 0.92rem;
+		color: #fff;
+		margin-bottom: 0.2rem;
+	}
+
+	.danger-text p {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.82rem;
+		line-height: 1.45;
+	}
+
+	.btn-danger-outline {
+		padding: 0.6rem 1rem;
+		border: 1px solid var(--color-danger);
+		background: transparent;
+		color: var(--color-danger);
+		border-radius: var(--radius-card);
+		font-size: 0.84rem;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: background 0.15s, color 0.15s;
+		flex-shrink: 0;
+	}
+
+	.btn-danger-outline:hover:not(:disabled) {
+		background: rgba(255, 68, 68, 0.12);
+	}
+
+	.btn-danger-solid {
+		padding: 0.65rem 1.1rem;
+		border: 0;
+		background: var(--color-danger);
+		color: #ffffff;
+		border-radius: var(--radius-card);
+		font-size: 0.84rem;
+		font-weight: 700;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: opacity 0.15s, transform 0.15s;
+		flex-shrink: 0;
+	}
+
+	.btn-danger-solid:hover:not(:disabled) {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 640px) {
+		.integration-item,
+		.danger-item {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.btn-danger-outline,
+		.btn-danger-solid,
+		.btn-outline-sm {
+			width: 100%;
+			text-align: center;
+		}
+	}
+</style>

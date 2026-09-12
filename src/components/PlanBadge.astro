@@ -1,0 +1,62 @@
+---
+interface Props {
+	plan?: 'free' | 'pro' | 'family';
+	className?: string;
+}
+
+const { plan = 'free', className = '' } = Astro.props;
+---
+
+<span
+	class:list={[
+		'plan-badge',
+		`plan-badge--${plan}`,
+		className,
+	]}
+	data-plan-badge
+	data-plan={plan}
+>
+	{plan === 'free' && 'Free plan'}
+	{plan === 'pro' && 'Pro ✓'}
+	{plan === 'family' && 'Family'}
+</span>
+
+<style>
+	.plan-badge {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.2rem 0.6rem;
+		border-radius: var(--radius-pill);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		line-height: 1.3;
+		transition: all 0.2s ease;
+	}
+
+	/* Free: grey badge */
+	.plan-badge--free {
+		background: rgba(255, 255, 255, 0.08);
+		color: #a0a0a0;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+	}
+
+	/* Pro: green badge */
+	.plan-badge--pro {
+		background: rgba(0, 255, 136, 0.14);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		box-shadow: 0 0 10px rgba(0, 255, 136, 0.15);
+	}
+
+	/* Family: purple badge */
+	.plan-badge--family {
+		background: rgba(168, 85, 247, 0.15);
+		color: #c084fc;
+		border: 1px solid rgba(168, 85, 247, 0.35);
+		box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
+	}
+</style>

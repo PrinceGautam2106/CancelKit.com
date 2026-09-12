@@ -1,0 +1,559 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { services } from '../../data/services';
+
+const title = 'Add Subscriptions Manually — SubZap';
+const description = 'Add your recurring subscriptions manually without connecting an email inbox.';
+
+const serviceOptions = services.map((s) => ({
+	name: s.name,
+	price: s.monthlyPrice,
+}));
+
+const priceMapJson = JSON.stringify(
+	Object.fromEntries(services.map((s) => [s.name, s.monthlyPrice])),
+);
+---
+
+<BaseLayout {title} {description}>
+	<main class="manual-page">
+		<div class="manual-card">
+			<a class="manual-logo" href="/" aria-label="SubZap home">
+				<span class="manual-logo__icon">S</span>
+				<span class="manual-logo__text">Sub<span class="manual-logo__accent">Zap</span></span>
+			</a>
+
+			<header class="manual-header">
+				<h1>Add your subscriptions manually</h1>
+				<p>
+					No inbox access needed. Add each subscription one by one — we'll calculate your monthly total.
+				</p>
+			</header>
+
+			<div class="add-sub-box" role="region" aria-label="Add a subscription">
+				<div class="fields-grid">
+					<div class="input-field input-field--name">
+						<label for="sub-name">Service name</label>
+						<input
+							type="text"
+							id="sub-name"
+							list="services-datalist"
+							placeholder="e.g. Netflix, Spotify, Gym"
+							autocomplete="off"
+						/>
+						<datalist id="services-datalist">
+							{serviceOptions.map((s) => (
+								<option value={s.name}>{s.name} (${s.price}/mo)</option>
+							))}
+						</datalist>
+						<p class="field-error" id="name-error"></p>
+					</div>
+
+					<div class="input-field">
+						<label for="sub-amount">Amount ($/mo)</label>
+						<input type="number" id="sub-amount" step="0.01" min="0" placeholder="14.99" />
+						<p class="field-error" id="amount-error"></p>
+					</div>
+
+					<div class="input-field">
+						<label for="sub-renewal">Renewal date</label>
+						<input type="date" id="sub-renewal" />
+						<p class="field-error" id="renewal-error"></p>
+					</div>
+				</div>
+
+				<button type="button" class="btn-add-item" id="add-item-btn">
+					+ Add subscription
+				</button>
+			</div>
+
+			<section class="added-subs-section" aria-live="polite">
+				<div class="section-title-row">
+					<h2>Added (<span id="subs-count">0</span>)</h2>
+					<div class="running-total">
+						Total: <strong id="running-total-val">$0.00</strong>/mo
+					</div>
+				</div>
+
+				<div class="items-list" id="items-list">
+					<div class="empty-state" id="empty-state">
+						No subscriptions yet. Add at least one to see your total.
+					</div>
+				</div>
+			</section>
+
+			<div class="manual-actions">
+				<button type="button" class="btn-save-finish" id="save-finish-btn" disabled>
+					See my total →
+				</button>
+				<a href="/onboarding/connect" class="back-link">← Or connect email for automatic scan</a>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
+
+<script define:vars={{ priceMapJson }}>
+	const priceMap = JSON.parse(priceMapJson);
+
+	/** @typedef {{ id: string; name: string; amount: number; renewal: string }} ManualSub */
+
+	const subNameInput = /** @type {HTMLInputElement | null} */ (document.getElementById('sub-name'));
+	const subAmountInput = /** @type {HTMLInputElement | null} */ (document.getElementById('sub-amount'));
+	const subRenewalInput = /** @type {HTMLInputElement | null} */ (document.getElementById('sub-renewal'));
+	const nameError = /** @type {HTMLParagraphElement | null} */ (document.getElementById('name-error'));
+	const amountError = /** @type {HTMLParagraphElement | null} */ (document.getElementById('amount-error'));
+	const addItemBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('add-item-btn'));
+	const saveFinishBtn = /** @type {HTMLButtonElement | null} */ (document.getElementById('save-finish-btn'));
+	const itemsList = /** @type {HTMLDivElement | null} */ (document.getElementById('items-list'));
+	const emptyState = /** @type {HTMLDivElement | null} */ (document.getElementById('empty-state'));
+	const subsCount = /** @type {HTMLSpanElement | null} */ (document.getElementById('subs-count'));
+	const runningTotalVal = /** @type {HTMLElement | null} */ (document.getElementById('running-total-val'));
+
+	const defaultDate = new Date();
+	defaultDate.setDate(defaultDate.getDate() + 30);
+	if (subRenewalInput) subRenewalInput.value = defaultDate.toISOString().split('T')[0];
+
+	/** @type {ManualSub[]} */
+	let subscriptions = [];
+
+	function autofillPrice() {
+		if (!subNameInput || !subAmountInput) return;
+		const val = subNameInput.value.trim();
+		const price = priceMap[val];
+		if (typeof price === 'number' && (!subAmountInput.value || Number(subAmountInput.value) === 0)) {
+			subAmountInput.value = price.toFixed(2);
+		}
+	}
+
+	subNameInput?.addEventListener('change', autofillPrice);
+	subNameInput?.addEventListener('blur', autofillPrice);
+
+	function escapeHtml(str) {
+		return str
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function renderList() {
+		if (subsCount) subsCount.textContent = String(subscriptions.length);
+
+		const total = subscriptions.reduce((sum, s) => sum + s.amount, 0);
+		if (runningTotalVal) runningTotalVal.textContent = `$${total.toFixed(2)}`;
+		if (saveFinishBtn) saveFinishBtn.disabled = subscriptions.length === 0;
+
+		if (!itemsList) return;
+
+		itemsList.querySelectorAll('.manual-row').forEach((r) => r.remove());
+
+		if (subscriptions.length === 0) {
+			if (emptyState) emptyState.hidden = false;
+			return;
+		}
+
+		if (emptyState) emptyState.hidden = true;
+
+		subscriptions.forEach((sub) => {
+			const row = document.createElement('div');
+			row.className = 'manual-row';
+			row.innerHTML = `
+				<div class="row-info">
+					<strong>${escapeHtml(sub.name)}</strong>
+					<span>Renews ${escapeHtml(sub.renewal)}</span>
+				</div>
+				<div class="row-right">
+					<span class="row-price">$${sub.amount.toFixed(2)}/mo</span>
+					<button type="button" class="btn-remove" data-id="${sub.id}" aria-label="Remove ${escapeHtml(sub.name)}">✕</button>
+				</div>
+			`;
+			itemsList.appendChild(row);
+
+			row.querySelector('.btn-remove')?.addEventListener('click', () => {
+				subscriptions = subscriptions.filter((s) => s.id !== sub.id);
+				renderList();
+			});
+		});
+	}
+
+	function daysUntil(dateStr) {
+		const diff = new Date(dateStr).getTime() - Date.now();
+		return Math.max(1, Math.ceil(diff / 86400000));
+	}
+
+	addItemBtn?.addEventListener('click', () => {
+		if (nameError) nameError.textContent = '';
+		if (amountError) amountError.textContent = '';
+
+		const name = subNameInput?.value.trim() || '';
+		const amount = parseFloat(subAmountInput?.value || '0');
+		const renewal = subRenewalInput?.value || new Date().toISOString().split('T')[0];
+
+		let hasErr = false;
+		if (!name) {
+			if (nameError) nameError.textContent = 'Enter a service name';
+			hasErr = true;
+		}
+		if (Number.isNaN(amount) || amount <= 0) {
+			if (amountError) amountError.textContent = 'Enter a valid amount';
+			hasErr = true;
+		}
+		if (hasErr) return;
+
+		subscriptions.push({
+			id: crypto.randomUUID?.() || Math.random().toString(36).slice(2, 9),
+			name,
+			amount,
+			renewal,
+		});
+
+		if (subNameInput) subNameInput.value = '';
+		if (subAmountInput) subAmountInput.value = '';
+		subNameInput?.focus();
+		renderList();
+	});
+
+	subNameInput?.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			addItemBtn?.click();
+		}
+	});
+
+	saveFinishBtn?.addEventListener('click', () => {
+		if (subscriptions.length === 0) return;
+
+		const monthly = Math.round(subscriptions.reduce((sum, s) => sum + s.amount, 0) * 100) / 100;
+		const annual = Math.round(monthly * 12);
+
+		const scanSubs = subscriptions
+			.slice()
+			.sort((a, b) => b.amount - a.amount)
+			.map((s) => ({
+				name: s.name,
+				category: 'Manual',
+				monthly: s.amount,
+				renewsIn: daysUntil(s.renewal),
+			}));
+
+		localStorage.setItem('subzap-scanned-count', String(subscriptions.length));
+		localStorage.setItem('subzap-monthly-total', String(monthly));
+		localStorage.setItem('subzap-annual-total', String(annual));
+		localStorage.setItem('subzap-scan-subs', JSON.stringify(scanSubs));
+		localStorage.setItem(
+			'cancelkit-dashboard-subs',
+			JSON.stringify(
+				subscriptions.map((s) => ({
+					id: s.name.toLowerCase().replace(/\s+/g, '-'),
+					name: s.name,
+					category: 'Manual',
+					monthly: s.amount,
+					nextBilling: s.renewal,
+					status: 'active',
+				})),
+			),
+		);
+		localStorage.setItem('cancelkit-dashboard-connected', 'true');
+		localStorage.setItem('cancelkit-dashboard-provider', 'Manual');
+
+		window.location.href = '/onboarding/results';
+	});
+
+	renderList();
+</script>
+
+<style>
+	.manual-page {
+		min-height: 100svh;
+		padding: 2.5rem 1.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background:
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.manual-card {
+		width: min(100%, 34rem);
+		padding: 2.75rem 2.25rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+	}
+
+	.manual-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 1.5rem;
+	}
+
+	.manual-logo__icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.manual-logo__text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.manual-logo__accent {
+		color: var(--color-accent);
+	}
+
+	.manual-header {
+		text-align: center;
+		margin-bottom: 1.75rem;
+	}
+
+	.manual-header h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.45rem, 4vw, 1.75rem);
+		font-weight: 700;
+		color: #fff;
+		letter-spacing: -0.03em;
+	}
+
+	.manual-header p {
+		margin: 0.55rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.5;
+	}
+
+	.add-sub-box {
+		padding: 1.35rem;
+		background: #060606;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-bottom: 1.75rem;
+	}
+
+	.fields-grid {
+		display: grid;
+		grid-template-columns: 1.4fr 0.9fr 1fr;
+		gap: 0.75rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.input-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.input-field label {
+		font-size: 0.78rem;
+		font-weight: 500;
+		color: #aaa;
+	}
+
+	.input-field input {
+		width: 100%;
+		padding: 0.75rem 0.85rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: #111;
+		color: #fff;
+		font-size: 0.9rem;
+		outline: none;
+		transition: border-color 0.15s;
+	}
+
+	.input-field input:focus {
+		border-color: rgba(0, 255, 136, 0.5);
+	}
+
+	.field-error {
+		margin: 0.15rem 0 0;
+		color: var(--color-danger);
+		font-size: 0.72rem;
+		min-height: 0.9rem;
+	}
+
+	.field-error:empty {
+		display: none;
+	}
+
+	.btn-add-item {
+		width: 100%;
+		padding: 0.8rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border-hover);
+		background: #181818;
+		color: #fff;
+		font-weight: 600;
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.btn-add-item:hover {
+		background: #222;
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	.added-subs-section {
+		margin-bottom: 1.75rem;
+	}
+
+	.section-title-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+		gap: 0.75rem;
+	}
+
+	.section-title-row h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.05rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.running-total {
+		font-size: 0.88rem;
+		color: var(--color-muted);
+	}
+
+	.running-total strong {
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+	}
+
+	.items-list {
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #080808;
+		max-height: 220px;
+		overflow-y: auto;
+	}
+
+	.empty-state {
+		padding: 1.75rem 1.35rem;
+		text-align: center;
+		color: #666;
+		font-size: 0.85rem;
+		line-height: 1.45;
+	}
+
+	.manual-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.85rem 1.15rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		gap: 0.75rem;
+	}
+
+	.manual-row:last-child {
+		border-bottom: 0;
+	}
+
+	.row-info strong {
+		display: block;
+		font-size: 0.92rem;
+		color: #fff;
+	}
+
+	.row-info span {
+		font-size: 0.75rem;
+		color: var(--color-muted);
+	}
+
+	.row-right {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.row-price {
+		font-family: var(--font-mono);
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--color-accent);
+	}
+
+	.btn-remove {
+		background: none;
+		border: 0;
+		color: #666;
+		cursor: pointer;
+		font-size: 0.9rem;
+		padding: 0.2rem;
+	}
+
+	.btn-remove:hover {
+		color: var(--color-danger);
+	}
+
+	.manual-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.9rem;
+	}
+
+	.btn-save-finish {
+		width: 100%;
+		padding: 0.95rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-size: 0.95rem;
+		font-weight: 700;
+		border: 0;
+		cursor: pointer;
+		transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+	}
+
+	.btn-save-finish:hover:not(:disabled) {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 18px rgba(0, 255, 136, 0.3);
+	}
+
+	.btn-save-finish:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.back-link {
+		color: var(--color-muted);
+		font-size: 0.84rem;
+		text-decoration: none;
+	}
+
+	.back-link:hover {
+		color: #fff;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	@media (max-width: 540px) {
+		.fields-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.manual-card {
+			padding: 1.75rem 1.25rem;
+		}
+	}
+</style>

@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
+import CookieBanner from '../components/CookieBanner.astro';
 
-interface Props { title?: string; description?: string; ogImage?: string; }
+interface Props { title?: string; description?: string; ogImage?: string; lang?: string; }
 const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png', lang = 'en' } = Astro.props;
 const siteUrl = Astro.site ?? new URL('https://cancelkit.com');
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
@@ -22,7 +23,7 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 		<link rel="icon" href="/favicon.ico" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="CancelKit" />
 		<meta property="og:title" content={title} />
@@ -41,5 +42,22 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 		<script type="application/ld+json" set:html={JSON.stringify(applicationSchema)}></script>
 		<title>{title}</title>
 	</head>
-	<body><slot /></body>
+	<body>
+		<slot />
+		<CookieBanner />
+		<script>
+			const observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('is-visible');
+							observer.unobserve(entry.target);
+						}
+					}
+				},
+				{ threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+			);
+			document.querySelectorAll('.fade-in-up').forEach((el) => observer.observe(el));
+		</script>
+	</body>
 </html>

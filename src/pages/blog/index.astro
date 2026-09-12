@@ -1,234 +1,800 @@
 ---
 import { getCollection } from 'astro:content';
 import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { blogCategoryLabel, type BlogCategory } from '../../data/blog';
 
-const posts = (await getCollection('blog')).sort(
+const allPosts = (await getCollection('blog')).sort(
 	(a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
 );
 
-const title = 'Blog — Subscription tips, cancel guides, and savings | CancelKit';
+const featuredPost = allPosts[0];
+const remainingPosts = allPosts.slice(1);
+
+const title = 'CancelKit Blog — Stop Recurring Charges, Cancel Subscriptions & Save Money';
 const description =
-	'High-intent guides on finding forgotten subscriptions, stopping mystery charges, and saving money in 2026.';
+	'Actionable guides to cancel subscriptions, block stubborn recurring payments, spot free trial traps, and claw back money from surprise charges.';
 
 const categories: Array<BlogCategory | 'all'> = ['all', 'cancel-guides', 'save-money', 'subscription-tips'];
 
 function formatDate(date: Date) {
 	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+
+const blogSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Blog',
+	name: 'CancelKit Blog',
+	description,
+	url: 'https://cancelkit.com/blog',
+	blogPost: allPosts.map((post) => ({
+		'@type': 'BlogPosting',
+		headline: post.data.title,
+		description: post.data.description,
+		datePublished: post.data.publishDate.toISOString(),
+		dateModified: post.data.updatedDate.toISOString(),
+		url: `https://cancelkit.com/blog/${post.id}`,
+	})),
+};
 ---
 
 <BaseLayout {title} {description}>
 	<Nav />
 	<main class="blog">
 		<header class="blog__header">
-			<p class="blog__eyebrow">Blog</p>
-			<h1 class="blog__title">Stop the bleed. Keep the money.</h1>
+			<div class="blog__eyebrow-row">
+				<span class="blog__eyebrow-pill">SUBSCRIPTION INTELLIGENCE</span>
+				<span class="blog__trust-pill">Verified for 2026</span>
+			</div>
+			<h1 class="blog__title">Stop the bleed. Master your recurring bills.</h1>
 			<p class="blog__lede">
-				Practical writing on forgotten subscriptions, free-trial traps, and cancel tactics that actually work.
+				In-depth playbooks to find forgotten subscriptions, break through cancellation dark patterns, and save up to $2,000+ every year.
 			</p>
+
+			<!-- Live search input -->
+			<div class="blog__search-wrap">
+				<div class="blog__search-box">
+					<svg class="blog__search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+					<input
+						type="search"
+						id="blog-search-input"
+						placeholder="Search guides (e.g., iPhone, credit card, refund, Netflix, tracking)..."
+						aria-label="Search blog articles"
+						data-blog-search
+					/>
+					<span class="blog__search-badge" data-search-count>{allPosts.length} guides</span>
+				</div>
+			</div>
+
+			<!-- Filter tabs -->
 			<div class="blog__filters" role="tablist" aria-label="Filter by category">
 				{
-					categories.map((category) => (
-						<button
-							type="button"
-							class={category === 'all' ? 'is-active' : undefined}
-							role="tab"
-							aria-selected={category === 'all' ? 'true' : 'false'}
-							data-filter={category}
-						>
-							{category === 'all' ? 'All' : blogCategoryLabel[category]}
-						</button>
-					))
+					categories.map((category) => {
+						const count = category === 'all' 
+							? allPosts.length 
+							: allPosts.filter(p => p.data.category === category).length;
+						return (
+							<button
+								type="button"
+								class={category === 'all' ? 'is-active' : undefined}
+								role="tab"
+								aria-selected={category === 'all' ? 'true' : 'false'}
+								data-filter={category}
+							>
+								<span>{category === 'all' ? 'All Guides' : blogCategoryLabel[category]}</span>
+								<span class="blog__filter-count">{count}</span>
+							</button>
+						);
+					})
 				}
 			</div>
 		</header>
 
-		<ul class="blog__grid" data-blog-grid>
-			{
-				posts.map((post) => (
-					<li data-post-card data-category={post.data.category}>
-						<a href={`/blog/${post.id}`}>
-							<span class="blog__cat">{blogCategoryLabel[post.data.category as BlogCategory]}</span>
-							<h2>{post.data.title}</h2>
-							<p class="blog__excerpt">{post.data.description}</p>
-							<p class="blog__card-meta">
-								<span>{post.data.readTime}</span>
-								<span aria-hidden="true">·</span>
-								<time datetime={post.data.publishDate.toISOString()}>
-									{formatDate(post.data.publishDate)}
+		<!-- Spotlight / Featured Article -->
+		{featuredPost && (
+			<section class="blog__featured-wrap" data-featured-section>
+				<article class="featured-card">
+					<div class="featured-card__badge-row">
+						<span class="featured-card__pill">EDITOR'S SPOTLIGHT</span>
+						<span class="featured-card__category">{blogCategoryLabel[featuredPost.data.category as BlogCategory]}</span>
+					</div>
+					<div class="featured-card__content">
+						<h2 class="featured-card__title">
+							<a href={`/blog/${featuredPost.id}`}>{featuredPost.data.title}</a>
+						</h2>
+						<p class="featured-card__desc">{featuredPost.data.description}</p>
+						<div class="featured-card__footer">
+							<div class="featured-card__meta">
+								<span>⏱ {featuredPost.data.readTime} read</span>
+								<span class="dot" aria-hidden="true">·</span>
+								<time datetime={featuredPost.data.publishDate.toISOString()}>
+									{formatDate(featuredPost.data.publishDate)}
 								</time>
-							</p>
-						</a>
-					</li>
-				))
-			}
-		</ul>
+								<span class="dot" aria-hidden="true">·</span>
+								<span class="verified">✓ Fact Checked</span>
+							</div>
+							<a class="featured-card__cta" href={`/blog/${featuredPost.id}`}>
+								Read Full Guide <span aria-hidden="true">→</span>
+							</a>
+						</div>
+					</div>
+				</article>
+			</section>
+		)}
 
-		<p class="blog__empty hidden" data-empty>No posts in this category.</p>
+		<!-- Articles Grid -->
+		<section class="blog__grid-section" aria-label="Articles">
+			<ul class="blog__grid" data-blog-grid>
+				{
+					allPosts.map((post, idx) => (
+						<li 
+							data-post-card 
+							data-category={post.data.category}
+							data-title={post.data.title.toLowerCase()}
+							data-desc={post.data.description.toLowerCase()}
+							data-keywords={(post.data.keywords || []).join(' ').toLowerCase()}
+							class={`fade-in-up stagger-${Math.min((idx % 4) + 1, 4)}`}
+						>
+							<a href={`/blog/${post.id}`} class="blog-card">
+								<div class="blog-card__header">
+									<span class="blog-card__category">{blogCategoryLabel[post.data.category as BlogCategory]}</span>
+									<span class="blog-card__time">⏱ {post.data.readTime}</span>
+								</div>
+								<h2 class="blog-card__title">{post.data.title}</h2>
+								<p class="blog-card__excerpt">{post.data.description}</p>
+								
+								<div class="blog-card__footer">
+									<time datetime={post.data.publishDate.toISOString()} class="blog-card__date">
+										{formatDate(post.data.publishDate)}
+									</time>
+									<span class="blog-card__read-link">
+										Read Guide <span aria-hidden="true">→</span>
+									</span>
+								</div>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+
+			<!-- Empty State -->
+			<div class="blog__empty hidden" data-empty-state>
+				<p class="blog__empty-title">No guides match your search</p>
+				<p class="blog__empty-desc">Try searching for keywords like "iphone", "credit card", "refund", "receipts", or "tracker".</p>
+				<button type="button" class="blog__empty-btn" data-reset-search>Clear search filter</button>
+			</div>
+		</section>
+
+		<!-- Mid-page Conversion Banner -->
+		<section class="blog__promo-banner fade-in-up">
+			<div class="blog__promo-glow" aria-hidden="true"></div>
+			<div class="blog__promo-content">
+				<span class="blog__promo-tag">FAST CANCEL PROTOCOL</span>
+				<h2>Don't want to cancel by hand?</h2>
+				<p>CancelKit scans your inbox for recurring billing receipts in 30 seconds and cancels unwanted subscriptions with one click.</p>
+				<div class="blog__promo-actions">
+					<a href="/start" class="blog__promo-button">Scan My Subscriptions Free →</a>
+					<span class="blog__promo-fine">Zero credit card needed · Read-only access</span>
+				</div>
+			</div>
+		</section>
 	</main>
+	<Footer />
+	<script type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
 </BaseLayout>
 
 <script>
-	const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+	const searchInput = document.querySelector<HTMLInputElement>('[data-blog-search]');
+	const filterButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
 	const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-post-card]'));
-	const empty = document.querySelector<HTMLElement>('[data-empty]');
+	const emptyState = document.querySelector<HTMLElement>('[data-empty-state]');
+	const searchCount = document.querySelector<HTMLElement>('[data-search-count]');
+	const resetBtn = document.querySelector<HTMLButtonElement>('[data-reset-search]');
+	const featuredSection = document.querySelector<HTMLElement>('[data-featured-section]');
 
-	buttons.forEach((button) => {
-		button.addEventListener('click', () => {
-			const filter = button.dataset.filter || 'all';
-			buttons.forEach((el) => {
-				const active = el === button;
-				el.classList.toggle('is-active', active);
-				el.setAttribute('aria-selected', String(active));
-			});
+	let currentFilter = 'all';
 
-			let visible = 0;
-			cards.forEach((card) => {
-				const show = filter === 'all' || card.dataset.category === filter;
-				card.classList.toggle('hidden', !show);
-				if (show) visible += 1;
-			});
-			empty?.classList.toggle('hidden', visible > 0);
+	function applyFilters() {
+		const query = (searchInput?.value || '').trim().toLowerCase();
+		let visibleCount = 0;
+
+		cards.forEach((card) => {
+			const category = card.dataset.category || '';
+			const title = card.dataset.title || '';
+			const desc = card.dataset.desc || '';
+			const keywords = card.dataset.keywords || '';
+
+			const matchesCategory = currentFilter === 'all' || category === currentFilter;
+			const matchesQuery = !query || title.includes(query) || desc.includes(query) || keywords.includes(query);
+
+			const isVisible = matchesCategory && matchesQuery;
+			card.classList.toggle('hidden', !isVisible);
+
+			if (isVisible) visibleCount++;
 		});
+
+		if (featuredSection) {
+			// Hide featured card if query is typed and doesn't match
+			featuredSection.style.display = query.length > 0 ? 'none' : 'block';
+		}
+
+		if (emptyState) {
+			emptyState.classList.toggle('hidden', visibleCount > 0);
+		}
+
+		if (searchCount) {
+			searchCount.textContent = `${visibleCount} guide${visibleCount === 1 ? '' : 's'}`;
+		}
+	}
+
+	searchInput?.addEventListener('input', applyFilters);
+
+	filterButtons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			currentFilter = btn.dataset.filter || 'all';
+
+			filterButtons.forEach((b) => {
+				const active = b === btn;
+				b.classList.toggle('is-active', active);
+				b.setAttribute('aria-selected', String(active));
+			});
+
+			applyFilters();
+		});
+	});
+
+	resetBtn?.addEventListener('click', () => {
+		if (searchInput) searchInput.value = '';
+		currentFilter = 'all';
+		filterButtons.forEach((b) => {
+			const active = b.dataset.filter === 'all';
+			b.classList.toggle('is-active', active);
+			b.setAttribute('aria-selected', String(active));
+		});
+		applyFilters();
 	});
 </script>
 
 <style>
 	.blog {
-		padding: 2.5rem 0 5rem;
+		padding: 3.5rem 0 6rem;
 		background:
-			radial-gradient(ellipse 70% 40% at 50% -10%, rgba(0, 255, 136, 0.06), transparent),
-			#000;
+			radial-gradient(ellipse 80% 40% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
 	}
 
 	.blog__header,
-	.blog__grid,
-	.blog__empty {
-		width: min(100% - 2.5rem, 68rem);
+	.blog__featured-wrap,
+	.blog__grid-section,
+	.blog__promo-banner {
+		width: min(100% - 3rem, 74rem);
 		margin-left: auto;
 		margin-right: auto;
 	}
 
-	.blog__eyebrow {
-		margin: 0;
-		font-size: 0.75rem;
+	.blog__eyebrow-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.blog__eyebrow-pill {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
 		font-weight: 600;
-		letter-spacing: 0.09em;
+		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		color: var(--color-accent);
 	}
 
+	.blog__trust-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.2rem 0.55rem;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--color-border);
+		font-size: 0.7rem;
+		color: var(--color-muted);
+	}
+
 	.blog__title {
-		margin: 0.85rem 0 0;
-		max-width: 16ch;
+		margin: 0;
+		max-width: 22ch;
 		font-family: var(--font-display);
-		font-size: clamp(2rem, 5vw, 3rem);
+		font-size: clamp(2.4rem, 5.5vw, 3.8rem);
 		font-weight: 600;
 		letter-spacing: -0.055em;
-		line-height: 1.02;
+		line-height: 1.05;
 		color: #fff;
 	}
 
 	.blog__lede {
-		margin: 1rem 0 0;
-		max-width: 36rem;
+		margin: 1.25rem 0 0;
+		max-width: 44rem;
 		color: var(--color-muted);
-		line-height: 1.55;
+		font-size: 1.125rem;
+		line-height: 1.6;
 	}
 
+	/* Search bar */
+	.blog__search-wrap {
+		margin-top: 2.25rem;
+		max-width: 44rem;
+	}
+
+	.blog__search-box {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.blog__search-icon {
+		position: absolute;
+		left: 1.1rem;
+		color: var(--color-muted);
+		pointer-events: none;
+	}
+
+	.blog__search-box input {
+		width: 100%;
+		padding: 0.95rem 7.5rem 0.95rem 3rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		color: #fff;
+		font: inherit;
+		font-size: 0.95rem;
+		outline: none;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+
+	.blog__search-box input:focus {
+		border-color: rgba(0, 255, 136, 0.45);
+		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.08);
+	}
+
+	.blog__search-box input::placeholder {
+		color: var(--color-faint);
+	}
+
+	.blog__search-badge {
+		position: absolute;
+		right: 1rem;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--color-muted);
+		padding: 0.25rem 0.5rem;
+		background: rgba(255, 255, 255, 0.04);
+		border-radius: var(--radius-sm);
+	}
+
+	/* Filter pills */
 	.blog__filters {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.35rem;
+		gap: 0.5rem;
 		margin-top: 1.75rem;
 	}
 
 	.blog__filters button {
 		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.95rem;
 		border: 1px solid var(--color-border);
 		background: var(--color-surface);
+		border-radius: var(--radius-pill);
 		color: var(--color-muted);
 		font: inherit;
-		font-size: 0.8rem;
+		font-size: 0.85rem;
 		font-weight: 500;
-		padding: 0.4rem 0.7rem;
-		border-radius: var(--radius-input);
 		cursor: pointer;
+		transition: all 0.2s ease;
 	}
 
-	.blog__filters button.is-active {
-		border-color: rgba(0, 255, 136, 0.35);
+	.blog__filters button:hover {
+		border-color: var(--color-border-hover);
 		color: #fff;
 	}
 
+	.blog__filters button.is-active {
+		border-color: rgba(0, 255, 136, 0.4);
+		background: rgba(0, 255, 136, 0.08);
+		color: #fff;
+	}
+
+	.blog__filter-count {
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		padding: 0.1rem 0.4rem;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.06);
+		color: var(--color-muted);
+	}
+
+	.blog__filters button.is-active .blog__filter-count {
+		background: rgba(0, 255, 136, 0.2);
+		color: var(--color-accent);
+	}
+
+	/* Featured Card */
+	.blog__featured-wrap {
+		margin-top: 3.5rem;
+	}
+
+	.featured-card {
+		padding: 2.5rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		background:
+			linear-gradient(135deg, rgba(0, 255, 136, 0.06) 0%, transparent 60%),
+			var(--color-surface);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+	}
+
+	.featured-card__badge-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.featured-card__pill {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		padding: 0.25rem 0.6rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		letter-spacing: 0.05em;
+	}
+
+	.featured-card__category {
+		font-size: 0.8rem;
+		color: var(--color-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.featured-card__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		line-height: 1.15;
+	}
+
+	.featured-card__title a {
+		color: #fff;
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.featured-card__title a:hover {
+		color: var(--color-accent);
+	}
+
+	.featured-card__desc {
+		margin: 1rem 0 0;
+		max-width: 48rem;
+		color: #b8b8b8;
+		font-size: 1.05rem;
+		line-height: 1.6;
+	}
+
+	.featured-card__footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem;
+		margin-top: 2rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.featured-card__meta {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.featured-card__meta .dot {
+		color: var(--color-faint);
+	}
+
+	.featured-card__meta .verified {
+		color: var(--color-accent);
+		font-weight: 500;
+	}
+
+	.featured-card__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.65rem 1.25rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 600;
+		font-size: 0.9rem;
+		text-decoration: none;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.featured-card__cta:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.2);
+	}
+
+	/* Grid of Cards */
+	.blog__grid-section {
+		margin-top: 3.5rem;
+	}
+
 	.blog__grid {
-		margin: 2.5rem 0 0;
+		margin: 0;
 		padding: 0;
 		list-style: none;
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-		gap: 1rem;
+		grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+		gap: 1.25rem;
 	}
 
-	.blog__grid a {
+	.blog-card {
 		display: flex;
 		flex-direction: column;
-		min-height: 100%;
-		padding: 1.15rem 1.1rem;
+		height: 100%;
+		padding: 1.75rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-card);
-		background: #0a0a0a;
+		background: var(--color-surface);
 		text-decoration: none;
-		transition: border-color 0.15s ease;
+		transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
-	.blog__grid a:hover {
-		border-color: rgba(0, 255, 136, 0.35);
+	.blog-card:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		transform: translateY(-3px);
+		box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 255, 136, 0.05);
 	}
 
-	.blog__cat {
-		font-size: 0.72rem;
+	.blog-card__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.85rem;
+	}
+
+	.blog-card__category {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
 		font-weight: 600;
-		letter-spacing: 0.04em;
+		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: var(--color-accent);
 	}
 
-	.blog__grid h2 {
-		margin: 0.65rem 0 0;
+	.blog-card__time {
+		font-size: 0.75rem;
+		color: var(--color-faint);
+	}
+
+	.blog-card__title {
+		margin: 0;
 		font-family: var(--font-display);
-		font-size: 1.15rem;
+		font-size: 1.25rem;
 		font-weight: 600;
 		letter-spacing: -0.035em;
-		line-height: 1.25;
+		line-height: 1.3;
+		color: #fff;
+		transition: color 0.2s;
+	}
+
+	.blog-card:hover .blog-card__title {
+		color: var(--color-accent);
+	}
+
+	.blog-card__excerpt {
+		margin: 0.75rem 0 0;
+		flex: 1;
+		font-size: 0.925rem;
+		line-height: 1.55;
+		color: var(--color-muted);
+	}
+
+	.blog-card__footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: 1.75rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--color-border);
+		font-size: 0.8rem;
+	}
+
+	.blog-card__date {
+		color: var(--color-faint);
+	}
+
+	.blog-card__read-link {
+		color: #fff;
+		font-weight: 600;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		transition: color 0.2s;
+	}
+
+	.blog-card:hover .blog-card__read-link {
+		color: var(--color-accent);
+	}
+
+	/* Empty State */
+	.blog__empty {
+		text-align: center;
+		padding: 4rem 1.5rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-top: 2rem;
+	}
+
+	.blog__empty-title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
 		color: #fff;
 	}
 
-	.blog__excerpt {
-		margin: 0.65rem 0 0;
-		flex: 1;
-		font-size: 0.9rem;
-		line-height: 1.5;
+	.blog__empty-desc {
+		margin: 0.5rem auto 0;
+		max-width: 28rem;
 		color: var(--color-muted);
+		font-size: 0.95rem;
 	}
 
-	.blog__card-meta {
+	.blog__empty-btn {
+		margin-top: 1.5rem;
+		padding: 0.6rem 1.25rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 600;
+		font-size: 0.85rem;
+		border: 0;
+		cursor: pointer;
+	}
+
+	/* Promo Banner */
+	.blog__promo-banner {
+		position: relative;
+		margin-top: 6rem;
+		padding: 3.5rem 2.5rem;
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+		overflow: hidden;
+		text-align: center;
+	}
+
+	.blog__promo-glow {
+		position: absolute;
+		top: -50%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 120%;
+		height: 200%;
+		background: radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 65%);
+		pointer-events: none;
+	}
+
+	.blog__promo-content {
+		position: relative;
+		z-index: 1;
+		max-width: 42rem;
+		margin: 0 auto;
+	}
+
+	.blog__promo-tag {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.12em;
+		color: var(--color-accent);
+		margin-bottom: 0.75rem;
+	}
+
+	.blog__promo-banner h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.85rem, 4vw, 2.75rem);
+		font-weight: 600;
+		letter-spacing: -0.045em;
+		color: #fff;
+	}
+
+	.blog__promo-banner p {
+		margin: 1rem auto 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+		line-height: 1.6;
+	}
+
+	.blog__promo-actions {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.35rem;
-		margin: 1rem 0 0;
-		font-size: 0.8rem;
-		color: #666;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+		margin-top: 2rem;
 	}
 
-	.blog__empty {
-		margin-top: 2rem;
-		color: var(--color-muted);
+	.blog__promo-button {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.9rem 2rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 600;
+		font-size: 0.95rem;
+		text-decoration: none;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.blog__promo-button:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 25px rgba(0, 255, 136, 0.25);
+	}
+
+	.blog__promo-fine {
+		color: var(--color-faint);
+		font-size: 0.8rem;
 	}
 
 	.hidden {
 		display: none !important;
+	}
+
+	@media (max-width: 48rem) {
+		.blog { padding: 2rem 0 3.5rem; }
+		.blog__header,
+		.blog__featured-wrap,
+		.blog__grid-section,
+		.blog__promo-banner {
+			width: min(100% - 1.5rem, 74rem);
+		}
+		.blog__search-box input {
+			padding-right: 5.2rem;
+			font-size: 0.88rem;
+		}
+		.blog__search-badge {
+			font-size: 0.7rem;
+			padding: 0.2rem 0.4rem;
+		}
+		.featured-card { padding: 1.35rem 1.15rem; }
+		.featured-card__footer { flex-direction: column; align-items: stretch; gap: 1rem; }
+		.featured-card__cta { width: 100%; justify-content: center; min-height: 48px; }
+		.blog__grid { grid-template-columns: 1fr; gap: 0.85rem; }
+		.blog-card { padding: 1.25rem 1rem; }
+		.blog__promo-banner { padding: 2.25rem 1.15rem; }
+		.blog__promo-button { width: 100%; justify-content: center; min-height: 48px; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.blog-card, .featured-card__cta, .blog__promo-button { transition: none; }
+		.blog-card:hover { transform: none; }
 	}
 </style>

@@ -1,0 +1,183 @@
+---
+const features = [
+	{
+		title: 'Smart Scan',
+		description: 'Automatically finds every recurring charge hiding in your inbox. No manual entry needed.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+	},
+	{
+		title: 'One-Click Cancel',
+		description: 'Cancel unwanted subscriptions with a single click. We handle the cancellation process for you.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+	},
+	{
+		title: 'Renewal Alerts',
+		description: 'Get notified 7 days before any subscription renews so you can cancel before the charge hits.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+	},
+	{
+		title: 'Savings Dashboard',
+		description: 'Track exactly how much you save month over month with visual reports and savings trends.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+	},
+	{
+		title: 'Privacy First',
+		description: 'Read-only email access. Bank-level 256-bit encryption. We never store your password.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+	},
+	{
+		title: 'Multi-Account',
+		description: 'Connect Gmail, Outlook, and more. See all your subscriptions from every account in one place.',
+		icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V3a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4"/></svg>',
+	},
+];
+---
+
+<section id="features" class="features" aria-labelledby="features-title">
+	<div class="features__container">
+		<header class="features__header fade-in-up">
+			<p class="features__eyebrow">FEATURES</p>
+			<h2 id="features-title" class="features__title">Everything you need to stop the bleed</h2>
+			<p class="features__lede">CancelKit gives you full visibility into every recurring charge — and the tools to kill the ones you don't need.</p>
+		</header>
+
+		<div class="features__grid">
+			{features.map((feature, i) => (
+				<article class={`features__card fade-in-up stagger-${i + 1}`}>
+					<div class="features__icon" set:html={feature.icon} />
+					<h3>{feature.title}</h3>
+					<p>{feature.description}</p>
+				</article>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.features {
+		background: #050505;
+		padding: 5rem 0;
+		border-top: 1px solid var(--color-border);
+		width: 100%;
+		overflow: hidden;
+	}
+
+	.features__container {
+		width: min(100% - 2rem, 72rem);
+		margin: 0 auto;
+	}
+
+	.features__header {
+		text-align: center;
+		max-width: 38rem;
+		margin: 0 auto;
+	}
+
+	.features__eyebrow {
+		margin: 0 0 0.75rem;
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+	}
+
+	.features__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.85rem, 5vw, 3rem);
+		font-weight: 600;
+		letter-spacing: -0.045em;
+		line-height: 1.1;
+		color: #fff;
+	}
+
+	.features__lede {
+		margin: 0.85rem 0 0;
+		color: var(--color-muted);
+		font-size: 1rem;
+		line-height: 1.6;
+	}
+
+	.features__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		margin-top: 3rem;
+		width: 100%;
+	}
+
+	.features__card {
+		padding: 1.5rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+		box-sizing: border-box;
+	}
+
+	.features__card:hover {
+		border-color: rgba(0, 255, 136, 0.2);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 32px rgba(0, 255, 136, 0.04);
+	}
+
+	.features__icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: var(--radius-input);
+		background: rgba(0, 255, 136, 0.08);
+		color: var(--color-accent);
+		margin-bottom: 1.15rem;
+	}
+
+	.features__card h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.1rem;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		color: #fff;
+	}
+
+	.features__card p {
+		margin: 0.5rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.55;
+	}
+
+	@media (max-width: 64rem) {
+		.features__grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	@media (max-width: 42rem) {
+		.features {
+			padding: 3.5rem 0;
+		}
+
+		.features__container {
+			width: min(100% - 1.5rem, 72rem);
+		}
+
+		.features__grid {
+			grid-template-columns: 1fr;
+			margin-top: 2rem;
+			gap: 0.85rem;
+		}
+
+		.features__card {
+			padding: 1.25rem 1rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.features__card { transition: none; }
+		.features__card:hover { transform: none; }
+	}
+</style>

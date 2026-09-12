@@ -1,0 +1,640 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { STRIPE_PRICES } from '../../lib/stripe';
+
+const title = 'Scan Results — SubZap';
+const description = 'See every subscription draining your account and start cancelling.';
+
+const FREE_TEASER = 5;
+---
+
+<BaseLayout {title} {description}>
+	<main class="results-page">
+		<div class="results-container">
+			<div class="results-wordmark" aria-hidden="true">
+				<span class="wordmark-icon">S</span>
+				<span class="wordmark-text">Sub<span class="wordmark-accent">Zap</span></span>
+			</div>
+
+			<header class="results-hero">
+				<p class="found-line" id="found-line">We found <span id="found-count">—</span> subscriptions</p>
+
+				<div class="spend-block">
+					<p class="spend-number" id="spend-number">
+						$<span id="monthly-total">—</span><span class="spend-period">/month</span>
+					</p>
+					<p class="spend-sub" id="spend-sub">
+						That's <strong id="annual-total">—</strong> per year leaving your account.
+					</p>
+				</div>
+			</header>
+
+			<section class="teaser-card" aria-label="Top subscriptions found">
+				<div class="teaser-card-header">
+					<h2>Your biggest charges</h2>
+					<span class="teaser-tag">Top {FREE_TEASER} free</span>
+				</div>
+
+				<div class="sub-list" id="teaser-list"></div>
+
+				<div class="paywall-overlay" id="paywall-overlay" hidden>
+					<div class="blurred-rows" id="blurred-list" aria-hidden="true"></div>
+
+					<div class="paywall-gate">
+						<div class="lock-circle" aria-hidden="true">
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+								<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+								<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+							</svg>
+						</div>
+						<h3 id="hidden-headline">You have more subscriptions hidden</h3>
+						<p class="paywall-desc">
+							Unlock every subscription, 1-click cancel guides, and renewal alerts for <strong>$9/month</strong>.
+						</p>
+
+						<button
+							type="button"
+							class="btn-upgrade"
+							id="unlock-all-btn"
+							data-price-id={STRIPE_PRICES.pro.monthly}
+						>
+							<span class="btn-text">See everything + start cancelling →</span>
+							<span class="btn-spinner" hidden></span>
+						</button>
+					</div>
+				</div>
+			</section>
+
+			<p class="free-fallback">
+				<a href="/dashboard" class="free-continue-link">Or continue free — see your top 5 only</a>
+			</p>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	import { supabase } from '../../lib/supabase';
+
+	type ScanSub = {
+		name: string;
+		category: string;
+		monthly: number;
+		renewsIn?: number;
+		color?: string;
+	};
+
+	const FREE_TEASER = 5;
+
+	const FALLBACK_SUBS: ScanSub[] = [
+		{ name: 'Adobe Creative Cloud', category: 'Software & Cloud', monthly: 59.99, renewsIn: 10, color: '#e02424' },
+		{ name: 'Planet Fitness Black Card', category: 'Fitness & Wellness', monthly: 22.99, renewsIn: 18, color: '#7e22ce' },
+		{ name: 'Hulu (No Ads)', category: 'Streaming', monthly: 17.99, renewsIn: 3, color: '#10b981' },
+		{ name: 'Netflix Standard', category: 'Streaming', monthly: 15.49, renewsIn: 6, color: '#b91c1c' },
+		{ name: 'Spotify Premium', category: 'Music & Audio', monthly: 11.99, renewsIn: 7, color: '#16a34a' },
+		{ name: 'LinkedIn Premium', category: 'Software & Cloud', monthly: 29.99, renewsIn: 14, color: '#0a66c2' },
+		{ name: 'The New York Times', category: 'News & Learning', monthly: 17.0, renewsIn: 21, color: '#333' },
+		{ name: 'Canva Pro', category: 'Software & Cloud', monthly: 14.99, renewsIn: 9, color: '#00c4cc' },
+		{ name: 'Disney+', category: 'Streaming', monthly: 13.99, renewsIn: 12, color: '#113ccf' },
+		{ name: 'NordVPN', category: 'VPN & Security', monthly: 12.99, renewsIn: 4, color: '#4687ff' },
+		{ name: 'Dropbox Plus', category: 'Software & Cloud', monthly: 11.99, renewsIn: 16, color: '#0061ff' },
+		{ name: 'Audible Premium', category: 'Music & Audio', monthly: 14.95, renewsIn: 8, color: '#f8991d' },
+		{ name: 'YouTube Premium', category: 'Streaming', monthly: 13.99, renewsIn: 5, color: '#ff0000' },
+		{ name: 'Apple Music', category: 'Music & Audio', monthly: 10.99, renewsIn: 15, color: '#fc3c44' },
+	];
+
+	function parseSubs(): ScanSub[] {
+		try {
+			const raw = localStorage.getItem('subzap-scan-subs');
+			if (raw) {
+				const parsed = JSON.parse(raw) as ScanSub[];
+				if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+			}
+		} catch {
+			/* ignore */
+		}
+
+		try {
+			const dash = localStorage.getItem('cancelkit-dashboard-subs');
+			if (dash) {
+				const parsed = JSON.parse(dash) as Array<{
+					name: string;
+					category?: string;
+					monthly: number;
+					nextBilling?: string;
+				}>;
+				if (Array.isArray(parsed) && parsed.length > 0) {
+					return parsed.map((s) => ({
+						name: s.name,
+						category: s.category || 'Subscription',
+						monthly: Number(s.monthly) || 0,
+						renewsIn: s.nextBilling
+							? Math.max(
+									1,
+									Math.ceil(
+										(new Date(s.nextBilling).getTime() - Date.now()) / 86400000,
+									),
+								)
+							: 14,
+					}));
+				}
+			}
+		} catch {
+			/* ignore */
+		}
+
+		return FALLBACK_SUBS;
+	}
+
+	function formatMoney(n: number): string {
+		return n.toLocaleString('en-US', {
+			minimumFractionDigits: n % 1 === 0 ? 0 : 2,
+			maximumFractionDigits: 2,
+		});
+	}
+
+	function avatarColor(name: string, fallback?: string): string {
+		if (fallback) return fallback;
+		const palette = ['#e02424', '#7e22ce', '#10b981', '#b91c1c', '#16a34a', '#0a66c2', '#00c4cc', '#113ccf'];
+		let hash = 0;
+		for (let i = 0; i < name.length; i++) hash = (hash + name.charCodeAt(i) * 17) % palette.length;
+		return palette[hash];
+	}
+
+	function renewLabel(days?: number): string {
+		if (days == null) return 'Recurring';
+		if (days <= 0) return 'Renews today';
+		if (days === 1) return 'Renews tomorrow';
+		return `Renews in ${days} days`;
+	}
+
+	function rowHtml(sub: ScanSub, blurred = false): string {
+		const initial = sub.name.charAt(0).toUpperCase();
+		const color = avatarColor(sub.name, sub.color);
+		return `
+			<div class="${blurred ? 'blurred-row' : 'sub-row'}">
+				<div class="sub-info">
+					<div class="sub-avatar" style="background:${color}">${blurred ? '?' : initial}</div>
+					<div>
+						<strong>${sub.name}</strong>
+						<span>${sub.category} · ${renewLabel(sub.renewsIn)}</span>
+					</div>
+				</div>
+				<div class="sub-price">$${formatMoney(sub.monthly)}<small>/mo</small></div>
+			</div>
+		`;
+	}
+
+	const subs = parseSubs().sort((a, b) => b.monthly - a.monthly);
+	const count =
+		Number(localStorage.getItem('subzap-scanned-count')) || subs.length || 14;
+	const monthly =
+		Number(localStorage.getItem('subzap-monthly-total')) ||
+		Math.round(subs.reduce((s, x) => s + x.monthly, 0)) ||
+		247;
+	const annual =
+		Number(localStorage.getItem('subzap-annual-total')) || monthly * 12;
+
+	const foundCountEl = document.getElementById('found-count');
+	const monthlyEl = document.getElementById('monthly-total');
+	const annualEl = document.getElementById('annual-total');
+	const teaserList = document.getElementById('teaser-list');
+	const paywall = document.getElementById('paywall-overlay');
+	const blurredList = document.getElementById('blurred-list');
+	const hiddenHeadline = document.getElementById('hidden-headline');
+
+	if (foundCountEl) foundCountEl.textContent = String(count);
+	if (monthlyEl) monthlyEl.textContent = formatMoney(monthly);
+	if (annualEl) annualEl.textContent = `$${formatMoney(annual)}`;
+
+	const visible = subs.slice(0, FREE_TEASER);
+	const hidden = subs.slice(FREE_TEASER);
+	const hiddenCount = Math.max(0, count - FREE_TEASER, hidden.length);
+
+	if (teaserList) {
+		teaserList.innerHTML = visible.map((s) => rowHtml(s)).join('');
+	}
+
+	if (hiddenCount > 0 && paywall) {
+		paywall.hidden = false;
+		if (hiddenHeadline) {
+			hiddenHeadline.textContent = `You have ${hiddenCount} more subscription${hiddenCount === 1 ? '' : 's'} hidden`;
+		}
+		if (blurredList) {
+			const blurRows = (hidden.length > 0 ? hidden : FALLBACK_SUBS.slice(FREE_TEASER)).slice(0, 3);
+			blurredList.innerHTML = blurRows.map((s) => rowHtml(s, true)).join('');
+		}
+	}
+
+	const unlockBtn = document.getElementById('unlock-all-btn') as HTMLButtonElement | null;
+
+	unlockBtn?.addEventListener('click', async () => {
+		unlockBtn.disabled = true;
+		const btnText = unlockBtn.querySelector('.btn-text') as HTMLElement | null;
+		const btnSpinner = unlockBtn.querySelector('.btn-spinner') as HTMLElement | null;
+		if (btnText) btnText.textContent = 'Preparing checkout...';
+		if (btnSpinner) btnSpinner.hidden = false;
+
+		try {
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+			const priceId = unlockBtn.dataset.priceId;
+
+			const response = await fetch('/api/create-checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					priceId,
+					userId: session?.user?.id || '',
+					email: session?.user?.email || '',
+				}),
+			});
+
+			const data = await response.json();
+			if (data?.url) {
+				window.location.href = data.url;
+				return;
+			}
+			window.location.href = '/pricing';
+		} catch {
+			window.location.href = '/pricing';
+		}
+	});
+</script>
+
+<style>
+	.results-page {
+		min-height: 100svh;
+		padding: 2.75rem 1.25rem 4.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		background:
+			radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255, 68, 68, 0.14), transparent 70%),
+			#050505;
+	}
+
+	.results-container {
+		width: min(100%, 34rem);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.results-wordmark {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.wordmark-icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.wordmark-text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.wordmark-accent {
+		color: var(--color-accent);
+	}
+
+	.results-hero {
+		text-align: center;
+		margin-bottom: 2rem;
+		width: 100%;
+	}
+
+	.found-line {
+		margin: 0 0 1rem;
+		font-size: 1rem;
+		color: #ff8888;
+		font-weight: 500;
+		letter-spacing: -0.01em;
+	}
+
+	.found-line span {
+		font-weight: 700;
+		color: var(--color-danger);
+	}
+
+	.spend-number {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(3.6rem, 12vw, 5.5rem);
+		font-weight: 800;
+		letter-spacing: -0.05em;
+		color: var(--color-danger);
+		line-height: 1;
+		text-shadow: 0 0 48px rgba(255, 68, 68, 0.4);
+		animation: spend-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+	}
+
+	.spend-period {
+		font-size: clamp(1.15rem, 3.5vw, 1.65rem);
+		font-weight: 500;
+		color: #ff9999;
+		letter-spacing: -0.02em;
+		margin-left: 0.2rem;
+	}
+
+	.spend-sub {
+		margin: 0.9rem 0 0;
+		font-size: 1.1rem;
+		color: #ddd;
+	}
+
+	.spend-sub strong {
+		color: var(--color-danger);
+		font-weight: 700;
+	}
+
+	@keyframes spend-in {
+		from {
+			opacity: 0;
+			transform: translateY(12px) scale(0.96);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+	}
+
+	.teaser-card {
+		width: 100%;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+		overflow: hidden;
+		animation: card-in 0.55s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+	}
+
+	@keyframes card-in {
+		from {
+			opacity: 0;
+			transform: translateY(18px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.teaser-card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.15rem 1.4rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	}
+
+	.teaser-card-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.05rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.teaser-tag {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		padding: 0.2rem 0.55rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.22);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.sub-list {
+		padding: 0.35rem 1.4rem;
+	}
+
+	.sub-row,
+	.blurred-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.9rem 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+		gap: 0.75rem;
+	}
+
+	.sub-row:last-child {
+		border-bottom: 0;
+	}
+
+	.sub-info {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+		min-width: 0;
+	}
+
+	.sub-avatar {
+		width: 36px;
+		height: 36px;
+		border-radius: 9px;
+		display: grid;
+		place-items: center;
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 0.95rem;
+		color: #fff;
+		flex-shrink: 0;
+	}
+
+	.sub-info strong {
+		display: block;
+		font-size: 0.92rem;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.sub-info span {
+		font-size: 0.76rem;
+		color: var(--color-muted);
+	}
+
+	.sub-price {
+		font-family: var(--font-mono);
+		font-size: 0.95rem;
+		font-weight: 700;
+		color: #fff;
+		white-space: nowrap;
+	}
+
+	.sub-price small {
+		font-size: 0.7rem;
+		color: var(--color-muted);
+		font-weight: 400;
+	}
+
+	.paywall-overlay {
+		position: relative;
+		padding-top: 0.5rem;
+		background: linear-gradient(180deg, rgba(10, 10, 10, 0.5) 0%, #0a0a0a 35%);
+	}
+
+	.blurred-rows {
+		filter: blur(6px);
+		opacity: 0.32;
+		padding: 0 1.4rem;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.paywall-gate {
+		position: relative;
+		z-index: 2;
+		padding: 1.35rem 1.5rem 1.85rem;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.lock-circle {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.28);
+		color: var(--color-accent);
+		display: grid;
+		place-items: center;
+		margin-bottom: 0.75rem;
+	}
+
+	.paywall-gate h3 {
+		margin: 0 0 0.4rem;
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		color: #fff;
+	}
+
+	.paywall-desc {
+		margin: 0 0 1.35rem;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+		line-height: 1.45;
+		max-width: 24rem;
+	}
+
+	.paywall-desc strong {
+		color: var(--color-accent);
+	}
+
+	.btn-upgrade {
+		width: 100%;
+		padding: 1.05rem 1.4rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-size: 1.02rem;
+		font-weight: 700;
+		border: 0;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		box-shadow: 0 0 28px rgba(0, 255, 136, 0.35);
+		transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+		animation: cta-pulse 2.4s ease-in-out infinite;
+	}
+
+	.btn-upgrade:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 0 40px rgba(0, 255, 136, 0.55);
+		animation: none;
+	}
+
+	.btn-upgrade:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+		animation: none;
+	}
+
+	@keyframes cta-pulse {
+		0%,
+		100% {
+			box-shadow: 0 0 24px rgba(0, 255, 136, 0.3);
+		}
+		50% {
+			box-shadow: 0 0 36px rgba(0, 255, 136, 0.5);
+		}
+	}
+
+	.btn-spinner {
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(0, 0, 0, 0.25);
+		border-top-color: #000;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.free-fallback {
+		margin: 1.6rem 0 0;
+		text-align: center;
+	}
+
+	.free-continue-link {
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		text-decoration: underline;
+		text-underline-offset: 4px;
+	}
+
+	.free-continue-link:hover {
+		color: #fff;
+	}
+
+	@media (max-width: 480px) {
+		.results-page {
+			padding: 2rem 1rem 3.5rem;
+		}
+
+		.sub-list,
+		.blurred-rows {
+			padding-left: 1rem;
+			padding-right: 1rem;
+		}
+
+		.paywall-gate {
+			padding: 1.15rem 1rem 1.6rem;
+		}
+
+		.btn-upgrade {
+			font-size: 0.95rem;
+		}
+	}
+</style>

@@ -1,0 +1,300 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Scanning your subscriptions — SubZap';
+const description = 'Analyzing receipts and invoices for recurring subscriptions.';
+---
+
+<BaseLayout {title} {description}>
+	<main class="scan-page">
+		<div class="scan-container">
+			<a class="scan-logo" href="/" aria-label="SubZap home">
+				<span class="scan-logo__icon">S</span>
+				<span class="scan-logo__text">Sub<span class="scan-logo__accent">Zap</span></span>
+			</a>
+
+			<div class="radar-box" aria-hidden="true">
+				<div class="radar-pulse radar-pulse--1"></div>
+				<div class="radar-pulse radar-pulse--2"></div>
+				<div class="radar-pulse radar-pulse--3"></div>
+				<div class="radar-core">
+					<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="radar-icon">
+						<circle cx="12" cy="12" r="9"/>
+						<path d="M12 3a9 9 0 0 1 9 9"/>
+						<circle cx="12" cy="12" r="3"/>
+					</svg>
+				</div>
+			</div>
+
+			<div class="scan-content">
+				<h1 id="scan-headline" class="scan-headline">Scanning receipts...</h1>
+
+				<div
+					class="progress-track"
+					role="progressbar"
+					aria-valuemin="0"
+					aria-valuemax="100"
+					aria-valuenow="0"
+					aria-labelledby="scan-headline"
+					id="progress-bar-wrap"
+				>
+					<div class="progress-fill" id="progress-fill"></div>
+				</div>
+
+				<p class="progress-reassure">This takes about 30 seconds</p>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	type ScanSub = {
+		name: string;
+		category: string;
+		monthly: number;
+		renewsIn: number;
+		color: string;
+	};
+
+	/** Demo scan payload — real scan API caches the same shape in Supabase */
+	const DEMO_SUBS: ScanSub[] = [
+		{ name: 'Adobe Creative Cloud', category: 'Software & Cloud', monthly: 59.99, renewsIn: 10, color: '#e02424' },
+		{ name: 'Planet Fitness Black Card', category: 'Fitness & Wellness', monthly: 22.99, renewsIn: 18, color: '#7e22ce' },
+		{ name: 'Hulu (No Ads)', category: 'Streaming', monthly: 17.99, renewsIn: 3, color: '#10b981' },
+		{ name: 'Netflix Standard', category: 'Streaming', monthly: 15.49, renewsIn: 6, color: '#b91c1c' },
+		{ name: 'Spotify Premium', category: 'Music & Audio', monthly: 11.99, renewsIn: 7, color: '#16a34a' },
+		{ name: 'LinkedIn Premium', category: 'Software & Cloud', monthly: 29.99, renewsIn: 14, color: '#0a66c2' },
+		{ name: 'The New York Times', category: 'News & Learning', monthly: 17.0, renewsIn: 21, color: '#333' },
+		{ name: 'Canva Pro', category: 'Software & Cloud', monthly: 14.99, renewsIn: 9, color: '#00c4cc' },
+		{ name: 'Disney+', category: 'Streaming', monthly: 13.99, renewsIn: 12, color: '#113ccf' },
+		{ name: 'NordVPN', category: 'VPN & Security', monthly: 12.99, renewsIn: 4, color: '#4687ff' },
+		{ name: 'Dropbox Plus', category: 'Software & Cloud', monthly: 11.99, renewsIn: 16, color: '#0061ff' },
+		{ name: 'Audible Premium', category: 'Music & Audio', monthly: 14.95, renewsIn: 8, color: '#f8991d' },
+		{ name: 'YouTube Premium', category: 'Streaming', monthly: 13.99, renewsIn: 5, color: '#ff0000' },
+		{ name: 'Apple Music', category: 'Music & Audio', monthly: 10.99, renewsIn: 15, color: '#fc3c44' },
+	];
+
+	const headline = document.getElementById('scan-headline');
+	const progressFill = document.getElementById('progress-fill');
+	const progressWrap = document.getElementById('progress-bar-wrap');
+
+	const params = new URLSearchParams(window.location.search);
+	const provider = params.get('provider') === 'outlook' ? 'Outlook' : 'Gmail';
+
+	// Conversion-calibrated totals (pain number that converts free → paid)
+	const monthlyTotal = 247;
+	const annualTotal = 2964;
+
+	localStorage.setItem('subzap-scanned-count', String(DEMO_SUBS.length));
+	localStorage.setItem('subzap-monthly-total', String(monthlyTotal));
+	localStorage.setItem('subzap-annual-total', String(annualTotal));
+	localStorage.setItem('subzap-scan-subs', JSON.stringify(DEMO_SUBS));
+	localStorage.setItem('cancelkit-dashboard-provider', provider);
+	localStorage.setItem('cancelkit-dashboard-connected', 'true');
+	localStorage.setItem(
+		'cancelkit-dashboard-subs',
+		JSON.stringify(
+			DEMO_SUBS.map((s) => ({
+				id: s.name.toLowerCase().replace(/\s+/g, '-'),
+				name: s.name,
+				category: s.category,
+				monthly: s.monthly,
+				nextBilling: new Date(Date.now() + s.renewsIn * 86400000)
+					.toISOString()
+					.split('T')[0],
+				status: 'active',
+			})),
+		),
+	);
+
+	// Kick off real scan in background when API exists (non-blocking)
+	const providerParam = params.get('provider') || 'gmail';
+	fetch('/api/scan-inbox', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ provider: providerParam }),
+	}).catch(() => {
+		/* Demo: API may not be live yet — animation still completes */
+	});
+
+	const stages = [
+		{ at: 0, text: 'Scanning receipts...' },
+		{ at: 2600, text: 'Finding recurring charges...' },
+		{ at: 5400, text: 'Calculating your total...' },
+	];
+
+	const DURATION_MS = 8000;
+	const startTime = Date.now();
+
+	const interval = setInterval(() => {
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(100, Math.round((elapsed / DURATION_MS) * 100));
+
+		if (progressFill) progressFill.style.width = `${progress}%`;
+		if (progressWrap) progressWrap.setAttribute('aria-valuenow', String(progress));
+
+		const stage = [...stages].reverse().find((s) => elapsed >= s.at) ?? stages[0];
+		if (headline) headline.textContent = stage.text;
+
+		if (elapsed >= DURATION_MS) {
+			clearInterval(interval);
+			window.location.href = '/onboarding/results';
+		}
+	}, 50);
+</script>
+
+<style>
+	.scan-page {
+		min-height: 100svh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem 1.25rem;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% 10%, rgba(0, 255, 136, 0.1), transparent 70%),
+			#050505;
+	}
+
+	.scan-container {
+		width: min(100%, 26rem);
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.scan-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 2.75rem;
+	}
+
+	.scan-logo__icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.scan-logo__text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.scan-logo__accent {
+		color: var(--color-accent);
+	}
+
+	.radar-box {
+		position: relative;
+		width: 110px;
+		height: 110px;
+		display: grid;
+		place-items: center;
+		margin-bottom: 2.5rem;
+	}
+
+	.radar-pulse {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 1.5px solid rgba(0, 255, 136, 0.4);
+		animation: radar-wave 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+	}
+
+	.radar-pulse--2 {
+		animation-delay: 1s;
+	}
+
+	.radar-pulse--3 {
+		animation-delay: 2s;
+	}
+
+	.radar-core {
+		position: relative;
+		z-index: 2;
+		width: 68px;
+		height: 68px;
+		border-radius: 50%;
+		background: #0a0a0a;
+		border: 1px solid rgba(0, 255, 136, 0.5);
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.25);
+		display: grid;
+		place-items: center;
+	}
+
+	.radar-icon {
+		color: var(--color-accent);
+		animation: radar-spin 4s linear infinite;
+	}
+
+	@keyframes radar-wave {
+		0% {
+			transform: scale(0.6);
+			opacity: 0.9;
+		}
+		100% {
+			transform: scale(1.6);
+			opacity: 0;
+		}
+	}
+
+	@keyframes radar-spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.scan-content {
+		width: 100%;
+	}
+
+	.scan-headline {
+		margin: 0 0 1.5rem;
+		font-family: var(--font-display);
+		font-size: clamp(1.45rem, 4vw, 1.85rem);
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+		min-height: 2.4rem;
+	}
+
+	.progress-track {
+		width: 100%;
+		height: 8px;
+		background: #151515;
+		border-radius: var(--radius-pill);
+		overflow: hidden;
+		border: 1px solid var(--color-border);
+		margin-bottom: 0.9rem;
+	}
+
+	.progress-fill {
+		height: 100%;
+		width: 0%;
+		background: linear-gradient(90deg, #00cc6a 0%, var(--color-accent) 100%);
+		border-radius: var(--radius-pill);
+		box-shadow: 0 0 12px rgba(0, 255, 136, 0.5);
+		transition: width 0.08s linear;
+	}
+
+	.progress-reassure {
+		margin: 0;
+		font-size: 0.85rem;
+		color: var(--color-faint);
+	}
+</style>

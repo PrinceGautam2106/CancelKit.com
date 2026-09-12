@@ -1,0 +1,257 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'About Us — SubZaps';
+const description = 'The story behind SubZaps: on a mission to stop companies from draining bank accounts with forgotten subscriptions.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="about-page">
+		<div class="about-container">
+			<header class="about-header">
+				<span class="about-badge">Our Mission</span>
+				<h1>We built SubZaps because we got sick of being billed for stuff we forgot</h1>
+				<p class="about-lead">
+					The average American spends $273 every month on subscriptions, and over 42% of people continue paying for subscriptions they no longer use. We are leveling the playing field.
+				</p>
+			</header>
+
+			<div class="about-content">
+				<section class="about-card">
+					<h2>The Problem with Subscriptions</h2>
+					<p>
+						Dark patterns rule the modern internet. Signing up for a recurring free trial takes exactly 3 seconds and one tap with Apple Pay or Google Pay. But cancelling that same subscription requires navigating 8 hidden menus, calling a retention hotline during business hours, or threatening a credit card chargeback.
+					</p>
+					<p>
+						Companies count on you forgetting. In finance, it's called <em>"subscription leakage"</em> — and it costs consumers billions of dollars each year.
+					</p>
+				</section>
+
+				<section class="about-card">
+					<h2>Our Principles</h2>
+					<div class="principles-grid">
+						<div class="principle-item">
+							<span class="principle-num">01</span>
+							<h3>Zero Cross-Selling</h3>
+							<p>We will never sell your email receipts or transaction data to advertisers or data brokers. Ever.</p>
+						</div>
+						<div class="principle-item">
+							<span class="principle-num">02</span>
+							<h3>Strict Read-Only Access</h3>
+							<p>We ask only for read permissions to find receipts. We literally cannot send, delete, or modify any emails.</p>
+						</div>
+						<div class="principle-item">
+							<span class="principle-num">03</span>
+							<h3>Customer-First Economics</h3>
+							<p>SubZaps costs $9/month. Our average user saves over $60/month on their very first scan. If you don't save money, we offer a 7-day 100% money-back guarantee.</p>
+						</div>
+					</div>
+				</section>
+
+				<section class="about-cta-card">
+					<h2>Ready to see what’s draining your account?</h2>
+					<p>Connect your inbox in 30 seconds or test manual entry.</p>
+					<div class="about-cta-actions">
+						<a href="/onboarding/connect" class="btn-primary">Scan Your Subscriptions →</a>
+						<a href="/pricing" class="btn-secondary">View Pricing</a>
+					</div>
+				</section>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<style>
+	.about-page {
+		min-height: 100svh;
+		padding: 4rem 1.5rem 6rem;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 136, 0.06), transparent 70%),
+			#050505;
+		color: #ccc;
+		font-family: var(--font-body);
+	}
+
+	.about-container {
+		max-width: 54rem;
+		margin: 0 auto;
+	}
+
+	.about-header {
+		text-align: center;
+		margin-bottom: 3.5rem;
+	}
+
+	.about-badge {
+		display: inline-block;
+		padding: 0.25rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		margin-bottom: 1.25rem;
+	}
+
+	.about-header h1 {
+		margin: 0 0 1.25rem;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 3rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		color: #fff;
+		line-height: 1.2;
+	}
+
+	.about-lead {
+		margin: 0 auto;
+		font-size: 1.1rem;
+		color: var(--color-muted);
+		max-width: 42rem;
+		line-height: 1.6;
+	}
+
+	.about-content {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.about-card {
+		padding: 2.5rem 2.25rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+	}
+
+	.about-card h2 {
+		margin: 0 0 1rem;
+		font-family: var(--font-display);
+		font-size: 1.4rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.about-card p {
+		margin: 0 0 1rem;
+		font-size: 0.96rem;
+		line-height: 1.65;
+		color: #bbb;
+	}
+
+	.about-card p:last-child {
+		margin-bottom: 0;
+	}
+
+	.about-card em {
+		color: var(--color-accent);
+		font-style: normal;
+		font-weight: 600;
+	}
+
+	.principles-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.principle-item {
+		padding: 1.25rem;
+		background: #080808;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+	}
+
+	.principle-num {
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		color: var(--color-accent);
+		font-weight: 700;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+
+	.principle-item h3 {
+		margin: 0 0 0.5rem;
+		font-size: 1.05rem;
+		color: #fff;
+	}
+
+	.principle-item p {
+		font-size: 0.85rem;
+		color: #888;
+		line-height: 1.45;
+	}
+
+	.about-cta-card {
+		padding: 3rem 2rem;
+		text-align: center;
+		background: linear-gradient(180deg, #0d0d0d 0%, #080808 100%);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+	}
+
+	.about-cta-card h2 {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		color: #fff;
+	}
+
+	.about-cta-card p {
+		margin: 0 0 1.75rem;
+		color: var(--color-muted);
+	}
+
+	.about-cta-actions {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.btn-primary {
+		padding: 0.85rem 1.65rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		text-decoration: none;
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.btn-primary:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+	}
+
+	.btn-secondary {
+		padding: 0.85rem 1.65rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-border-hover);
+		color: #fff;
+		font-weight: 600;
+		text-decoration: none;
+		background: #111;
+		transition: background 0.15s;
+	}
+
+	.btn-secondary:hover {
+		background: #1a1a1a;
+	}
+
+	@media (max-width: 768px) {
+		.principles-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

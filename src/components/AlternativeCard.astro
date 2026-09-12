@@ -1,7 +1,195 @@
 ---
 import type { Service } from '../data/services';
-interface Props { service: Service; }
+
+interface Props {
+	service: Service;
+}
+
 const { service } = Astro.props;
 ---
-{service.alternatives.length > 0 && <section class="alternatives"><p><strong>{service.name} cancelled.</strong> Save {`$${service.monthlyPrice.toFixed(2)}`}/mo — here’s what CancelKit users switch to:</p><div>{service.alternatives.slice(0, 3).map((alt) => <article><span class="logo">{alt.name.slice(0, 1)}</span><h3>{alt.name}</h3><small>{alt.description}</small><p>{service.name}: ${service.monthlyPrice.toFixed(2)}/mo → <b>{alt.monthlyCost === 0 ? 'FREE' : `$${alt.monthlyCost}/mo`}</b></p><a href={alt.affiliateUrl} target="_blank" rel="sponsored noopener">Try it free →</a></article>)}</div></section>}
-<style>.alternatives{border-top:1px solid var(--color-border);margin-top:3rem;padding-top:2rem}.alternatives>p{color:var(--color-muted)}.alternatives>div{display:grid;gap:1rem;grid-template-columns:repeat(3,1fr)}.alternatives article{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);padding:1rem}.logo{align-items:center;background:#000;border:1px solid var(--color-border);border-radius:50%;color:var(--color-accent);display:inline-flex;height:2rem;justify-content:center}.alternatives h3{margin:.7rem 0 .2rem}.alternatives small,.alternatives article p{color:var(--color-muted)}.alternatives b{color:var(--color-accent)}.alternatives a{color:var(--color-accent);font-weight:600;text-decoration:none}@media(max-width:40rem){.alternatives>div{grid-template-columns:1fr}}</style>
+
+{service.alternatives.length > 0 && (
+	<section class="alternatives" aria-labelledby="alt-heading">
+		<div class="alternatives__header">
+			<span class="alternatives__tag">BETTER OPTIONS</span>
+			<h2 id="alt-heading">Cancelled {service.name}? Save ${service.monthlyPrice.toFixed(2)}/mo with these alternatives</h2>
+			<p>If you still need similar features without the high monthly bill, here is what CancelKit users switch to:</p>
+		</div>
+
+		<div class="alternatives__grid">
+			{service.alternatives.slice(0, 3).map((alt) => {
+				const isFree = alt.monthlyCost === 0;
+				const savings = service.monthlyPrice - alt.monthlyCost;
+				return (
+					<article class="alt-card">
+						<div class="alt-card__top">
+							<div class="alt-card__icon" aria-hidden="true">
+								{alt.name.charAt(0)}
+							</div>
+							<div class="alt-card__pricing">
+								<span class="alt-card__cost">{isFree ? '100% FREE' : `$${alt.monthlyCost.toFixed(2)}/mo`}</span>
+								{savings > 0 && (
+									<span class="alt-card__savings">Save ${savings.toFixed(2)}/mo</span>
+								)}
+							</div>
+						</div>
+
+						<h3 class="alt-card__title">{alt.name}</h3>
+						<p class="alt-card__desc">{alt.description}</p>
+
+						<div class="alt-card__footer">
+							<a
+								href={alt.affiliateUrl}
+								target="_blank"
+								rel="sponsored noopener"
+								class="alt-card__cta"
+							>
+								{isFree ? 'Use Free Alternative' : 'Try Alternative Free'} <span aria-hidden="true">→</span>
+							</a>
+						</div>
+					</article>
+				);
+			})}
+		</div>
+	</section>
+)}
+
+<style>
+	.alternatives {
+		margin-top: 3.5rem;
+		padding: 2.5rem 2rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+	}
+
+	.alternatives__tag {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 600;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.5rem;
+	}
+
+	.alternatives__header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.45rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+		line-height: 1.25;
+	}
+
+	.alternatives__header p {
+		margin: 0.65rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+
+	.alternatives__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 1.25rem;
+		margin-top: 2rem;
+	}
+
+	.alt-card {
+		padding: 1.35rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #050505;
+		display: flex;
+		flex-direction: column;
+		transition: border-color 0.2s, transform 0.2s;
+	}
+
+	.alt-card:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		transform: translateY(-2px);
+	}
+
+	.alt-card__top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.alt-card__icon {
+		display: grid;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 8px;
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		font-family: var(--font-display);
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+
+	.alt-card__pricing {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+	}
+
+	.alt-card__cost {
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		font-weight: 700;
+		color: #fff;
+	}
+
+	.alt-card__savings {
+		font-size: 0.72rem;
+		color: var(--color-accent);
+		font-weight: 600;
+	}
+
+	.alt-card__title {
+		margin: 1rem 0 0;
+		font-family: var(--font-display);
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.alt-card__desc {
+		margin: 0.45rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		line-height: 1.5;
+		flex: 1;
+	}
+
+	.alt-card__footer {
+		margin-top: 1.25rem;
+		padding-top: 0.85rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.alt-card__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		color: var(--color-accent);
+		font-size: 0.85rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: opacity 0.2s;
+	}
+
+	.alt-card__cta:hover {
+		opacity: 0.85;
+	}
+
+	@media (max-width: 48rem) {
+		.alternatives { padding: 1.75rem 1.25rem; }
+		.alternatives__grid { grid-template-columns: 1fr; }
+	}
+</style>

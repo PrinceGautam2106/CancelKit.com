@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Authenticating — SubZap" description="Verifying your authentication session...">
+	<div class="callback-container">
+		<div class="callback-spinner"></div>
+		<p class="callback-text">Completing sign in, please wait...</p>
+	</div>
+</BaseLayout>
+
+<script>
+	import { supabase, setAuthCookies } from '../../lib/supabase';
+
+	async function handleCallback() {
+		try {
+			// Check for hash parameters or code
+			const params = new URLSearchParams(window.location.search);
+			const nextUrl = params.get('next') || '/dashboard';
+			const code = params.get('code');
+
+			if (code) {
+				const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+				if (!error && data.session) {
+					setAuthCookies(data.session.access_token, data.session.refresh_token, data.session.expires_in);
+					window.location.href = nextUrl;
+					return;
+				}
+			}
+
+			// Handle hash fragment session if present
+			const { data: { session }, error } = await supabase.auth.getSession();
+			if (!error && session) {
+				setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+				window.location.href = nextUrl;
+				return;
+			}
+
+			// Listen for auth state change
+			const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+				if (session) {
+					setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+					subscription.unsubscribe();
+					window.location.href = nextUrl;
+				}
+			});
+
+			// Fallback timeout after 3.5s
+			setTimeout(() => {
+				window.location.href = nextUrl;
+			}, 3500);
+		} catch (err) {
+			console.error('OAuth callback error:', err);
+			window.location.href = '/signin';
+		}
+	}
+
+	handleCallback();
+</script>
+
+<style>
+	.callback-container {
+		min-height: 80vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		background: #050505;
+	}
+
+	.callback-spinner {
+		width: 44px;
+		height: 44px;
+		border: 3px solid rgba(255, 255, 255, 0.1);
+		border-top-color: var(--color-accent);
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	.callback-text {
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		font-family: var(--font-body);
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+</style>

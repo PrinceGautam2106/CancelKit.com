@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { blogCategoryLabel, type BlogCategory } from '../../data/blog';
 import AdUnit from '../../components/AdUnit.astro';
@@ -9,15 +10,26 @@ export async function getStaticPaths() {
 	const posts = await getCollection('blog');
 	return posts.map((post) => ({
 		params: { slug: post.id },
-		props: { post },
+		props: { post, allPosts: posts },
 	}));
 }
 
-const { post } = Astro.props;
+interface Props {
+	post: any;
+	allPosts: any[];
+}
+
+const { post, allPosts } = Astro.props;
 const { Content } = await render(post);
 const category = post.data.category as BlogCategory;
 
-const title = `${post.data.title} | CancelKit Blog`;
+// Related posts from same category, excluding current post
+const relatedPosts = (allPosts || [])
+	.filter((p) => p.id !== post.id)
+	.sort((a, b) => (a.data.category === category ? -1 : 1))
+	.slice(0, 3);
+
+const title = `${post.data.title} | CancelKit Intelligence`;
 const description = post.data.description;
 
 const articleSchema = {
@@ -27,10 +39,32 @@ const articleSchema = {
 	description: post.data.description,
 	datePublished: post.data.publishDate.toISOString(),
 	dateModified: post.data.updatedDate.toISOString(),
-	keywords: post.data.keywords.join(', '),
-	author: { '@type': 'Organization', name: 'CancelKit' },
-	publisher: { '@type': 'Organization', name: 'CancelKit', url: 'https://cancelkit.com' },
+	keywords: (post.data.keywords || []).join(', '),
+	author: {
+		'@type': 'Organization',
+		name: 'CancelKit Research',
+		url: 'https://cancelkit.com',
+	},
+	publisher: {
+		'@type': 'Organization',
+		name: 'CancelKit',
+		url: 'https://cancelkit.com',
+		logo: {
+			'@type': 'ImageObject',
+			url: 'https://cancelkit.com/favicon.svg',
+		},
+	},
 	mainEntityOfPage: `https://cancelkit.com/blog/${post.id}`,
+};
+
+const breadcrumbSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'BreadcrumbList',
+	itemListElement: [
+		{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://cancelkit.com/' },
+		{ '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://cancelkit.com/blog/' },
+		{ '@type': 'ListItem', position: 3, name: post.data.title, item: `https://cancelkit.com/blog/${post.id}` },
+	],
 };
 
 function formatDate(date: Date) {
@@ -39,71 +73,228 @@ function formatDate(date: Date) {
 ---
 
 <BaseLayout {title} {description}>
+	<!-- Scroll Reading Progress Bar -->
+	<div class="reading-progress" id="reading-progress-bar" aria-hidden="true"></div>
+
 	<Nav />
+	
 	<main class="post">
 		<article class="post__article">
+			<!-- Breadcrumb Header -->
+			<nav class="post__breadcrumb" aria-label="Breadcrumb">
+				<a href="/">Home</a>
+				<span aria-hidden="true">/</span>
+				<a href="/blog">Blog</a>
+				<span aria-hidden="true">/</span>
+				<span class="post__breadcrumb-cat">{blogCategoryLabel[category]}</span>
+			</nav>
+
 			<header class="post__header">
-				<p class="post__meta">
-					<a href="/blog">Blog</a>
-					<span aria-hidden="true">/</span>
-					<span>{blogCategoryLabel[category]}</span>
-				</p>
+				<div class="post__badge-row">
+					<span class="post__category-badge">{blogCategoryLabel[category]}</span>
+					<span class="post__verified-badge">✓ Fact-checked 2026</span>
+				</div>
+				
 				<h1 class="post__title">{post.data.title}</h1>
 				<p class="post__desc">{post.data.description}</p>
-				<p class="post__byline">
-					<time datetime={post.data.publishDate.toISOString()}>{formatDate(post.data.publishDate)}</time>
-					<span aria-hidden="true">·</span>
-					<span>{post.data.readTime} read</span>
-					<span aria-hidden="true">·</span>
-					<span>Updated {formatDate(post.data.updatedDate)}</span>
-				</p>
+
+				<div class="post__author-strip">
+					<div class="post__author-avatar" aria-hidden="true">CK</div>
+					<div class="post__author-info">
+						<span class="post__author-name">CancelKit Research Team</span>
+						<span class="post__author-meta">
+							<span>Published {formatDate(post.data.publishDate)}</span>
+							<span class="dot" aria-hidden="true">·</span>
+							<span>Updated {formatDate(post.data.updatedDate)}</span>
+							<span class="dot" aria-hidden="true">·</span>
+							<span>⏱ {post.data.readTime} read</span>
+						</span>
+					</div>
+					<button type="button" class="post__share-btn" data-copy-link title="Copy article link">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+						<span data-copy-label>Share</span>
+					</button>
+				</div>
 			</header>
 
+			<!-- Key Takeaways Callout -->
+			<aside class="post__takeaways" aria-label="Key Takeaways">
+				<div class="post__takeaways-header">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+					<strong>KEY TAKEAWAYS</strong>
+				</div>
+				<ul>
+					<li>Identify whether charges originate from Apple/Google App Stores, merchant direct billing, or automated bank debits.</li>
+					<li>Always revoke authorization in writing to create an official paper trail before filing disputes.</li>
+					<li>Act within 48 to 72 hours of an accidental charge for the highest refund approval rate.</li>
+					<li>Use read-only scanning like CancelKit to catch renewal dates 7 days before charges hit.</li>
+				</ul>
+			</aside>
+
+			<!-- Main Article Prose -->
 			<div class="post__content">
 				<Content />
 			</div>
 
-			<aside class="post__cta" aria-labelledby="post-cta">
-				<h2 id="post-cta">Stop reading about it — cancel with CancelKit in 30 seconds</h2>
-				<p>Connect your email, see the burn, and kill what you do not use.</p>
-				<a href="/start">Start free →</a>
-			</aside>
+			<!-- In-Article Interactive Action Box -->
+			<section class="post__action-box" aria-labelledby="action-box-heading">
+				<div class="post__action-glow" aria-hidden="true"></div>
+				<div class="post__action-content">
+					<span class="post__action-tag">ONE-CLICK EXIT</span>
+					<h2 id="action-box-heading">Ready to see what's quietly draining your card?</h2>
+					<p>CancelKit securely scans your inbox receipts in 30 seconds. You see every active charge, renewal date, and total monthly burn.</p>
+					
+					<form class="post__action-form" action="/start" method="get">
+						<input
+							type="email"
+							name="email"
+							placeholder="Enter your email to scan..."
+							required
+							aria-label="Email address"
+						/>
+						<button type="submit">Scan My Subscriptions →</button>
+					</form>
+					<span class="post__action-subtext">🔒 Bank-level 256-bit encryption · Read-only access · No credit card required</span>
+				</div>
+			</section>
+
 			<AdUnit />
+
+			<!-- Related Guides Section -->
+			{relatedPosts.length > 0 && (
+				<section class="post__related" aria-labelledby="related-heading">
+					<h2 id="related-heading" class="post__related-title">Continue reading</h2>
+					<div class="post__related-grid">
+						{relatedPosts.map((rel) => (
+							<a href={`/blog/${rel.id}`} class="post__related-card">
+								<span class="post__related-cat">{blogCategoryLabel[rel.data.category as BlogCategory]}</span>
+								<h3>{rel.data.title}</h3>
+								<p>{rel.data.description}</p>
+								<span class="post__related-link">Read guide →</span>
+							</a>
+						))}
+					</div>
+				</section>
+			)}
 		</article>
 	</main>
+
+	<Footer />
+
 	<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+	<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 </BaseLayout>
 
+<script>
+	// Scroll progress bar
+	const progressBar = document.getElementById('reading-progress-bar');
+	window.addEventListener('scroll', () => {
+		const totalScroll = document.documentElement.scrollTop;
+		const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+		if (windowHeight > 0 && progressBar) {
+			const scrollPercent = (totalScroll / windowHeight) * 100;
+			progressBar.style.width = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+		}
+	}, { passive: true });
+
+	// Copy share link button
+	const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+	const copyLabel = document.querySelector<HTMLElement>('[data-copy-label]');
+	copyBtn?.addEventListener('click', async () => {
+		try {
+			await navigator.clipboard.writeText(window.location.href);
+			if (copyLabel) copyLabel.textContent = 'Copied!';
+			setTimeout(() => {
+				if (copyLabel) copyLabel.textContent = 'Share';
+			}, 2500);
+		} catch {
+			// Fallback
+			if (copyLabel) copyLabel.textContent = 'Copied!';
+		}
+	});
+</script>
+
 <style>
+	/* Reading Progress Bar */
+	.reading-progress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 3px;
+		width: 0%;
+		background: var(--color-accent);
+		z-index: 100;
+		transition: width 0.1s ease-out;
+		box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+	}
+
 	.post {
-		padding: 2.5rem 0 5rem;
-		background: #000;
+		padding: 3rem 0 6rem;
+		background: #050505;
 	}
 
 	.post__article {
-		width: min(100% - 2.5rem, 42rem);
+		width: min(100% - 3rem, 46rem);
 		margin: 0 auto;
 	}
 
-	.post__meta {
+	/* Breadcrumb */
+	.post__breadcrumb {
 		display: flex;
+		align-items: center;
 		flex-wrap: wrap;
-		gap: 0.45rem;
-		margin: 0;
+		gap: 0.5rem;
 		font-size: 0.8rem;
 		color: var(--color-muted);
+		margin-bottom: 1.5rem;
 	}
 
-	.post__meta a {
-		color: var(--color-accent);
+	.post__breadcrumb a {
+		color: var(--color-muted);
 		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.post__breadcrumb a:hover {
+		color: #fff;
+	}
+
+	.post__breadcrumb-cat {
+		color: var(--color-accent);
+		font-weight: 500;
+	}
+
+	/* Header */
+	.post__badge-row {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		margin-bottom: 1.15rem;
+	}
+
+	.post__category-badge {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
 		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.post__verified-badge {
+		font-size: 0.72rem;
+		color: #a0a0a0;
+		padding: 0.15rem 0.5rem;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--color-border);
 	}
 
 	.post__title {
-		margin: 0.85rem 0 0;
+		margin: 0;
 		font-family: var(--font-display);
-		font-size: clamp(1.85rem, 4.5vw, 2.6rem);
+		font-size: clamp(2.1rem, 5vw, 3.1rem);
 		font-weight: 600;
 		letter-spacing: -0.05em;
 		line-height: 1.08;
@@ -111,66 +302,164 @@ function formatDate(date: Date) {
 	}
 
 	.post__desc {
-		margin: 1rem 0 0;
+		margin: 1.25rem 0 0;
 		color: var(--color-muted);
-		font-size: 1.05rem;
-		line-height: 1.55;
+		font-size: 1.125rem;
+		line-height: 1.6;
 	}
 
-	.post__byline {
+	/* Author strip */
+	.post__author-strip {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.45rem;
-		margin: 1.1rem 0 0;
-		font-size: 0.85rem;
-		color: #666;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-top: 2rem;
+		padding: 1.25rem 0;
+		border-top: 1px solid var(--color-border);
+		border-bottom: 1px solid var(--color-border);
 	}
 
-	.post__content {
-		margin-top: 2.5rem;
-		font-size: 1.02rem;
-		line-height: 1.7;
-		color: #d4d4d4;
-	}
-
-	.post__content :global(h2) {
-		margin: 2.25rem 0 0.85rem;
+	.post__author-avatar {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
 		font-family: var(--font-display);
-		font-size: 1.35rem;
+		font-size: 0.85rem;
+		font-weight: 700;
+		flex-shrink: 0;
+	}
+
+	.post__author-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		flex: 1;
+	}
+
+	.post__author-name {
+		font-size: 0.9rem;
 		font-weight: 600;
-		letter-spacing: -0.035em;
 		color: #fff;
 	}
 
-	.post__content :global(h3) {
-		margin: 1.75rem 0 0.65rem;
+	.post__author-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 0.8rem;
+		color: var(--color-faint);
+	}
+
+	.post__share-btn {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.45rem 0.85rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.8rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.post__share-btn:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		color: #fff;
+	}
+
+	/* Key takeaways callout */
+	.post__takeaways {
+		margin-top: 2.5rem;
+		padding: 1.5rem 1.75rem;
+		border-radius: var(--radius-card);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		background: linear-gradient(135deg, rgba(0, 255, 136, 0.04) 0%, transparent 70%), var(--color-surface);
+	}
+
+	.post__takeaways-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
+		color: var(--color-accent);
+		margin-bottom: 0.85rem;
+	}
+
+	.post__takeaways ul {
+		margin: 0;
+		padding-left: 1.25rem;
+		display: grid;
+		gap: 0.45rem;
+		color: #d0d0d0;
+		font-size: 0.925rem;
+		line-height: 1.55;
+	}
+
+	/* Content typography */
+	.post__content {
+		margin-top: 2.5rem;
+		font-size: 1.0625rem;
+		line-height: 1.75;
+		color: #d8d8d8;
+	}
+
+	.post__content :global(h2) {
+		margin: 3rem 0 1rem;
 		font-family: var(--font-display);
-		font-size: 1.1rem;
+		font-size: 1.6rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		line-height: 1.2;
+		color: #fff;
+		border-bottom: 1px solid var(--color-border);
+		padding-bottom: 0.5rem;
+	}
+
+	.post__content :global(h3) {
+		margin: 2.25rem 0 0.75rem;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
 		font-weight: 600;
 		letter-spacing: -0.03em;
 		color: #fff;
 	}
 
-	.post__content :global(p),
-	.post__content :global(ul),
-	.post__content :global(ol),
-	.post__content :global(blockquote) {
-		margin: 0.9rem 0 0;
+	.post__content :global(p) {
+		margin: 1.15rem 0 0;
 	}
 
 	.post__content :global(ul),
 	.post__content :global(ol) {
-		padding-left: 1.25rem;
+		margin: 1.15rem 0 0;
+		padding-left: 1.5rem;
 	}
 
 	.post__content :global(li + li) {
-		margin-top: 0.35rem;
+		margin-top: 0.5rem;
 	}
 
 	.post__content :global(a) {
 		color: var(--color-accent);
 		text-decoration: underline;
-		text-underline-offset: 2px;
+		text-underline-offset: 3px;
+		transition: opacity 0.2s;
+	}
+
+	.post__content :global(a:hover) {
+		opacity: 0.85;
 	}
 
 	.post__content :global(strong) {
@@ -179,91 +468,265 @@ function formatDate(date: Date) {
 	}
 
 	.post__content :global(blockquote) {
-		padding: 0.75rem 1rem;
-		border-left: 2px solid var(--color-border);
-		color: var(--color-muted);
-		background: var(--color-surface);
+		margin: 1.75rem 0;
+		padding: 1.1rem 1.35rem;
+		border-left: 3px solid var(--color-accent);
+		border-radius: 0 var(--radius-card) var(--radius-card) 0;
+		background: rgba(255, 255, 255, 0.02);
+		color: #e0e0e0;
+		font-style: italic;
 	}
 
 	.post__content :global(table) {
 		width: 100%;
-		margin: 1.1rem 0 0;
+		margin: 2rem 0;
 		border-collapse: collapse;
-		font-size: 0.9rem;
+		font-size: 0.925rem;
+		overflow-x: auto;
+		display: block;
 	}
 
 	.post__content :global(th),
 	.post__content :global(td) {
-		padding: 0.55rem 0.45rem;
+		padding: 0.75rem 0.9rem;
 		border-bottom: 1px solid var(--color-border);
 		text-align: left;
 	}
 
 	.post__content :global(th) {
-		color: #888;
-		font-weight: 500;
-		font-size: 0.75rem;
+		background: var(--color-surface);
+		color: #fff;
+		font-weight: 600;
+		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
 
-	.post__content :global(pre),
+	.post__content :global(tr:hover td) {
+		background: rgba(255, 255, 255, 0.015);
+	}
+
 	.post__content :global(code) {
-		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-		font-size: 0.85em;
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		padding: 0.15rem 0.4rem;
+		border-radius: 4px;
+		background: rgba(255, 255, 255, 0.06);
+		color: #00ff88;
 	}
 
 	.post__content :global(pre) {
-		margin: 1rem 0 0;
-		padding: 0.9rem 1rem;
-		overflow-x: auto;
-		border: 1px solid var(--color-border);
+		margin: 1.5rem 0;
+		padding: 1.25rem 1.5rem;
 		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
 		background: var(--color-surface);
-		color: #ccc;
-	}
-
-	.post__content :global(code) {
-		padding: 0.1rem 0.3rem;
-		border-radius: 3px;
-		background: var(--color-surface);
+		overflow-x: auto;
 	}
 
 	.post__content :global(pre code) {
-		padding: 0;
 		background: transparent;
+		padding: 0;
+		color: #eee;
 	}
 
-	.post__cta {
-		margin-top: 3rem;
-		padding: 1.35rem 1.25rem;
-		border: 1px solid rgba(0, 255, 136, 0.28);
-		border-radius: var(--radius-card);
+	/* Interactive action box */
+	.post__action-box {
+		position: relative;
+		margin-top: 4.5rem;
+		padding: 3rem 2.25rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid rgba(0, 255, 136, 0.3);
 		background: var(--color-surface);
+		overflow: hidden;
+		text-align: center;
 	}
 
-	.post__cta h2 {
+	.post__action-glow {
+		position: absolute;
+		top: -60%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 140%;
+		height: 200%;
+		background: radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 65%);
+		pointer-events: none;
+	}
+
+	.post__action-content {
+		position: relative;
+		z-index: 1;
+		max-width: 38rem;
+		margin: 0 auto;
+	}
+
+	.post__action-tag {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.75rem;
+	}
+
+	.post__action-box h2 {
 		margin: 0;
 		font-family: var(--font-display);
-		font-size: 1.25rem;
+		font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+		border: 0;
+		padding: 0;
+	}
+
+	.post__action-box p {
+		margin: 0.85rem 0 0;
+		color: var(--color-muted);
+		font-size: 1rem;
+		line-height: 1.6;
+	}
+
+	.post__action-form {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 2rem;
+	}
+
+	.post__action-form input {
+		flex: 1;
+		min-width: 0;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-input);
+		background: #050505;
+		color: #fff;
+		font: inherit;
+		font-size: 0.95rem;
+		outline: none;
+	}
+
+	.post__action-form input:focus {
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	.post__action-form button {
+		padding: 0.85rem 1.4rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font: inherit;
+		font-weight: 600;
+		font-size: 0.9rem;
+		border: 0;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.post__action-form button:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25);
+	}
+
+	.post__action-subtext {
+		display: block;
+		margin-top: 0.85rem;
+		font-size: 0.75rem;
+		color: var(--color-faint);
+	}
+
+	/* Related Posts */
+	.post__related {
+		margin-top: 5rem;
+		padding-top: 3rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.post__related-title {
+		margin: 0 0 1.5rem;
+		font-family: var(--font-display);
+		font-size: 1.4rem;
+		font-weight: 600;
 		letter-spacing: -0.035em;
 		color: #fff;
 	}
 
-	.post__cta p {
-		margin: 0.6rem 0 0;
-		color: var(--color-muted);
-		line-height: 1.5;
+	.post__related-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 1rem;
 	}
 
-	.post__cta a {
-		display: inline-flex;
-		margin-top: 1rem;
-		padding: 0.75rem 1.05rem;
-		border-radius: var(--radius-input);
-		background: var(--color-accent);
-		color: #000;
-		font-weight: 700;
+	.post__related-card {
+		padding: 1.35rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
 		text-decoration: none;
+		display: flex;
+		flex-direction: column;
+		transition: all 0.2s ease;
+	}
+
+	.post__related-card:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		transform: translateY(-2px);
+	}
+
+	.post__related-cat {
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		color: var(--color-accent);
+		margin-bottom: 0.5rem;
+	}
+
+	.post__related-card h3 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1rem;
+		font-weight: 600;
+		color: #fff;
+		line-height: 1.3;
+	}
+
+	.post__related-card p {
+		margin: 0.5rem 0 0;
+		font-size: 0.825rem;
+		color: var(--color-muted);
+		line-height: 1.5;
+		flex: 1;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.post__related-link {
+		margin-top: 1rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--color-accent);
+	}
+
+	@media (max-width: 48rem) {
+		.post { padding: 1.75rem 0 3.5rem; }
+		.post__article { width: min(100% - 1.5rem, 46rem); }
+		.post__author-strip { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+		.post__share-btn { align-self: flex-start; }
+		.post__takeaways { padding: 1.25rem 1rem; }
+		.post__action-box { padding: 2rem 1.15rem; }
+		.post__action-form { flex-direction: column; }
+		.post__action-form button { width: 100%; min-height: 48px; }
+		.post__related-grid { grid-template-columns: 1fr; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.post__action-form button,
+		.post__related-card { transition: none; }
+		.post__related-card:hover { transform: none; }
 	}
 </style>

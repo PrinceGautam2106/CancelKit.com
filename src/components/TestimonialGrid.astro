@@ -1,0 +1,259 @@
+---
+import { testimonials } from '../data/testimonials';
+
+interface Props {
+	/** Limit cards on homepage; omit for full wall */
+	limit?: number;
+	/** Section heading override */
+	title?: string;
+	eyebrow?: string;
+	showHeader?: boolean;
+	id?: string;
+}
+
+const {
+	limit,
+	title = 'Real people. Real money back.',
+	eyebrow = 'WALL OF LOVE',
+	showHeader = true,
+	id = 'wall-of-love',
+} = Astro.props;
+
+const items = typeof limit === 'number' ? testimonials.slice(0, limit) : testimonials;
+
+function avatarHue(letter: string): string {
+	const hues = [145, 160, 175, 190, 200, 120, 210, 130];
+	const idx = letter.toUpperCase().charCodeAt(0) % hues.length;
+	return `hsl(${hues[idx]} 55% 28%)`;
+}
+---
+
+<section class="tg" aria-labelledby={`${id}-title`} id={id}>
+	<div class="tg__inner">
+		{showHeader && (
+			<header class="tg__header fade-in-up">
+				<p class="tg__eyebrow">{eyebrow}</p>
+				<h2 id={`${id}-title`} class="tg__title">{title}</h2>
+				<p class="tg__sub">
+					<a href="/wall-of-love">See every story →</a>
+				</p>
+			</header>
+		)}
+
+		<div class="tg__masonry">
+			{items.map((t) => (
+				<article class="tg__card">
+					<div class="tg__card-top">
+						<div class="tg__who">
+							<span
+								class="tg__avatar"
+								style={`background:${avatarHue(t.avatar)}`}
+								aria-hidden="true"
+							>
+								{t.avatar}
+							</span>
+							<div>
+								<strong>{t.name}</strong>
+								<span>{t.location}</span>
+							</div>
+						</div>
+						<span class="tg__badge">${t.savedAmount}/mo saved</span>
+					</div>
+
+					<div class="tg__stars" aria-label="5 out of 5 stars">★★★★★</div>
+
+					<blockquote>
+						<p>“{t.quote}”</p>
+					</blockquote>
+
+					<footer class="tg__meta">
+						<span>{t.subscriptionsCancelled} cancelled</span>
+						<span aria-hidden="true">·</span>
+						<span>{t.plan}</span>
+						<span aria-hidden="true">·</span>
+						<span>{t.date}</span>
+					</footer>
+				</article>
+			))}
+		</div>
+	</div>
+</section>
+
+<style>
+	.tg {
+		background: #050505;
+		padding: 5rem 0;
+		border-top: 1px solid var(--color-border);
+		width: 100%;
+	}
+
+	.tg__inner {
+		width: min(100% - 2rem, 72rem);
+		margin: 0 auto;
+	}
+
+	.tg__header {
+		text-align: center;
+		max-width: 36rem;
+		margin: 0 auto 2.5rem;
+	}
+
+	.tg__eyebrow {
+		margin: 0 0 0.65rem;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+		color: var(--color-muted);
+	}
+
+	.tg__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.6rem, 4vw, 2.15rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		color: #fff;
+		line-height: 1.2;
+	}
+
+	.tg__sub {
+		margin: 0.85rem 0 0;
+	}
+
+	.tg__sub a {
+		color: var(--color-accent);
+		font-size: 0.9rem;
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.tg__sub a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.tg__masonry {
+		column-count: 3;
+		column-gap: 1.15rem;
+	}
+
+	.tg__card {
+		break-inside: avoid;
+		margin-bottom: 1.15rem;
+		padding: 1.25rem 1.2rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		transition: border-color 0.2s;
+	}
+
+	.tg__card:hover {
+		border-color: var(--color-border-hover);
+	}
+
+	.tg__card-top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.tg__who {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		min-width: 0;
+	}
+
+	.tg__avatar {
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 0.9rem;
+		color: #fff;
+		flex-shrink: 0;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.tg__who strong {
+		display: block;
+		font-size: 0.9rem;
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.tg__who span {
+		font-size: 0.75rem;
+		color: var(--color-muted);
+	}
+
+	.tg__badge {
+		flex-shrink: 0;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 600;
+		padding: 0.28rem 0.55rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		white-space: nowrap;
+	}
+
+	.tg__stars {
+		color: var(--color-accent);
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+		margin-bottom: 0.55rem;
+	}
+
+	.tg__card blockquote {
+		margin: 0;
+	}
+
+	.tg__card blockquote p {
+		margin: 0;
+		font-size: 0.92rem;
+		line-height: 1.55;
+		color: #d4d4d4;
+	}
+
+	.tg__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem;
+		margin-top: 0.9rem;
+		padding-top: 0.85rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.05);
+		font-size: 0.72rem;
+		color: var(--color-faint);
+	}
+
+	@media (max-width: 60rem) {
+		.tg__masonry {
+			column-count: 2;
+		}
+	}
+
+	@media (max-width: 36rem) {
+		.tg {
+			padding: 3.5rem 0;
+		}
+
+		.tg__masonry {
+			column-count: 1;
+		}
+
+		.tg__card-top {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+</style>

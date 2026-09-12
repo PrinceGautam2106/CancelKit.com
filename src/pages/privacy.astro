@@ -1,0 +1,334 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Privacy Policy — SubZaps';
+const description = 'SubZaps Privacy Policy. Comprehensive GDPR, CCPA, and Google API Services User Data Policy disclosure.';
+const lastUpdated = 'September 12, 2026';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="legal-page">
+		<div class="legal-container">
+			<header class="legal-header">
+				<span class="legal-badge">Legal Documentation</span>
+				<h1>Privacy Policy</h1>
+				<p class="legal-updated">Last Updated: {lastUpdated}</p>
+			</header>
+
+			<article class="legal-content">
+				<section>
+					<h2>1. Introduction & Overview</h2>
+					<p>
+						At <strong>SubZaps</strong> ("SubZaps", "we", "us", or "our"), accessible from <code>subzaps.com</code>, safeguarding your personal data and maintaining your trust is our highest priority. This Privacy Policy details how we collect, process, store, and protect your information when you use our web application, tools, and subscription management services.
+					</p>
+					<p>
+						We strictly comply with the <strong>General Data Protection Regulation (GDPR)</strong>, the <strong>California Consumer Privacy Act (CCPA / CPRA)</strong>, and the <strong>Google API Services User Data Policy</strong>, including the Limited Use requirements.
+					</p>
+				</section>
+
+				<section>
+					<h2>2. Google API & Gmail Data Usage (Strict Limited Use Disclosure)</h2>
+					<div class="legal-highlight">
+						<strong>Crucial Gmail Read-Only Access Disclosure:</strong>
+						<p>
+							SubZaps requests access exclusively to the read-only scope: <code>https://www.googleapis.com/auth/gmail.readonly</code>. We scan strictly for transactional receipts and subscription billing notices. We literally cannot send, compose, delete, or modify any emails in your account.
+						</p>
+					</div>
+					<p>
+						In accordance with Google's requirements, our use of information received from Google APIs adheres to the <strong>Google API Services User Data Policy</strong>, including the Limited Use requirements:
+					</p>
+					<ul>
+						<li>
+							<strong>Specific Scanning Purpose:</strong> Our algorithms scan your inbox headers and email message bodies exclusively to extract subscription vendor names, billing amounts, currency, and renewal dates.
+						</li>
+						<li>
+							<strong>No Human Reading:</strong> No human employees, contractors, or agents at SubZaps read your email messages unless you have given explicit consent for troubleshooting or it is required for security investigations.
+						</li>
+						<li>
+							<strong>No Advertising or Resale:</strong> We do not transfer, license, sell, or disclose your email data or subscription data to any third-party advertisers, data brokers, or information aggregators.
+						</li>
+						<li>
+							<strong>No AI Model Training:</strong> Your email data is never used to train generalized artificial intelligence (AI) or machine learning (ML) models.
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>3. What Information We Collect and Store</h2>
+					<p>We collect only the minimum information necessary to provide subscription detection and management:</p>
+					<ul>
+						<li>
+							<strong>Account Identifiers:</strong> Your email address and authenticated user ID provided during signup or OAuth authentication.
+						</li>
+						<li>
+							<strong>Detected Subscription Data:</strong> Vendor/merchant name (e.g., Netflix, Spotify), recurring charge amount, billing interval (monthly, annual), next renewal date, and cancellation status.
+						</li>
+						<li>
+							<strong>Payment & Billing Data:</strong> Payment details are processed directly and securely by Stripe. We never store raw credit or debit card numbers on our servers. We receive only tokenized customer identifiers and subscription statuses.
+						</li>
+						<li>
+							<strong>Technical Logs:</strong> IP address, browser type, device information, and diagnostic server logs retained temporarily for security, fraud prevention, and performance monitoring.
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>4. Authorized Third-Party Service Providers</h2>
+					<p>We partner only with industry-leading, privacy-certified infrastructure providers:</p>
+					<div class="legal-table-wrap">
+						<table class="legal-table">
+							<thead>
+								<tr>
+									<th>Provider</th>
+									<th>Purpose</th>
+									<th>Data Shared</th>
+									<th>Compliance</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>Stripe</strong></td>
+									<td>Payment Processing</td>
+									<td>Customer email, billing metadata, tokenized card tokens</td>
+									<td>PCI DSS Level 1, SOC 1/2, GDPR</td>
+								</tr>
+								<tr>
+									<td><strong>Supabase</strong></td>
+									<td>Database & Authentication</td>
+									<td>User IDs, encrypted auth tokens, subscription tables</td>
+									<td>SOC 2 Type II, HIPAA eligible, GDPR</td>
+								</tr>
+								<tr>
+									<td><strong>Resend</strong></td>
+									<td>Transactional Email Delivery</td>
+									<td>Email address, renewal alert text, cancellation confirmation</td>
+									<td>SOC 2, GDPR, ISO 27001</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<section>
+					<h2>5. Data Retention & One-Click Deletion Process</h2>
+					<p>
+						You retain absolute ownership of your personal data. We store your subscription details only for as long as your account remains active.
+					</p>
+					<p>
+						<strong>Right to Erasure (GDPR Art. 17 & CCPA):</strong> You may permanently delete your account and all associated data at any time directly through your <a href="/account">Account Settings</a> (Danger Zone → "Delete all my data"), or by emailing <a href="mailto:privacy@subzaps.com">privacy@subzaps.com</a>. Upon confirmation:
+					</p>
+					<ul>
+						<li>All detected subscription records are permanently wiped from our database.</li>
+						<li>OAuth tokens granting inbox access are immediately revoked.</li>
+						<li>Your user record is purged within 30 days from all backup systems.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>6. Cookies & Tracking Technologies</h2>
+					<p>
+						We use essential authentication cookies (such as <code>sb-access-token</code>), security tokens, and privacy-preserving analytics cookies to maintain your login session and improve application performance. For complete disclosures, please consult our dedicated <a href="/cookies">Cookie Policy</a>.
+					</p>
+				</section>
+
+				<section>
+					<h2>7. California Consumer Rights (CCPA / CPRA)</h2>
+					<p>
+						If you are a California resident, you have the right under the CCPA to request disclosure of the categories of personal information collected, request deletion, and opt out of the sale or sharing of personal information. SubZaps <strong>does not sell or share</strong> your personal information for monetary or other valuable consideration.
+					</p>
+				</section>
+
+				<section>
+					<h2>8. Contact Our Data Protection Officer</h2>
+					<p>
+						If you have any questions, concerns, or requests regarding this Privacy Policy or your data rights, please contact our privacy team:
+					</p>
+					<div class="legal-contact-card">
+						<p><strong>SubZaps Privacy & Data Protection</strong></p>
+						<p>Email: <a href="mailto:privacy@subzaps.com">privacy@subzaps.com</a></p>
+						<p>General Support: <a href="mailto:hello@subzaps.com">hello@subzaps.com</a></p>
+						<p>Website: <a href="https://subzaps.com">https://subzaps.com</a></p>
+					</div>
+				</section>
+			</article>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<style>
+	.legal-page {
+		min-height: 100svh;
+		padding: 4rem 1.5rem 6rem;
+		background: #050505;
+		color: #ccc;
+		font-family: var(--font-body);
+	}
+
+	.legal-container {
+		max-width: 48rem;
+		margin: 0 auto;
+	}
+
+	.legal-header {
+		margin-bottom: 3rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.legal-badge {
+		display: inline-block;
+		padding: 0.25rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.74rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		margin-bottom: 1rem;
+	}
+
+	.legal-header h1 {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 2.75rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.legal-updated {
+		margin: 0;
+		font-size: 0.88rem;
+		color: var(--color-muted);
+		font-family: var(--font-mono);
+	}
+
+	.legal-content section {
+		margin-bottom: 2.75rem;
+	}
+
+	.legal-content h2 {
+		margin: 0 0 1rem;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		color: #fff;
+	}
+
+	.legal-content p {
+		margin: 0 0 1rem;
+		font-size: 0.95rem;
+		line-height: 1.65;
+		color: #bbb;
+	}
+
+	.legal-content strong {
+		color: #fff;
+	}
+
+	.legal-content ul {
+		margin: 0 0 1.25rem 1.25rem;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.legal-content li {
+		font-size: 0.92rem;
+		line-height: 1.6;
+		color: #bbb;
+	}
+
+	.legal-content a {
+		color: var(--color-accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.legal-content code {
+		font-family: var(--font-mono);
+		font-size: 0.84rem;
+		background: #121212;
+		border: 1px solid var(--color-border);
+		padding: 0.15rem 0.45rem;
+		border-radius: 4px;
+		color: #00ff88;
+	}
+
+	.legal-highlight {
+		padding: 1.25rem 1.5rem;
+		background: rgba(0, 255, 136, 0.05);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-card);
+		margin: 1.25rem 0;
+	}
+
+	.legal-highlight strong {
+		color: var(--color-accent);
+		display: block;
+		margin-bottom: 0.35rem;
+	}
+
+	.legal-highlight p {
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.legal-table-wrap {
+		overflow-x: auto;
+		margin: 1.25rem 0;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+	}
+
+	.legal-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.88rem;
+		text-align: left;
+	}
+
+	.legal-table th {
+		padding: 0.85rem 1rem;
+		background: #111;
+		border-bottom: 1px solid var(--color-border);
+		color: #fff;
+		font-family: var(--font-display);
+		font-weight: 600;
+	}
+
+	.legal-table td {
+		padding: 0.85rem 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		color: #aaa;
+	}
+
+	.legal-table tr:last-child td {
+		border-bottom: 0;
+	}
+
+	.legal-contact-card {
+		padding: 1.25rem 1.5rem;
+		background: #0c0c0c;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-top: 1rem;
+	}
+
+	.legal-contact-card p {
+		margin: 0 0 0.35rem;
+		font-size: 0.9rem;
+	}
+
+	.legal-contact-card p:last-child {
+		margin: 0;
+	}
+</style>

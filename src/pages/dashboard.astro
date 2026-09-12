@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PlanBadge from '../components/PlanBadge.astro';
+import SavingsCounter from '../components/SavingsCounter.astro';
 
 const title = 'Dashboard — CancelKit';
 const description = 'See every subscription draining your account and cancel what you do not need.';
@@ -30,30 +32,57 @@ const description = 'See every subscription draining your account and cancel wha
 					<a href="#subscriptions" data-nav="subscriptions">Subscriptions</a>
 					<a href="#savings" data-nav="savings">Savings</a>
 					<a href="#history" data-nav="history">Cancel History</a>
-					<a href="#settings" data-nav="settings">Settings</a>
+					<a href="/account" data-nav="settings">Account</a>
 				</nav>
 				<div class="dash__connected">
 					<span class="dash__status-dot" aria-hidden="true"></span>
 					<span data-connected-label>Connected: Gmail</span>
 				</div>
+				<div class="dash__plan-row">
+					<span class="dash__plan-label">Plan</span>
+					<div id="dash-plan-badge-wrap">
+						<PlanBadge plan="free" />
+					</div>
+				</div>
+				<button type="button" class="dash__signout" id="dash-signout-btn">Sign out</button>
 			</aside>
 
 			<section class="dash__main" id="subscriptions" aria-labelledby="subs-heading">
+				<!-- UPGRADE SUCCESS BANNER -->
+				<div class="dash__upgrade-banner" id="dash-upgrade-banner" hidden>
+					<div class="dash__upgrade-text">
+						<span class="dash__upgrade-icon">🎉</span>
+						<div>
+							<strong>Welcome to SubZap Pro!</strong>
+							<p>All 14 subscriptions unlocked. Instant 1-click cancellation and renewal radar active.</p>
+						</div>
+					</div>
+					<button type="button" class="dash__upgrade-close" id="dash-upgrade-close" aria-label="Close">✕</button>
+				</div>
 				<header class="dash__main-header">
 					<div class="dash__main-title-row">
-						<h1 id="subs-heading">Your subscriptions</h1>
+						<div class="dash__title-block">
+							<h1 id="subs-heading">Your subscriptions</h1>
+							<SavingsCounter variant="dashboard" class="dash__savings-counter" />
+						</div>
+						<div class="dash__title-actions">
+							<button type="button" class="dash__btn-sm dash__btn--accent" data-add-sub>+ Add Subscription</button>
+							<button type="button" class="dash__btn-sm dash__btn--ghost" data-reset-subs title="Clear demo items and start with 0">Reset to $0</button>
+						</div>
+					</div>
+					<div class="dash__controls-row">
 						<div class="dash__filters" role="tablist" aria-label="Filter subscriptions">
 							<button type="button" class="is-active" role="tab" aria-selected="true" data-filter="all">All</button>
 							<button type="button" role="tab" aria-selected="false" data-filter="active">Active</button>
 							<button type="button" role="tab" aria-selected="false" data-filter="cancelled">Cancelled</button>
 							<button type="button" role="tab" aria-selected="false" data-filter="trial">Trial</button>
 						</div>
-					</div>
-					<div class="dash__sort" aria-label="Sort subscriptions">
-						<span class="dash__sort-label">Sort</span>
-						<button type="button" class="is-active" data-sort="amount">By amount</button>
-						<button type="button" data-sort="renewal">By renewal date</button>
-						<button type="button" data-sort="category">By category</button>
+						<div class="dash__sort" aria-label="Sort subscriptions">
+							<span class="dash__sort-label">Sort</span>
+							<button type="button" class="is-active" data-sort="amount">By amount</button>
+							<button type="button" data-sort="renewal">By renewal</button>
+							<button type="button" data-sort="category">By category</button>
+						</div>
 					</div>
 				</header>
 
@@ -69,7 +98,60 @@ const description = 'See every subscription draining your account and cancel wha
 						</thead>
 						<tbody data-sub-list></tbody>
 					</table>
-					<p class="dash__table-empty" data-table-empty hidden>No subscriptions in this view.</p>
+					<div class="dash__table-empty" data-table-empty hidden>
+						<div class="dash__empty-badge">✓ ZERO RENEWALS</div>
+						<p class="dash__empty-title">No Active Subscriptions Found</p>
+						<p class="dash__empty-desc">Your dashboard has no recurring charges draining your funds.</p>
+						<button type="button" class="dash__btn-sm dash__btn--accent" data-add-sub-clean>+ Add Real Subscription</button>
+					</div>
+
+					<!-- PRO PLAN DASHBOARD GATE OVERLAY -->
+					<div class="dash__gate-wrap" id="dash-gate-wrap" hidden>
+						<div class="dash__gate-blur" aria-hidden="true" id="dash-gate-blur">
+							<div class="dash__gate-blur-row">
+								<div class="dash__svc"><span class="dash__logo">P</span><div><div class="dash__svc-name">Paramount+</div><span class="dash__tag">Streaming</span></div></div>
+								<div class="dash__amount">$11.99</div>
+								<div class="dash__date">Oct 02</div>
+								<div class="dash__actions"><span class="dash__gate-lock-pill">🔒 Locked</span></div>
+							</div>
+							<div class="dash__gate-blur-row">
+								<div class="dash__svc"><span class="dash__logo">D</span><div><div class="dash__svc-name">Disney+</div><span class="dash__tag">Streaming</span></div></div>
+								<div class="dash__amount">$15.99</div>
+								<div class="dash__date">Oct 08</div>
+								<div class="dash__actions"><span class="dash__gate-lock-pill">🔒 Locked</span></div>
+							</div>
+							<div class="dash__gate-blur-row">
+								<div class="dash__svc"><span class="dash__logo">S</span><div><div class="dash__svc-name">Sam's Club Plus</div><span class="dash__tag">Shopping</span></div></div>
+								<div class="dash__amount">$9.17</div>
+								<div class="dash__date">Oct 14</div>
+								<div class="dash__actions"><span class="dash__gate-lock-pill">🔒 Locked</span></div>
+							</div>
+							<div class="dash__gate-blur-row">
+								<div class="dash__svc"><span class="dash__logo">N</span><div><div class="dash__svc-name">NordVPN</div><span class="dash__tag">VPN & Security</span></div></div>
+								<div class="dash__amount">$12.99</div>
+								<div class="dash__date">Oct 20</div>
+								<div class="dash__actions"><span class="dash__gate-lock-pill">🔒 Locked</span></div>
+							</div>
+						</div>
+						<div class="dash__gate-overlay">
+							<div class="dash__gate-icon">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+									<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+									<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+								</svg>
+							</div>
+							<h3 class="dash__gate-title" id="dash-gate-title">
+								Upgrade to Pro to see all 14 subscriptions
+							</h3>
+							<p class="dash__gate-desc">
+								Free plan only displays your top 10 subscriptions. Unlock all 14, 1-click cancellations, and renewal radar alerts.
+							</p>
+							<button type="button" class="dash__gate-upgrade-btn" id="dash-upgrade-btn">
+								<span class="btn-text">Upgrade to Pro ($9/mo) →</span>
+								<span class="btn-spinner" hidden></span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</section>
 
@@ -98,10 +180,76 @@ const description = 'See every subscription draining your account and cancel wha
 				</section>
 			</aside>
 		</div>
+
+		<!-- ADD SUBSCRIPTION MODAL -->
+		<dialog class="dash__modal" id="add-sub-modal" aria-labelledby="modal-title">
+			<form class="dash__modal-box" method="dialog" id="add-sub-form">
+				<div class="dash__modal-header">
+					<h2 id="modal-title">Add Real Subscription</h2>
+					<button type="button" class="dash__modal-close" id="modal-close-btn" aria-label="Close modal">✕</button>
+				</div>
+				<div class="dash__modal-fields">
+					<label class="dash__field">
+						<span>Service Name</span>
+						<input type="text" name="name" placeholder="e.g. Netflix, Spotify, Gym, ChatGPT" required />
+					</label>
+					<label class="dash__field">
+						<span>Monthly Cost ($ USD)</span>
+						<input type="number" step="0.01" min="0.01" name="monthly" placeholder="15.49" required />
+					</label>
+					<label class="dash__field">
+						<span>Category</span>
+						<select name="category">
+							<option value="streaming">Streaming</option>
+							<option value="software">Software & AI</option>
+							<option value="fitness">Fitness & Gym</option>
+							<option value="news">News & Learning</option>
+						</select>
+					</label>
+					<label class="dash__field">
+						<span>Next Renewal Date</span>
+						<input type="date" name="nextBilling" required />
+					</label>
+				</div>
+				<div class="dash__modal-actions">
+					<button type="button" class="dash__btn dash__btn--ghost" id="modal-cancel-btn">Cancel</button>
+					<button type="submit" class="dash__btn dash__btn--primary">Save Subscription</button>
+				</div>
+			</form>
+		</dialog>
 	</div>
 </BaseLayout>
 
 <script>
+	import { supabase, setAuthCookies, clearAuthCookies } from '../lib/supabase';
+
+	// Client-side authentication guard
+	async function checkAuth() {
+		try {
+			const { data: { session }, error } = await supabase.auth.getSession();
+			if (error || !session) {
+				window.location.href = '/signin';
+				return;
+			}
+			setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+		} catch {
+			window.location.href = '/signin';
+		}
+	}
+	checkAuth();
+
+	// Signout handler
+	document.getElementById('dash-signout-btn')?.addEventListener('click', async () => {
+		try {
+			await supabase.auth.signOut();
+			clearAuthCookies();
+			window.location.href = '/signin';
+		} catch {
+			clearAuthCookies();
+			window.location.href = '/signin';
+		}
+	});
+
 	type SubStatus = 'active' | 'cancelled' | 'trial';
 	type SubCategory = 'streaming' | 'software' | 'fitness' | 'news';
 
@@ -132,6 +280,8 @@ const description = 'See every subscription draining your account and cancel wha
 		{ id: 'audible', name: 'Audible', category: 'news', monthly: 14.95, nextBilling: '2026-09-14', status: 'active', domain: 'audible.com' },
 		{ id: 'nord', name: 'NordVPN', category: 'software', monthly: 12.99, nextBilling: '2026-10-05', status: 'trial', domain: 'nordvpn.com' },
 		{ id: 'linkedin', name: 'LinkedIn Premium', category: 'software', monthly: 29.99, nextBilling: '2026-09-30', status: 'active', domain: 'linkedin.com' },
+		{ id: 'paramount', name: 'Paramount+', category: 'streaming', monthly: 11.99, nextBilling: '2026-10-02', status: 'active', domain: 'paramountplus.com' },
+		{ id: 'samsclub', name: 'Sam\'s Club Plus', category: 'software', monthly: 9.17, nextBilling: '2026-10-14', status: 'active', domain: 'samsclub.com' },
 	];
 
 	const root = document.querySelector<HTMLElement>('[data-dashboard]');
@@ -150,10 +300,45 @@ const description = 'See every subscription draining your account and cancel wha
 	let sort: 'amount' | 'renewal' | 'category' = 'amount';
 	let subs: Subscription[] = loadSubs();
 
+	const USER_PLAN_KEY = 'subzap-user-plan';
+	let userPlan: 'free' | 'pro' | 'family' = 'free';
+
+	const dashUrlParams = new URLSearchParams(window.location.search);
+	if (dashUrlParams.get('upgraded') === 'true') {
+		userPlan = 'pro';
+		localStorage.setItem(USER_PLAN_KEY, 'pro');
+		const upgradeBanner = document.getElementById('dash-upgrade-banner');
+		if (upgradeBanner) upgradeBanner.hidden = false;
+	} else {
+		userPlan = (localStorage.getItem(USER_PLAN_KEY) as any) || 'free';
+	}
+
+	function updatePlanBadgeUi() {
+		const planBadgeWrap = document.getElementById('dash-plan-badge-wrap');
+		if (planBadgeWrap) {
+			const badge = planBadgeWrap.querySelector('.plan-badge') as HTMLElement;
+			if (badge) {
+				badge.className = `plan-badge plan-badge--${userPlan}`;
+				badge.textContent = userPlan === 'pro' ? 'Pro ✓' : userPlan === 'family' ? 'Family' : 'Free plan';
+			}
+		}
+	}
+	updatePlanBadgeUi();
+
+	document.getElementById('dash-upgrade-close')?.addEventListener('click', () => {
+		const banner = document.getElementById('dash-upgrade-banner');
+		if (banner) banner.hidden = true;
+	});
+
 	function loadSubs(): Subscription[] {
+		const params = new URLSearchParams(window.location.search);
+		if (params.get('empty') === '1') {
+			localStorage.setItem(SUBS_KEY, JSON.stringify([]));
+			return [];
+		}
 		try {
 			const raw = localStorage.getItem(SUBS_KEY);
-			if (raw) return JSON.parse(raw) as Subscription[];
+			if (raw !== null) return JSON.parse(raw) as Subscription[];
 		} catch {
 			/* ignore */
 		}
@@ -189,8 +374,7 @@ const description = 'See every subscription draining your account and cancel wha
 
 	function isConnected() {
 		const params = new URLSearchParams(window.location.search);
-		if (params.get('empty') === '1') return false;
-		if (params.get('connected') === '1') return true;
+		if (params.get('connected') === '1' || params.get('empty') === '1') return true;
 		return localStorage.getItem(STORAGE_KEY) === '1';
 	}
 
@@ -268,7 +452,26 @@ const description = 'See every subscription draining your account and cancel wha
 		const rows = visibleSubs();
 		emptyTable?.toggleAttribute('hidden', rows.length > 0);
 
-		listEl.innerHTML = rows
+		// Dashboard gate: Free users see first 10, rest are blurred behind gate
+		const isFree = userPlan === 'free';
+		const maxFreeCount = 10;
+		const displayedRows = isFree ? rows.slice(0, maxFreeCount) : rows;
+		const hiddenCount = Math.max(0, rows.length - maxFreeCount);
+
+		const gateWrap = document.getElementById('dash-gate-wrap');
+		const gateTitle = document.getElementById('dash-gate-title');
+		if (gateWrap) {
+			if (isFree && hiddenCount > 0) {
+				gateWrap.hidden = false;
+				if (gateTitle) {
+					gateTitle.textContent = `Upgrade to Pro to see all ${rows.length} subscriptions`;
+				}
+			} else {
+				gateWrap.hidden = true;
+			}
+		}
+
+		listEl.innerHTML = displayedRows
 			.map((s) => {
 				const cancelled = s.status === 'cancelled';
 				const annual = s.monthly * 12;
@@ -316,6 +519,38 @@ const description = 'See every subscription draining your account and cancel wha
 	}
 
 	// Events
+	document.getElementById('dash-upgrade-btn')?.addEventListener('click', async () => {
+		const btn = document.getElementById('dash-upgrade-btn') as HTMLButtonElement;
+		if (!btn) return;
+		btn.disabled = true;
+		const btnText = btn.querySelector('.btn-text') as HTMLElement;
+		const btnSpinner = btn.querySelector('.btn-spinner') as HTMLElement;
+		if (btnText) btnText.textContent = 'Opening checkout...';
+		if (btnSpinner) btnSpinner.hidden = false;
+
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			const res = await fetch('/api/create-checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					priceId: 'price_pro_monthly_9',
+					userId: session?.user?.id || '',
+					email: session?.user?.email || '',
+				}),
+			});
+
+			const data = await res.json();
+			if (data?.url) {
+				window.location.href = data.url;
+			} else {
+				window.location.href = '/pricing';
+			}
+		} catch {
+			window.location.href = '/pricing';
+		}
+	});
+
 	document.querySelectorAll<HTMLButtonElement>('[data-connect]').forEach((btn) => {
 		btn.addEventListener('click', () => setConnected(btn.dataset.connect || 'gmail'));
 	});
@@ -352,6 +587,56 @@ const description = 'See every subscription draining your account and cancel wha
 			document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('is-active', el === link));
 		});
 	});
+
+	// Modal & Custom Subscriptions
+	const modal = document.getElementById('add-sub-modal') as HTMLDialogElement | null;
+	const form = document.getElementById('add-sub-form') as HTMLFormElement | null;
+	
+	const openModal = () => modal?.showModal();
+	const closeModal = () => modal?.close();
+
+	document.querySelector('[data-add-sub]')?.addEventListener('click', openModal);
+	document.querySelector('[data-add-sub-clean]')?.addEventListener('click', openModal);
+	document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+	document.getElementById('modal-cancel-btn')?.addEventListener('click', closeModal);
+
+	document.querySelector('[data-reset-subs]')?.addEventListener('click', () => {
+		if (confirm('Clear all demo subscriptions and reset your dashboard to $0?')) {
+			subs = [];
+			saveSubs();
+			render();
+		}
+	});
+
+	form?.addEventListener('submit', (e) => {
+		e.preventDefault();
+		const formData = new FormData(form);
+		const name = String(formData.get('name') || '').trim();
+		const monthly = parseFloat(String(formData.get('monthly') || '0')) || 0;
+		const category = (formData.get('category') || 'software') as SubCategory;
+		const nextBilling = String(formData.get('nextBilling') || new Date().toISOString().slice(0, 10));
+
+		if (name && monthly > 0) {
+			const newSub: Subscription = {
+				id: 'sub-' + Date.now(),
+				name,
+				category,
+				monthly,
+				nextBilling,
+				status: 'active',
+			};
+			subs.unshift(newSub);
+			saveSubs();
+			render();
+			form.reset();
+			closeModal();
+		}
+	});
+
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.get('action') === 'add') {
+		setTimeout(openModal, 400);
+	}
 
 	showApp(isConnected());
 </script>
@@ -532,6 +817,28 @@ const description = 'See every subscription draining your account and cancel wha
 		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
 	}
 
+	.dash__signout {
+		display: block;
+		width: 100%;
+		margin-top: 0.75rem;
+		padding: 0.45rem 0.65rem;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--color-border);
+		background: transparent;
+		color: var(--color-muted);
+		font-size: 0.78rem;
+		font-family: var(--font-body);
+		font-weight: 500;
+		cursor: pointer;
+		text-align: left;
+		transition: color 0.15s, border-color 0.15s;
+	}
+
+	.dash__signout:hover {
+		color: var(--color-danger);
+		border-color: rgba(255, 68, 68, 0.3);
+	}
+
 	/* Main */
 	.dash__main {
 		padding: 1.35rem 1.5rem 2rem;
@@ -552,6 +859,14 @@ const description = 'See every subscription draining your account and cancel wha
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem 1rem;
+	}
+
+	.dash__title-block {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1rem;
+		min-width: 0;
 	}
 
 	.dash__main h1 {
@@ -743,6 +1058,178 @@ const description = 'See every subscription draining your account and cancel wha
 		font-size: 0.9rem;
 	}
 
+	/* Plan Row in Sidebar */
+	.dash__plan-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0.65rem;
+		margin-top: 0.5rem;
+		font-size: 0.8rem;
+		color: var(--color-muted);
+	}
+
+	.dash__plan-label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		font-family: var(--font-mono);
+		color: #666;
+	}
+
+	/* Upgrade Success Banner */
+	.dash__upgrade-banner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1rem 1.25rem;
+		border-radius: var(--radius-card);
+		background: linear-gradient(90deg, rgba(0, 255, 136, 0.12) 0%, rgba(0, 255, 136, 0.04) 100%);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		margin-bottom: 1.5rem;
+	}
+
+	.dash__upgrade-text {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.dash__upgrade-icon {
+		font-size: 1.5rem;
+	}
+
+	.dash__upgrade-text strong {
+		display: block;
+		font-size: 0.95rem;
+		color: #fff;
+		margin-bottom: 0.15rem;
+	}
+
+	.dash__upgrade-text p {
+		margin: 0;
+		font-size: 0.82rem;
+		color: var(--color-muted);
+	}
+
+	.dash__upgrade-close {
+		background: transparent;
+		border: 0;
+		color: #888;
+		font-size: 1rem;
+		cursor: pointer;
+		padding: 0.25rem;
+	}
+
+	.dash__upgrade-close:hover {
+		color: #fff;
+	}
+
+	/* PRO GATE OVERLAY */
+	.dash__gate-wrap {
+		position: relative;
+		margin-top: 1rem;
+		border-radius: var(--radius-card);
+		overflow: hidden;
+		border: 1px solid var(--color-border);
+		background: #080808;
+	}
+
+	.dash__gate-blur {
+		filter: blur(5px);
+		opacity: 0.3;
+		pointer-events: none;
+		user-select: none;
+		padding: 0.5rem 1rem;
+	}
+
+	.dash__gate-blur-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	}
+
+	.dash__gate-lock-pill {
+		font-size: 0.72rem;
+		padding: 0.2rem 0.5rem;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.08);
+		color: #888;
+		font-family: var(--font-mono);
+	}
+
+	.dash__gate-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 1.75rem 1.5rem;
+		text-align: center;
+		background: radial-gradient(ellipse at center, rgba(10, 10, 10, 0.92) 0%, rgba(5, 5, 5, 0.98) 100%);
+		backdrop-filter: blur(4px);
+		z-index: 10;
+	}
+
+	.dash__gate-icon {
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: var(--color-accent);
+		display: grid;
+		place-items: center;
+		margin-bottom: 0.65rem;
+	}
+
+	.dash__gate-title {
+		margin: 0 0 0.35rem;
+		font-family: var(--font-display);
+		font-size: 1.2rem;
+		font-weight: 700;
+		color: #fff;
+	}
+
+	.dash__gate-desc {
+		margin: 0 0 1.25rem;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		max-width: 26rem;
+		line-height: 1.45;
+	}
+
+	.dash__gate-upgrade-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.8rem 1.6rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-body);
+		font-weight: 700;
+		font-size: 0.92rem;
+		border: 0;
+		cursor: pointer;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.35);
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.dash__gate-upgrade-btn:hover:not(:disabled) {
+		transform: translateY(-1px);
+		box-shadow: 0 0 35px rgba(0, 255, 136, 0.5);
+	}
+
+	.dash__gate-upgrade-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
 	/* Right panel */
 	.dash__panel {
 		padding: 1.35rem 1.25rem 2rem;
@@ -896,6 +1383,201 @@ const description = 'See every subscription draining your account and cancel wha
 
 		.dash__panel {
 			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Title Actions & Modal */
+	.dash__title-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.dash__btn-sm {
+		padding: 0.35rem 0.75rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+		border: 1px solid var(--color-border);
+		transition: all 0.2s;
+	}
+
+	.dash__btn--accent {
+		background: var(--color-accent);
+		color: #000;
+		border-color: var(--color-accent);
+	}
+
+	.dash__btn--accent:hover {
+		opacity: 0.9;
+	}
+
+	.dash__btn-sm.dash__btn--ghost {
+		background: transparent;
+		color: var(--color-muted);
+	}
+
+	.dash__btn-sm.dash__btn--ghost:hover {
+		color: #fff;
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+
+	.dash__controls-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-top: 1rem;
+	}
+
+	/* Empty table clean state */
+	.dash__table-empty {
+		text-align: center;
+		padding: 3rem 1.5rem;
+		background: #050505;
+		border-radius: var(--radius-card);
+		margin-top: 1rem;
+	}
+
+	.dash__empty-badge {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		color: var(--color-accent);
+		padding: 0.2rem 0.6rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.1);
+		margin-bottom: 0.75rem;
+	}
+
+	.dash__empty-title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.dash__empty-desc {
+		margin: 0.35rem auto 1.25rem;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		max-width: 24rem;
+	}
+
+	/* Modal */
+	.dash__modal {
+		background: transparent;
+		border: 0;
+		padding: 0;
+		margin: auto;
+		max-width: min(90vw, 28rem);
+	}
+
+	.dash__modal::backdrop {
+		background: rgba(0, 0, 0, 0.75);
+		backdrop-filter: blur(8px);
+	}
+
+	.dash__modal-box {
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: 1.75rem;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+	}
+
+	.dash__modal-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+	}
+
+	.dash__modal-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.dash__modal-close {
+		background: transparent;
+		border: 0;
+		color: var(--color-muted);
+		font-size: 1.2rem;
+		cursor: pointer;
+		padding: 0.25rem;
+	}
+
+	.dash__modal-close:hover {
+		color: #fff;
+	}
+
+	.dash__modal-fields {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.dash__field {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.dash__field span {
+		font-size: 0.78rem;
+		font-weight: 500;
+		color: #d0d0d0;
+	}
+
+	.dash__field input,
+	.dash__field select {
+		width: 100%;
+		padding: 0.75rem 0.85rem;
+		border-radius: var(--radius-input);
+		border: 1px solid var(--color-border);
+		background: #050505;
+		color: #fff;
+		font: inherit;
+		font-size: 0.9rem;
+		outline: none;
+		box-sizing: border-box;
+	}
+
+	.dash__field input:focus,
+	.dash__field select:focus {
+		border-color: rgba(0, 255, 136, 0.4);
+	}
+
+	.dash__modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.65rem;
+		margin-top: 1.75rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	@media (max-width: 480px) {
+		.dash__main-title-row {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.65rem;
+		}
+
+		.dash__title-block {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.dash__controls-row {
+			flex-direction: column;
+			align-items: flex-start;
 		}
 	}
 

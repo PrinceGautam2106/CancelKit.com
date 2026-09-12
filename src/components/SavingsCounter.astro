@@ -1,0 +1,194 @@
+---
+interface Props {
+	/** Visual density for placement context */
+	variant?: 'hero' | 'dashboard' | 'page';
+	/** Starting display value before first fetch */
+	initial?: number;
+	class?: string;
+}
+
+const { variant = 'hero', initial = 2_341_882, class: className = '' } = Astro.props;
+const formatted = initial.toLocaleString('en-US');
+---
+
+<div
+	class:list={['savings-counter', `savings-counter--${variant}`, className]}
+	data-savings-counter
+	data-initial={initial}
+	aria-live="polite"
+>
+	<span class="savings-counter__pulse" aria-hidden="true"></span>
+	<p class="savings-counter__text">
+		<strong class="savings-counter__amount" data-savings-amount>${formatted}</strong>
+		<span class="savings-counter__label"> saved by SubZaps users</span>
+	</p>
+</div>
+
+<script>
+	const POLL_MS = 60_000;
+	const EASE_MS = 1200;
+
+	function formatUsd(n: number): string {
+		return (
+			'$' +
+			Math.round(n).toLocaleString('en-US', {
+				maximumFractionDigits: 0,
+			})
+		);
+	}
+
+	function animateTo(el: HTMLElement, from: number, to: number) {
+		const start = performance.now();
+		const delta = to - from;
+
+		function frame(now: number) {
+			const t = Math.min(1, (now - start) / EASE_MS);
+			const eased = 1 - Math.pow(1 - t, 3);
+			el.textContent = formatUsd(from + delta * eased);
+			if (t < 1) requestAnimationFrame(frame);
+		}
+
+		requestAnimationFrame(frame);
+	}
+
+	async function fetchTotal(): Promise<number | null> {
+		try {
+			const res = await fetch('/api/savings-total', { headers: { Accept: 'application/json' } });
+			if (!res.ok) return null;
+			const data = await res.json();
+			const n = Number(data?.totalSaved);
+			return Number.isFinite(n) ? n : null;
+		} catch {
+			return null;
+		}
+	}
+
+	function initCounter(root: HTMLElement) {
+		const amountEl = root.querySelector<HTMLElement>('[data-savings-amount]');
+		if (!amountEl) return;
+
+		let current = Number(root.dataset.initial) || 2_341_882;
+
+		const sync = async () => {
+			const next = await fetchTotal();
+			if (next == null || next === current) return;
+			animateTo(amountEl, current, next);
+			current = next;
+			root.dataset.initial = String(next);
+		};
+
+		// Gentle count-up from ~97% on first paint
+		const from = Math.round(current * 0.97);
+		amountEl.textContent = formatUsd(from);
+		animateTo(amountEl, from, current);
+
+		sync();
+		const id = window.setInterval(sync, POLL_MS);
+
+		document.addEventListener(
+			'visibilitychange',
+			() => {
+				if (document.visibilityState === 'visible') sync();
+			},
+			{ passive: true },
+		);
+
+		root.addEventListener('astro:before-swap', () => clearInterval(id), { once: true });
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-savings-counter]').forEach(initCounter);
+</script>
+
+<style>
+	.savings-counter {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		max-width: 100%;
+	}
+
+	.savings-counter__pulse {
+		width: 0.45rem;
+		height: 0.45rem;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5);
+		animation: savings-pulse 2s ease-out infinite;
+		flex-shrink: 0;
+	}
+
+	@keyframes savings-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.45);
+		}
+		70% {
+			box-shadow: 0 0 0 8px rgba(0, 255, 136, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+		}
+	}
+
+	.savings-counter__text {
+		margin: 0;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+		line-height: 1.35;
+	}
+
+	.savings-counter__amount {
+		font-family: var(--font-mono);
+		font-weight: 700;
+		color: var(--color-accent);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.02em;
+	}
+
+	.savings-counter--hero {
+		justify-content: center;
+		padding: 0.65rem 1.1rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid rgba(0, 255, 136, 0.22);
+		background: rgba(0, 255, 136, 0.06);
+	}
+
+	.savings-counter--hero .savings-counter__text {
+		font-size: 0.92rem;
+	}
+
+	.savings-counter--dashboard {
+		padding: 0.4rem 0.75rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface-elevated);
+	}
+
+	.savings-counter--dashboard .savings-counter__text {
+		font-size: 0.78rem;
+	}
+
+	.savings-counter--page {
+		justify-content: center;
+	}
+
+	.savings-counter--page .savings-counter__text {
+		font-size: clamp(1.15rem, 3vw, 1.45rem);
+		color: #bbb;
+	}
+
+	.savings-counter--page .savings-counter__amount {
+		font-size: clamp(1.6rem, 5vw, 2.4rem);
+		color: var(--color-accent);
+	}
+
+	.savings-counter--page .savings-counter__pulse {
+		width: 0.55rem;
+		height: 0.55rem;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.savings-counter__pulse {
+			animation: none;
+		}
+	}
+</style>

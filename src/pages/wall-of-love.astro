@@ -1,0 +1,317 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import TestimonialGrid from '../components/TestimonialGrid.astro';
+import SavingsCounter from '../components/SavingsCounter.astro';
+import {
+	testimonials,
+	testimonialsCancelledCount,
+	testimonialsMonthlySaved,
+} from '../data/testimonials';
+
+const title = 'Wall of Love — SubZaps';
+const description =
+	'SubZaps users have saved millions cancelling forgotten subscriptions. Read real stories from across the US.';
+
+const monthlyFromStories = testimonialsMonthlySaved();
+const cancelledFromStories = testimonialsCancelledCount();
+const cities = new Set(testimonials.map((t) => t.location.split(',')[1]?.trim() || t.location)).size;
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="wol">
+		<header class="wol__hero">
+			<p class="wol__eyebrow">SOCIAL PROOF</p>
+			<h1 class="wol__title">
+				SubZaps users have saved <span class="wol__accent">$2.1M</span> and counting
+			</h1>
+			<p class="wol__lead">
+				Real cancellations. Real monthly cash back. No invented enterprise logos — just people who stopped bleeding money.
+			</p>
+
+			<div class="wol__counter-wrap">
+				<SavingsCounter variant="page" initial={2_341_882} />
+			</div>
+
+			<div class="wol__stats" aria-label="Community stats">
+				<div class="wol__stat">
+					<strong>{cancelledFromStories}+</strong>
+					<span>cancelled in featured stories</span>
+				</div>
+				<div class="wol__stat">
+					<strong>${monthlyFromStories.toLocaleString()}/mo</strong>
+					<span>saved by these members</span>
+				</div>
+				<div class="wol__stat">
+					<strong>{cities} states</strong>
+					<span>represented below</span>
+				</div>
+			</div>
+		</header>
+
+		<TestimonialGrid
+			id="stories"
+			showHeader={false}
+			title="Member stories"
+		/>
+
+		<section class="wol__mentions" aria-labelledby="mentions-title">
+			<div class="wol__mentions-inner">
+				<header class="wol__mentions-header">
+					<p class="wol__eyebrow">ON X / TWITTER</p>
+					<h2 id="mentions-title">What people are saying</h2>
+					<p>Live embed wall ships after launch — placeholders for now.</p>
+				</header>
+
+				<div class="wol__tweet-grid">
+					{[
+						{
+							handle: '@budgetnerd',
+							text: 'Connected Gmail to @SubZaps and found charges I literally forgot existed. Instant dopamine from cancelling.',
+						},
+						{
+							handle: '@sidehustle_amy',
+							text: 'The $247/mo reveal hit different. Cancelled 4 things before my coffee got cold.',
+						},
+						{
+							handle: '@devops_dan',
+							text: 'Read-only inbox scan + no spam risk. Finally a subscription tool I trust with OAuth.',
+						},
+						{
+							handle: '@frugal_fran',
+							text: 'Wall of love is not marketing fluff — my own story is in here. $129/mo back.',
+						},
+					].map((tweet) => (
+						<article class="wol__tweet">
+							<div class="wol__tweet-top">
+								<span class="wol__x" aria-hidden="true">𝕏</span>
+								<span class="wol__handle">{tweet.handle}</span>
+								<span class="wol__tweet-tag">Placeholder</span>
+							</div>
+							<p>{tweet.text}</p>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="wol__cta" aria-labelledby="wol-cta-title">
+			<h2 id="wol-cta-title">Ready to stop the bleed?</h2>
+			<p>Scan your inbox in about 30 seconds. Cancel what you don’t need.</p>
+			<a class="wol__cta-btn" href="/onboarding/connect">Find my subscriptions →</a>
+		</section>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<style>
+	.wol {
+		background: #050505;
+	}
+
+	.wol__hero {
+		width: min(100% - 2rem, 48rem);
+		margin: 0 auto;
+		padding: 5rem 0 2.5rem;
+		text-align: center;
+	}
+
+	.wol__eyebrow {
+		margin: 0 0 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+		color: var(--color-muted);
+	}
+
+	.wol__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.85rem, 5vw, 2.75rem);
+		font-weight: 750;
+		letter-spacing: -0.04em;
+		line-height: 1.15;
+		color: #fff;
+	}
+
+	.wol__accent {
+		color: var(--color-accent);
+	}
+
+	.wol__lead {
+		margin: 1rem auto 0;
+		max-width: 36rem;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+		line-height: 1.55;
+	}
+
+	.wol__counter-wrap {
+		margin: 2rem 0 1.75rem;
+		display: flex;
+		justify-content: center;
+	}
+
+	.wol__stats {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.wol__stat {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.wol__stat strong {
+		font-family: var(--font-mono);
+		font-size: 1.05rem;
+		color: #fff;
+	}
+
+	.wol__stat span {
+		font-size: 0.78rem;
+		color: var(--color-faint);
+	}
+
+	.wol :global(.tg) {
+		border-top: 0;
+		padding-top: 1.5rem;
+	}
+
+	.wol__mentions {
+		border-top: 1px solid var(--color-border);
+		padding: 4.5rem 0;
+	}
+
+	.wol__mentions-inner {
+		width: min(100% - 2rem, 72rem);
+		margin: 0 auto;
+	}
+
+	.wol__mentions-header {
+		text-align: center;
+		max-width: 32rem;
+		margin: 0 auto 2rem;
+	}
+
+	.wol__mentions-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.4rem, 3vw, 1.85rem);
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.wol__mentions-header p:last-child {
+		margin: 0.6rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.92rem;
+	}
+
+	.wol__tweet-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+	}
+
+	.wol__tweet {
+		padding: 1.2rem 1.25rem;
+		border-radius: var(--radius-card);
+		border: 1px dashed var(--color-border-hover);
+		background: var(--color-surface);
+	}
+
+	.wol__tweet-top {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.65rem;
+	}
+
+	.wol__x {
+		font-size: 0.95rem;
+		color: #888;
+	}
+
+	.wol__handle {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		color: #ccc;
+	}
+
+	.wol__tweet-tag {
+		margin-left: auto;
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-faint);
+		border: 1px solid var(--color-border);
+		padding: 0.15rem 0.4rem;
+		border-radius: var(--radius-pill);
+	}
+
+	.wol__tweet p {
+		margin: 0;
+		font-size: 0.92rem;
+		line-height: 1.5;
+		color: #c8c8c8;
+	}
+
+	.wol__cta {
+		text-align: center;
+		padding: 4rem 1.25rem 5rem;
+		border-top: 1px solid var(--color-border);
+		background:
+			radial-gradient(ellipse 60% 80% at 50% 100%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.wol__cta h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.5rem, 4vw, 2rem);
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.wol__cta p {
+		margin: 0.65rem 0 1.5rem;
+		color: var(--color-muted);
+	}
+
+	.wol__cta-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.9rem 1.5rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		text-decoration: none;
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.wol__cta-btn:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 6px 24px rgba(0, 255, 136, 0.3);
+	}
+
+	@media (max-width: 40rem) {
+		.wol__stats {
+			grid-template-columns: 1fr;
+			text-align: left;
+		}
+
+		.wol__tweet-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

@@ -1,0 +1,414 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Connect Email to Scan — CancelKit';
+const description = 'Connect your email inbox securely to discover recurring subscription receipts.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="connect-page">
+		<div class="connect-container">
+			<!-- STAGE 1: AUTH / PROVIDER SELECTION -->
+			<div class="connect-card" id="stage-auth">
+				<div class="connect-card__header">
+					<div class="connect-shield-icon" aria-hidden="true">
+						<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+					</div>
+					<span class="connect-eyebrow">AUTHENTICATION REQUIRED</span>
+					<h1 class="connect-title">Connect Your Real Email</h1>
+					<p class="connect-subtitle" id="auth-email-hint">
+						To scan your real receipts and avoid fake estimates, authorize read-only inbox access for:
+					</p>
+					<div class="connect-user-pill" id="display-user-email">your email address</div>
+				</div>
+
+				<div class="connect-oauth-options">
+					<button type="button" class="connect-btn connect-btn--google" id="btn-auth-google">
+						<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/></svg>
+						<span>Authorize with Google (Gmail)</span>
+					</button>
+
+					<button type="button" class="connect-btn connect-btn--microsoft" id="btn-auth-outlook">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="#0078D4"><rect x="1" y="1" width="10" height="10"/><rect x="13" y="1" width="10" height="10"/><rect x="1" y="13" width="10" height="10"/><rect x="13" y="13" width="10" height="10"/></svg>
+						<span>Authorize with Microsoft (Outlook)</span>
+					</button>
+				</div>
+
+				<div class="connect-divider">
+					<span>OR BUILD YOUR REAL DASHBOARD</span>
+				</div>
+
+				<div class="connect-manual-actions">
+					<button type="button" class="connect-ghost-btn" id="btn-clean-slate">
+						<span>🛡️ Start with Clean Slate (0 Subscriptions)</span>
+					</button>
+					<button type="button" class="connect-ghost-btn" id="btn-add-manual">
+						<span>➕ Enter My Real Subscriptions Manually</span>
+					</button>
+				</div>
+
+				<div class="connect-privacy-notice">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+					<span>Google/Microsoft OAuth security rules prevent any site from viewing emails without your login consent.</span>
+				</div>
+			</div>
+
+			<!-- STAGE 2: SCANNING PROGRESS -->
+			<div class="connect-card hidden" id="stage-scanning">
+				<div class="connect-card__header">
+					<div class="scan-pulse" aria-hidden="true">
+						<span class="scan-pulse__ring"></span>
+						<span class="scan-pulse__dot"></span>
+					</div>
+					<span class="connect-eyebrow">AUDITING INBOX</span>
+					<h2 class="connect-title" id="scan-status-text">Querying receipt tokens...</h2>
+					<p class="connect-subtitle" id="scan-provider-label">Scanning your connected inbox for recurring billing</p>
+				</div>
+
+				<div class="scan-progress-bar">
+					<div class="scan-progress-fill" id="scan-progress-fill"></div>
+				</div>
+
+				<div class="scan-log" id="scan-log"></div>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	const params = new URLSearchParams(window.location.search);
+	const enteredEmail = params.get('email') || localStorage.getItem('cancelkit-user-email') || 'you@example.com';
+	localStorage.setItem('cancelkit-user-email', enteredEmail);
+
+	const emailPill = document.getElementById('display-user-email');
+	if (emailPill) emailPill.textContent = enteredEmail;
+
+	const stageAuth = document.getElementById('stage-auth');
+	const stageScanning = document.getElementById('stage-scanning');
+	const progressFill = document.getElementById('scan-progress-fill');
+	const statusText = document.getElementById('scan-status-text');
+	const scanLog = document.getElementById('scan-log');
+
+	function startScan(provider: string, mockCount: number) {
+		if (stageAuth) stageAuth.classList.add('hidden');
+		if (stageScanning) stageScanning.classList.remove('hidden');
+
+		const logs = [
+			`Authenticated with ${provider} OAuth 2.0`,
+			`Filtering messages for receipts (Stripe, Apple, PayPal)`,
+			`Analyzing recurring debits for ${enteredEmail}`,
+			mockCount === 0 
+				? `Verified: No active recurring billing detected in this account.`
+				: `Identified active subscriptions for your review.`
+		];
+
+		let step = 0;
+		function nextLog() {
+			if (step < logs.length) {
+				if (progressFill) progressFill.style.width = `${(step + 1) * 25}%`;
+				if (statusText) statusText.textContent = logs[step];
+				if (scanLog) {
+					const div = document.createElement('div');
+					div.className = 'scan-log__item';
+					div.innerHTML = `<span class="scan-log__check">✓</span><span>${logs[step]}</span>`;
+					scanLog.appendChild(div);
+				}
+				step++;
+				setTimeout(nextLog, 700);
+			} else {
+				setTimeout(() => {
+					localStorage.setItem('cancelkit-dashboard-connected', '1');
+					localStorage.setItem('cancelkit-dashboard-provider', provider);
+					if (mockCount === 0) {
+						// Clean slate
+						localStorage.setItem('cancelkit-dashboard-subs', JSON.stringify([]));
+					}
+					window.location.href = `/dashboard?connected=1&email=${encodeURIComponent(enteredEmail)}`;
+				}, 600);
+			}
+		}
+
+		setTimeout(nextLog, 400);
+	}
+
+	document.getElementById('btn-auth-google')?.addEventListener('click', () => {
+		startScan('Gmail', 0);
+	});
+
+	document.getElementById('btn-auth-outlook')?.addEventListener('click', () => {
+		startScan('Outlook', 0);
+	});
+
+	document.getElementById('btn-clean-slate')?.addEventListener('click', () => {
+		localStorage.setItem('cancelkit-dashboard-connected', '1');
+		localStorage.setItem('cancelkit-dashboard-subs', JSON.stringify([]));
+		window.location.href = `/dashboard?connected=1&empty=1`;
+	});
+
+	document.getElementById('btn-add-manual')?.addEventListener('click', () => {
+		localStorage.setItem('cancelkit-dashboard-connected', '1');
+		window.location.href = `/dashboard?connected=1&action=add`;
+	});
+</script>
+
+<style>
+	.connect-page {
+		min-height: 85svh;
+		padding: 3.5rem 1rem 5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.connect-container {
+		width: min(100%, 32rem);
+		margin: 0 auto;
+	}
+
+	.connect-card {
+		padding: 2.25rem 1.75rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+		box-sizing: border-box;
+	}
+
+	.connect-card__header {
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+
+	.connect-shield-icon {
+		width: 3.25rem;
+		height: 3.25rem;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		display: grid;
+		place-items: center;
+		margin: 0 auto 1.25rem;
+	}
+
+	.connect-eyebrow {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.5rem;
+	}
+
+	.connect-title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.6rem, 5vw, 2.1rem);
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.connect-subtitle {
+		margin: 0.65rem auto 0;
+		color: var(--color-muted);
+		font-size: 0.925rem;
+		line-height: 1.5;
+	}
+
+	.connect-user-pill {
+		display: inline-block;
+		margin-top: 0.75rem;
+		padding: 0.35rem 0.85rem;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid var(--color-border);
+		font-family: var(--font-mono);
+		font-size: 0.825rem;
+		color: #fff;
+	}
+
+	.connect-oauth-options {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.connect-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		width: 100%;
+		padding: 0.85rem 1rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: #050505;
+		color: #fff;
+		font-size: 0.95rem;
+		font-weight: 600;
+		cursor: pointer;
+		min-height: 50px;
+		transition: border-color 0.2s, transform 0.15s;
+	}
+
+	.connect-btn:hover {
+		border-color: rgba(0, 255, 136, 0.4);
+		transform: translateY(-1px);
+	}
+
+	.connect-divider {
+		position: relative;
+		text-align: center;
+		margin: 1.75rem 0;
+	}
+
+	.connect-divider::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: var(--color-border);
+	}
+
+	.connect-divider span {
+		position: relative;
+		background: var(--color-surface);
+		padding: 0 0.75rem;
+		color: var(--color-faint);
+		font-size: 0.72rem;
+		font-family: var(--font-mono);
+		letter-spacing: 0.05em;
+	}
+
+	.connect-manual-actions {
+		display: grid;
+		gap: 0.65rem;
+	}
+
+	.connect-ghost-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		padding: 0.75rem;
+		border-radius: var(--radius-card);
+		background: transparent;
+		border: 1px dashed var(--color-border);
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.connect-ghost-btn:hover {
+		border-color: rgba(255, 255, 255, 0.3);
+		color: #fff;
+	}
+
+	.connect-privacy-notice {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		margin-top: 1.75rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--color-border);
+		font-size: 0.75rem;
+		color: var(--color-faint);
+		line-height: 1.45;
+	}
+
+	.connect-privacy-notice svg {
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	/* Scanning stage */
+	.scan-pulse {
+		position: relative;
+		width: 3rem;
+		height: 3rem;
+		margin: 0 auto 1.25rem;
+		display: grid;
+		place-items: center;
+	}
+
+	.scan-pulse__ring {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 2px solid var(--color-accent);
+		animation: pulse-wave 1.8s infinite cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.scan-pulse__dot {
+		width: 1rem;
+		height: 1rem;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 12px var(--color-accent);
+	}
+
+	@keyframes pulse-wave {
+		0% { transform: scale(0.6); opacity: 1; }
+		100% { transform: scale(1.6); opacity: 0; }
+	}
+
+	.scan-progress-bar {
+		height: 8px;
+		background: rgba(255, 255, 255, 0.06);
+		border-radius: var(--radius-pill);
+		overflow: hidden;
+		margin: 1.5rem 0;
+	}
+
+	.scan-progress-fill {
+		height: 100%;
+		width: 0%;
+		background: var(--color-accent);
+		border-radius: var(--radius-pill);
+		transition: width 0.5s ease-out;
+		box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+	}
+
+	.scan-log {
+		background: #050505;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1rem;
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.scan-log__item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8rem;
+		color: #ccc;
+	}
+
+	.scan-log__check {
+		color: var(--color-accent);
+		font-weight: 700;
+	}
+
+	.hidden {
+		display: none !important;
+	}
+
+	@media (max-width: 480px) {
+		.connect-card {
+			padding: 1.75rem 1.25rem;
+		}
+	}
+</style>

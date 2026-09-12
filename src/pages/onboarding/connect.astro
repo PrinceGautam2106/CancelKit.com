@@ -1,0 +1,288 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Connect your email — SubZap';
+const description = 'Read-only access. We scan for receipts only. We can never send emails.';
+---
+
+<BaseLayout {title} {description}>
+	<main class="connect-page">
+		<div class="connect-card">
+			<a class="connect-logo" href="/" aria-label="SubZap home">
+				<span class="connect-logo__icon">S</span>
+				<span class="connect-logo__text">Sub<span class="connect-logo__accent">Zap</span></span>
+			</a>
+
+			<h1>Connect your email to find your subscriptions</h1>
+			<p class="connect-subtitle">
+				Read-only access. We scan for receipts only. We can never send emails.
+			</p>
+
+			<div class="connect-buttons">
+				<button type="button" class="btn-provider" id="connect-gmail-btn">
+					<span class="provider-icon" aria-hidden="true">
+						<svg width="24" height="24" viewBox="0 0 24 24">
+							<path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/>
+							<path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
+							<path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/>
+							<path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/>
+						</svg>
+					</span>
+					<span class="provider-label">Connect Gmail</span>
+					<span class="provider-arrow" aria-hidden="true">→</span>
+				</button>
+
+				<button type="button" class="btn-provider" id="connect-outlook-btn">
+					<span class="provider-icon" aria-hidden="true">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="#0078D4">
+							<rect x="1" y="1" width="10" height="10"/>
+							<rect x="13" y="1" width="10" height="10"/>
+							<rect x="1" y="13" width="10" height="10"/>
+							<rect x="13" y="13" width="10" height="10"/>
+						</svg>
+					</span>
+					<span class="provider-label">Connect Outlook</span>
+					<span class="provider-arrow" aria-hidden="true">→</span>
+				</button>
+			</div>
+
+			<p class="manual-fallback">
+				Prefer not to connect?
+				<a href="/onboarding/manual" class="manual-link">Add subscriptions manually</a>
+			</p>
+
+			<p class="privacy-note">
+				We use read-only access. We literally cannot send, delete or modify emails.
+			</p>
+		</div>
+	</main>
+</BaseLayout>
+
+<script>
+	import { supabase } from '../../lib/supabase';
+
+	const gmailBtn = document.getElementById('connect-gmail-btn') as HTMLButtonElement | null;
+	const outlookBtn = document.getElementById('connect-outlook-btn') as HTMLButtonElement | null;
+
+	function scanningNext(provider: 'gmail' | 'outlook') {
+		return `/onboarding/scanning?provider=${provider}`;
+	}
+
+	function callbackRedirect(provider: 'gmail' | 'outlook') {
+		const next = encodeURIComponent(scanningNext(provider));
+		return `${window.location.origin}/auth/callback?next=${next}`;
+	}
+
+	async function connectProvider(
+		btn: HTMLButtonElement,
+		provider: 'google' | 'azure',
+		label: 'gmail' | 'outlook',
+		scopes: string,
+	) {
+		btn.disabled = true;
+		btn.classList.add('is-loading');
+
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider,
+				options: {
+					redirectTo: callbackRedirect(label),
+					scopes,
+					queryParams:
+						provider === 'google'
+							? { access_type: 'offline', prompt: 'consent' }
+							: undefined,
+				},
+			});
+
+			if (error) {
+				window.location.href = scanningNext(label);
+			}
+		} catch {
+			window.location.href = scanningNext(label);
+		}
+	}
+
+	gmailBtn?.addEventListener('click', () => {
+		if (!gmailBtn) return;
+		connectProvider(
+			gmailBtn,
+			'google',
+			'gmail',
+			'https://www.googleapis.com/auth/gmail.readonly',
+		);
+	});
+
+	outlookBtn?.addEventListener('click', () => {
+		if (!outlookBtn) return;
+		connectProvider(outlookBtn, 'azure', 'outlook', 'Mail.Read');
+	});
+</script>
+
+<style>
+	.connect-page {
+		min-height: 100svh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 2.5rem 1.25rem;
+		background:
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.connect-card {
+		width: min(100%, 28rem);
+		padding: 3.25rem 2.5rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+		text-align: center;
+	}
+
+	.connect-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 2rem;
+	}
+
+	.connect-logo__icon {
+		display: grid;
+		place-items: center;
+		width: 1.85rem;
+		height: 1.85rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.connect-logo__text {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.connect-logo__accent {
+		color: var(--color-accent);
+	}
+
+	.connect-card h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.55rem, 4vw, 1.85rem);
+		font-weight: 700;
+		letter-spacing: -0.035em;
+		line-height: 1.25;
+		color: #fff;
+	}
+
+	.connect-subtitle {
+		margin: 0.9rem 0 2.25rem;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+
+	.connect-buttons {
+		display: grid;
+		gap: 0.85rem;
+		margin-bottom: 1.75rem;
+	}
+
+	.btn-provider {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		width: 100%;
+		padding: 1.15rem 1.35rem;
+		border-radius: var(--radius-card);
+		border: 1px solid var(--color-border);
+		background: #0d0d0d;
+		color: #fff;
+		cursor: pointer;
+		transition: border-color 0.2s, background 0.2s, transform 0.2s;
+		min-height: 4rem;
+	}
+
+	.btn-provider:hover:not(:disabled) {
+		background: #141414;
+		border-color: rgba(255, 255, 255, 0.22);
+		transform: translateY(-1px);
+	}
+
+	.btn-provider:disabled,
+	.btn-provider.is-loading {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
+
+	.provider-icon {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: var(--radius-card);
+		background: #050505;
+		border: 1px solid var(--color-border);
+		flex-shrink: 0;
+	}
+
+	.provider-label {
+		flex: 1;
+		text-align: left;
+		font-size: 1.05rem;
+		font-weight: 650;
+		letter-spacing: -0.01em;
+	}
+
+	.provider-arrow {
+		color: var(--color-accent);
+		font-size: 1.15rem;
+		transition: transform 0.2s;
+	}
+
+	.btn-provider:hover:not(:disabled) .provider-arrow {
+		transform: translateX(3px);
+	}
+
+	.manual-fallback {
+		margin: 0 0 1.75rem;
+		font-size: 0.88rem;
+		color: var(--color-muted);
+	}
+
+	.manual-link {
+		color: var(--color-accent);
+		font-weight: 600;
+		text-decoration: none;
+		margin-left: 0.25rem;
+	}
+
+	.manual-link:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.privacy-note {
+		margin: 0;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--color-border);
+		font-size: 0.8rem;
+		line-height: 1.5;
+		color: var(--color-faint);
+	}
+
+	@media (max-width: 480px) {
+		.connect-card {
+			padding: 2.25rem 1.35rem;
+		}
+	}
+</style>

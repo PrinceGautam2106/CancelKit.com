@@ -1,5 +1,6 @@
 ---
 import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
 	difficultyLabel,
@@ -10,9 +11,9 @@ import {
 } from '../../data/services';
 
 const groups = getServicesByCategory();
-const title = 'Cancel Any Subscription — Complete Guide | CancelKit';
+const title = 'Cancel Any Subscription — Step-by-Step Guides (2026) | CancelKit';
 const description =
-	'How to cancel subscriptions in 2026. Search 50+ guides for Netflix, Spotify, Adobe, gyms, VPNs, and more — or cancel in one click with CancelKit.';
+	'Direct cancellation walkthroughs for 50+ services including Netflix, Spotify, Adobe, Planet Fitness, and VPNs. Check difficulty, avoid dark patterns, or cancel with 1-click.';
 
 const difficultyClass: Record<CancelDifficulty, string> = {
 	easy: 'is-easy',
@@ -20,6 +21,8 @@ const difficultyClass: Record<CancelDifficulty, string> = {
 	hard: 'is-hard',
 	nightmare: 'is-nightmare',
 };
+
+const popularServices = ['netflix', 'spotify', 'adobe', 'planet-fitness', 'disney-plus', 'hulu', 'audible'];
 
 const itemListSchema = {
 	'@context': 'https://schema.org',
@@ -39,29 +42,67 @@ const itemListSchema = {
 	<Nav />
 	<main class="hub">
 		<header class="hub__header">
-			<p class="hub__eyebrow">Cancel guides</p>
-			<h1 class="hub__title">Cancel Any Subscription — Complete Guide</h1>
+			<div class="hub__eyebrow-row">
+				<span class="hub__eyebrow">CANCELLATION DIRECTORY</span>
+				<span class="hub__live-tag">Updated 2026</span>
+			</div>
+			
+			<h1 class="hub__title">Cancel Any Subscription. Step by Step.</h1>
 			<p class="hub__lede">
-				Search how to cancel Netflix, Spotify, Adobe, gyms, and {services.length}+ more. Each guide has steps,
-				difficulty, and a one-click CancelKit option.
+				Clear, unbiased cancellation walkthroughs for {services.length}+ popular services. Find direct links, bypass retention tricks, or let CancelKit handle it automatically.
 			</p>
-			<label class="hub__search">
-				<span class="sr-only">Search subscriptions to cancel</span>
-				<input
-					type="search"
-					placeholder="Search Netflix, Spotify, Adobe…"
-					autocomplete="off"
-					data-cancel-search
-				/>
-			</label>
-			<p class="hub__count" data-result-count>{services.length} guides</p>
+
+			<!-- Search input -->
+			<div class="hub__search-wrap">
+				<div class="hub__search-box">
+					<svg class="hub__search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+					<input
+						type="search"
+						id="cancel-search-input"
+						placeholder="Type any service (e.g. Netflix, Adobe, Planet Fitness, VPN)..."
+						autocomplete="off"
+						data-cancel-search
+						aria-label="Search subscriptions to cancel"
+					/>
+					<span class="hub__count" data-result-count>{services.length} guides</span>
+				</div>
+			</div>
+
+			<!-- Quick Access Popular Pills -->
+			<div class="hub__popular">
+				<span class="hub__popular-label">Popular:</span>
+				<div class="hub__popular-list">
+					{popularServices.map((slug) => {
+						const svc = services.find((s) => s.slug === slug);
+						if (!svc) return null;
+						return (
+							<a href={`/cancel/${svc.slug}`} class="hub__popular-pill">
+								{svc.name}
+							</a>
+						);
+					})}
+				</div>
+			</div>
+
+			<!-- Difficulty Filter Tabs -->
+			<div class="hub__diff-filters" role="tablist" aria-label="Filter by cancellation difficulty">
+				<button type="button" class="is-active" data-diff-filter="all" role="tab" aria-selected="true">All Difficulties</button>
+				<button type="button" data-diff-filter="easy" role="tab" aria-selected="false">Easy (1-Click)</button>
+				<button type="button" data-diff-filter="medium" role="tab" aria-selected="false">Medium (Multi-screen)</button>
+				<button type="button" data-diff-filter="hard" role="tab" aria-selected="false">Hard (Phone / Chat)</button>
+				<button type="button" data-diff-filter="nightmare" role="tab" aria-selected="false">Nightmare (Gyms / Letters)</button>
+			</div>
 		</header>
 
+		<!-- Categories & Cards -->
 		<div class="hub__groups" data-service-groups>
 			{
 				groups.map((group) => (
 					<section class="hub__group" aria-labelledby={`cat-${group.category}`} data-category-section>
-						<h2 id={`cat-${group.category}`}>{group.category}</h2>
+						<div class="hub__group-header">
+							<h2 id={`cat-${group.category}`}>{group.category}</h2>
+							<span class="hub__group-count">{group.services.length} services</span>
+						</div>
 						<ul class="hub__grid">
 							{group.services.map((service) => (
 								<li
@@ -69,13 +110,19 @@ const itemListSchema = {
 									data-name={service.name.toLowerCase()}
 									data-slug={service.slug}
 									data-category={service.category.toLowerCase()}
+									data-difficulty={service.cancelDifficulty}
 								>
-									<a href={`/cancel/${service.slug}`}>
-										<span class="hub__name">{service.name}</span>
-										<span class="hub__price">{formatPrice(service.monthlyPrice)}/mo</span>
-										<span class:list={['hub__diff', difficultyClass[service.cancelDifficulty]]}>
-											{difficultyLabel(service.cancelDifficulty)}
-										</span>
+									<a href={`/cancel/${service.slug}`} class="hub__card">
+										<div class="hub__card-top">
+											<span class="hub__name">{service.name}</span>
+											<span class:list={['hub__diff', difficultyClass[service.cancelDifficulty]]}>
+												{difficultyLabel(service.cancelDifficulty)}
+											</span>
+										</div>
+										<div class="hub__card-bottom">
+											<span class="hub__price">{formatPrice(service.monthlyPrice)}/mo</span>
+											<span class="hub__card-action">How to cancel →</span>
+										</div>
 									</a>
 								</li>
 							))}
@@ -85,14 +132,24 @@ const itemListSchema = {
 			}
 		</div>
 
-		<p class="hub__empty hidden" data-empty-state>No services match that search. Try “netflix” or “vpn”.</p>
+		<div class="hub__empty hidden" data-empty-state>
+			<p class="hub__empty-title">No cancellation guides found</p>
+			<p class="hub__empty-desc">Try another search term or click "All Difficulties" above.</p>
+		</div>
 
+		<!-- Bottom Conversion Box -->
 		<aside class="hub__cta">
-			<h2>Tired of hunting through account pages?</h2>
-			<p>CancelKit finds forgotten subscriptions and cancels them for you.</p>
-			<a href="/start">Start free →</a>
+			<div class="hub__cta-glow" aria-hidden="true"></div>
+			<div class="hub__cta-inner">
+				<span class="hub__cta-tag">AUTOMATE CANCELLATION</span>
+				<h2>Tired of hunting through account pages?</h2>
+				<p>CancelKit securely scans for your recurring billing receipts and cancels unwanted subscriptions with one click.</p>
+				<a href="/start" class="hub__cta-btn">Start Free 14-Day Trial →</a>
+				<span class="hub__cta-sub">No credit card required · Scans in 30 seconds</span>
+			</div>
 		</aside>
 	</main>
+	<Footer />
 	<script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 </BaseLayout>
 
@@ -102,6 +159,9 @@ const itemListSchema = {
 	const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-category-section]'));
 	const countEl = document.querySelector<HTMLElement>('[data-result-count]');
 	const emptyEl = document.querySelector<HTMLElement>('[data-empty-state]');
+	const diffButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-diff-filter]'));
+
+	let activeDiff = 'all';
 
 	const filter = () => {
 		const query = (input?.value ?? '').trim().toLowerCase();
@@ -109,7 +169,12 @@ const itemListSchema = {
 
 		for (const card of cards) {
 			const haystack = `${card.dataset.name ?? ''} ${card.dataset.slug ?? ''} ${card.dataset.category ?? ''}`;
-			const show = !query || haystack.includes(query);
+			const diff = card.dataset.difficulty ?? '';
+
+			const matchesQuery = !query || haystack.includes(query);
+			const matchesDiff = activeDiff === 'all' || diff === activeDiff;
+
+			const show = matchesQuery && matchesDiff;
 			card.classList.toggle('hidden', !show);
 			if (show) visible += 1;
 		}
@@ -124,99 +189,232 @@ const itemListSchema = {
 	};
 
 	input?.addEventListener('input', filter);
+
+	diffButtons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			activeDiff = btn.dataset.diffFilter || 'all';
+			diffButtons.forEach((b) => {
+				const active = b === btn;
+				b.classList.toggle('is-active', active);
+				b.setAttribute('aria-selected', String(active));
+			});
+			filter();
+		});
+	});
 </script>
 
 <style>
 	.hub {
-		padding: 2.5rem 0 5rem;
+		padding: 3.5rem 0 6rem;
 		background:
 			radial-gradient(ellipse 70% 45% at 50% -15%, rgba(0, 255, 136, 0.07), transparent),
-			#000;
+			#050505;
 	}
 
 	.hub__header,
 	.hub__groups,
 	.hub__cta,
 	.hub__empty {
-		width: min(100% - 2.5rem, 68rem);
+		width: min(100% - 3rem, 74rem);
 		margin-left: auto;
 		margin-right: auto;
 	}
 
+	.hub__eyebrow-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
 	.hub__eyebrow {
-		margin: 0;
-		font-size: 0.75rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
 		font-weight: 600;
-		letter-spacing: 0.09em;
-		text-transform: uppercase;
+		letter-spacing: 0.12em;
 		color: var(--color-accent);
 	}
 
+	.hub__live-tag {
+		font-size: 0.7rem;
+		color: var(--color-muted);
+		padding: 0.15rem 0.5rem;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--color-border);
+	}
+
 	.hub__title {
-		margin: 0.85rem 0 0;
-		max-width: 18ch;
+		margin: 0;
+		max-width: 20ch;
 		font-family: var(--font-display);
-		font-size: clamp(2.1rem, 5vw, 3.1rem);
+		font-size: clamp(2.3rem, 5.5vw, 3.6rem);
 		font-weight: 600;
 		letter-spacing: -0.055em;
-		line-height: 1.02;
+		line-height: 1.05;
 		color: #fff;
 	}
 
 	.hub__lede {
-		margin: 1.1rem 0 0;
-		max-width: 38rem;
-		font-size: 1.05rem;
+		margin: 1.25rem 0 0;
+		max-width: 42rem;
+		font-size: 1.1rem;
 		line-height: 1.6;
 		color: var(--color-muted);
 	}
 
-	.hub__search {
-		display: block;
-		margin-top: 1.75rem;
-		max-width: 28rem;
+	/* Search bar */
+	.hub__search-wrap {
+		margin-top: 2.25rem;
+		max-width: 44rem;
 	}
 
-	.hub__search input {
+	.hub__search-box {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.hub__search-icon {
+		position: absolute;
+		left: 1.1rem;
+		color: var(--color-muted);
+		pointer-events: none;
+	}
+
+	.hub__search-box input {
 		width: 100%;
-		box-sizing: border-box;
-		padding: 0.9rem 1rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-input);
+		padding: 0.95rem 7.5rem 0.95rem 3rem;
 		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
 		color: #fff;
 		font: inherit;
+		font-size: 0.95rem;
 		outline: none;
-		transition: border-color 0.15s ease;
+		transition: border-color 0.2s, box-shadow 0.2s;
 	}
 
-	.hub__search input::placeholder {
-		color: #666;
-	}
-
-	.hub__search input:focus {
+	.hub__search-box input:focus {
 		border-color: rgba(0, 255, 136, 0.45);
+		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.08);
+	}
+
+	.hub__search-box input::placeholder {
+		color: var(--color-faint);
 	}
 
 	.hub__count {
-		margin: 0.75rem 0 0;
-		font-size: 0.85rem;
+		position: absolute;
+		right: 1rem;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
 		color: var(--color-muted);
+		padding: 0.25rem 0.55rem;
+		background: rgba(255, 255, 255, 0.04);
+		border-radius: var(--radius-sm);
 	}
 
-	.hub__groups {
-		margin-top: 2.75rem;
-		display: grid;
-		gap: 2.5rem;
+	/* Popular pills */
+	.hub__popular {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 0.75rem;
+		margin-top: 1.25rem;
+		font-size: 0.85rem;
 	}
 
-	.hub__group h2 {
-		margin: 0 0 1rem;
-		font-family: var(--font-display);
-		font-size: 1.25rem;
-		font-weight: 600;
-		letter-spacing: -0.035em;
+	.hub__popular-label {
+		color: var(--color-faint);
+		font-size: 0.8rem;
+		font-weight: 500;
+	}
+
+	.hub__popular-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+
+	.hub__popular-pill {
+		padding: 0.3rem 0.65rem;
+		border-radius: var(--radius-sm);
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--color-border);
+		color: #d0d0d0;
+		text-decoration: none;
+		font-size: 0.8rem;
+		transition: all 0.2s;
+	}
+
+	.hub__popular-pill:hover {
+		border-color: rgba(0, 255, 136, 0.35);
 		color: #fff;
+	}
+
+	/* Difficulty filter pills */
+	.hub__diff-filters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin-top: 1.75rem;
+	}
+
+	.hub__diff-filters button {
+		appearance: none;
+		padding: 0.45rem 0.85rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.82rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.hub__diff-filters button:hover {
+		border-color: var(--color-border-hover);
+		color: #fff;
+	}
+
+	.hub__diff-filters button.is-active {
+		border-color: rgba(0, 255, 136, 0.4);
+		background: rgba(0, 255, 136, 0.08);
+		color: #fff;
+	}
+
+	/* Categories and Grid */
+	.hub__groups {
+		margin-top: 3.5rem;
+		display: grid;
+		gap: 3rem;
+	}
+
+	.hub__group-header {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+		border-bottom: 1px solid var(--color-border);
+		padding-bottom: 0.75rem;
+	}
+
+	.hub__group-header h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.4rem;
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.hub__group-count {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--color-faint);
 	}
 
 	.hub__grid {
@@ -224,54 +422,49 @@ const itemListSchema = {
 		padding: 0;
 		list-style: none;
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-		gap: 0.75rem;
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: 0.85rem;
 	}
 
-	.hub__grid a {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		grid-template-areas:
-			'name diff'
-			'price diff';
-		gap: 0.2rem 0.75rem;
-		align-items: center;
-		min-height: 4.5rem;
-		padding: 0.95rem 1rem;
+	.hub__card {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		min-height: 5.5rem;
+		padding: 1.15rem 1.25rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-card);
 		background: var(--color-surface);
 		text-decoration: none;
-		transition:
-			border-color 0.15s ease,
-			transform 0.15s ease;
+		transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 	}
 
-	.hub__grid a:hover {
+	.hub__card:hover {
 		border-color: rgba(0, 255, 136, 0.35);
-		transform: translateY(-1px);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	}
+
+	.hub__card-top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.5rem;
 	}
 
 	.hub__name {
-		grid-area: name;
 		color: #fff;
 		font-weight: 600;
-		font-size: 0.98rem;
-	}
-
-	.hub__price {
-		grid-area: price;
-		color: var(--color-muted);
-		font-size: 0.85rem;
+		font-size: 1.05rem;
+		letter-spacing: -0.01em;
 	}
 
 	.hub__diff {
-		grid-area: diff;
-		justify-self: end;
-		padding: 0.25rem 0.5rem;
-		border-radius: var(--radius-input);
+		padding: 0.2rem 0.5rem;
+		border-radius: var(--radius-sm);
 		font-size: 0.72rem;
 		font-weight: 700;
+		white-space: nowrap;
 	}
 
 	.hub__diff.is-easy {
@@ -294,58 +487,169 @@ const itemListSchema = {
 		color: var(--color-danger);
 	}
 
-	.hub__empty {
-		margin-top: 2rem;
+	.hub__card-bottom {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: 1.25rem;
+		font-size: 0.85rem;
+	}
+
+	.hub__price {
 		color: var(--color-muted);
 	}
 
-	.hub__cta {
-		margin-top: 3.5rem;
-		padding: 1.5rem 1.35rem;
-		border: 1px solid rgba(0, 255, 136, 0.28);
+	.hub__card-action {
+		color: var(--color-accent);
+		font-weight: 600;
+		font-size: 0.8rem;
+		transition: transform 0.2s;
+	}
+
+	.hub__card:hover .hub__card-action {
+		transform: translateX(2px);
+	}
+
+	/* Empty state */
+	.hub__empty {
+		text-align: center;
+		padding: 4rem 1.5rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
 		border-radius: var(--radius-card);
-		background:
-			linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent 55%),
-			var(--color-surface);
+		margin-top: 3rem;
+	}
+
+	.hub__empty-title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.hub__empty-desc {
+		margin: 0.5rem auto 0;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+	}
+
+	/* CTA Box */
+	.hub__cta {
+		position: relative;
+		margin-top: 6rem;
+		padding: 3.5rem 2.5rem;
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+		overflow: hidden;
+		text-align: center;
+	}
+
+	.hub__cta-glow {
+		position: absolute;
+		top: -50%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 120%;
+		height: 200%;
+		background: radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0, 255, 136, 0.08) 0%, transparent 65%);
+		pointer-events: none;
+	}
+
+	.hub__cta-inner {
+		position: relative;
+		z-index: 1;
+		max-width: 40rem;
+		margin: 0 auto;
+	}
+
+	.hub__cta-tag {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.75rem;
 	}
 
 	.hub__cta h2 {
 		margin: 0;
 		font-family: var(--font-display);
-		font-size: 1.35rem;
+		font-size: clamp(1.85rem, 4vw, 2.6rem);
+		font-weight: 600;
 		letter-spacing: -0.04em;
 		color: #fff;
 	}
 
 	.hub__cta p {
-		margin: 0.65rem 0 0;
+		margin: 0.95rem 0 0;
 		color: var(--color-muted);
-		line-height: 1.55;
+		font-size: 1.05rem;
+		line-height: 1.6;
 	}
 
-	.hub__cta a {
+	.hub__cta-btn {
 		display: inline-flex;
-		margin-top: 1.1rem;
-		padding: 0.8rem 1.15rem;
-		border-radius: var(--radius-input);
+		align-items: center;
+		margin-top: 1.75rem;
+		padding: 0.9rem 2rem;
+		border-radius: var(--radius-pill);
 		background: var(--color-accent);
 		color: #000;
 		font-weight: 700;
+		font-size: 0.95rem;
 		text-decoration: none;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.hub__cta-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 25px rgba(0, 255, 136, 0.25);
+	}
+
+	.hub__cta-sub {
+		display: block;
+		margin-top: 0.85rem;
+		font-size: 0.78rem;
+		color: var(--color-faint);
 	}
 
 	.hidden {
 		display: none !important;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.hub__grid a,
-		.hub__search input {
-			transition: none;
+	@media (max-width: 48rem) {
+		.hub { padding: 2rem 0 3.5rem; }
+		.hub__header,
+		.hub__groups,
+		.hub__cta,
+		.hub__empty {
+			width: min(100% - 1.5rem, 74rem);
 		}
+		.hub__search-box input {
+			padding-right: 5.2rem;
+			font-size: 0.88rem;
+		}
+		.hub__count {
+			font-size: 0.7rem;
+			padding: 0.2rem 0.4rem;
+		}
+		.hub__diff-filters {
+			gap: 0.35rem;
+		}
+		.hub__diff-filters button {
+			font-size: 0.75rem;
+			padding: 0.35rem 0.6rem;
+		}
+		.hub__grid { grid-template-columns: 1fr; }
+		.hub__cta { padding: 2.25rem 1.25rem; }
+		.hub__cta-btn { width: 100%; justify-content: center; min-height: 48px; }
+	}
 
-		.hub__grid a:hover {
-			transform: none;
-		}
+	@media (prefers-reduced-motion: reduce) {
+		.hub__card, .hub__cta-btn { transition: none; }
+		.hub__card:hover { transform: none; }
 	}
 </style>

@@ -1,0 +1,592 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Sign In — SubZap';
+const description = 'Sign in to your SubZap dashboard to manage and cancel recurring subscriptions.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="auth-page">
+		<div class="auth-card">
+			<div class="auth-card__header">
+				<a class="auth-logo" href="/" aria-label="SubZap home">
+					<span class="auth-logo__icon">S</span>
+					<span class="auth-logo__text">Sub<span class="auth-logo__accent">Zap</span></span>
+				</a>
+				<h1>Welcome back</h1>
+				<p>Sign in to view your active subscriptions, track renewals, and cancel unwanted fees.</p>
+			</div>
+
+			<!-- OAuth Providers -->
+			<div class="auth-oauth-group">
+				<button type="button" class="auth-oauth-btn auth-oauth-btn--google" id="google-signin-btn">
+					<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+						<path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/>
+						<path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
+						<path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/>
+						<path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/>
+					</svg>
+					<span>Continue with Google</span>
+				</button>
+
+				<button type="button" class="auth-oauth-btn auth-oauth-btn--apple" id="apple-signin-btn">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.87-.9.04-2.03.62-2.67 1.37-.56.65-1.05 1.71-.92 2.74 1.02.08 2.05-.51 2.67-1.24z"/>
+					</svg>
+					<span>Continue with Apple</span>
+				</button>
+			</div>
+
+			<div class="auth-divider">
+				<span>or sign in with email</span>
+			</div>
+
+			<!-- Form Container (No <form> tag) -->
+			<div class="auth-fields" role="region" aria-label="Sign in fields">
+				<div class="auth-field">
+					<label for="signin-email">Email address</label>
+					<input
+						type="email"
+						id="signin-email"
+						placeholder="you@example.com"
+						autocomplete="email"
+					/>
+					<p class="inline-error" id="email-error" role="alert" aria-live="polite"></p>
+				</div>
+
+				<div class="auth-field">
+					<div class="auth-field-header">
+						<label for="signin-password">Password</label>
+						<a href="/forgot-password" class="auth-forgot-link">Forgot password?</a>
+					</div>
+					<input
+						type="password"
+						id="signin-password"
+						placeholder="••••••••"
+						autocomplete="current-password"
+					/>
+					<p class="inline-error" id="password-error" role="alert" aria-live="polite"></p>
+				</div>
+
+				<button type="button" class="auth-submit-btn" id="signin-submit-btn">
+					<span class="btn-label">Sign in to Dashboard →</span>
+					<span class="btn-spinner" hidden></span>
+				</button>
+
+				<!-- Unverified email / wrong password / general error container -->
+				<div class="auth-alert-box" id="unverified-email-box" hidden>
+					<strong>Email not verified</strong>
+					<p>Please check your inbox and verify your email before signing in.</p>
+					<button type="button" class="resend-verify-btn" id="resend-verify-btn">Resend verification email</button>
+				</div>
+
+				<p class="inline-error inline-error--general" id="general-error" role="alert" aria-live="polite"></p>
+			</div>
+
+			<p class="auth-footer-text">
+				Don't have an account yet? <a href="/signup">Sign up for SubZap</a>
+			</p>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	import { supabase, setAuthCookies } from '../lib/supabase';
+
+	// Client-side guard: redirect already logged-in users to /dashboard
+	async function checkExistingSession() {
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (session) {
+				setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+				window.location.href = '/dashboard';
+			}
+		} catch {
+			// Continue on sign in page
+		}
+	}
+	checkExistingSession();
+
+	const emailInput = document.getElementById('signin-email') as HTMLInputElement;
+	const passwordInput = document.getElementById('signin-password') as HTMLInputElement;
+	const signinBtn = document.getElementById('signin-submit-btn') as HTMLButtonElement;
+	const googleBtn = document.getElementById('google-signin-btn') as HTMLButtonElement;
+	const appleBtn = document.getElementById('apple-signin-btn') as HTMLButtonElement;
+
+	const emailError = document.getElementById('email-error') as HTMLParagraphElement;
+	const passwordError = document.getElementById('password-error') as HTMLParagraphElement;
+	const generalError = document.getElementById('general-error') as HTMLParagraphElement;
+	const unverifiedBox = document.getElementById('unverified-email-box') as HTMLDivElement;
+	const resendBtn = document.getElementById('resend-verify-btn') as HTMLButtonElement;
+
+	function clearErrors() {
+		if (emailError) emailError.textContent = '';
+		if (passwordError) passwordError.textContent = '';
+		if (generalError) generalError.textContent = '';
+		if (unverifiedBox) unverifiedBox.hidden = true;
+		emailInput?.classList.remove('has-error');
+		passwordInput?.classList.remove('has-error');
+	}
+
+	function setLoading(loading: boolean) {
+		if (!signinBtn) return;
+		signinBtn.disabled = loading;
+		const label = signinBtn.querySelector('.btn-label') as HTMLElement;
+		const spinner = signinBtn.querySelector('.btn-spinner') as HTMLElement;
+		if (label) label.textContent = loading ? 'Signing in...' : 'Sign in to Dashboard →';
+		if (spinner) spinner.hidden = !loading;
+	}
+
+	// Google OAuth
+	googleBtn?.addEventListener('click', async () => {
+		clearErrors();
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'google',
+				options: {
+					redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+				},
+			});
+			if (error) {
+				generalError.textContent = error.message;
+			}
+		} catch (err: any) {
+			generalError.textContent = err?.message || 'Failed to initialize Google sign in.';
+		}
+	});
+
+	// Apple OAuth
+	appleBtn?.addEventListener('click', async () => {
+		clearErrors();
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'apple',
+				options: {
+					redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+				},
+			});
+			if (error) {
+				generalError.textContent = error.message;
+			}
+		} catch (err: any) {
+			generalError.textContent = err?.message || 'Failed to initialize Apple sign in.';
+		}
+	});
+
+	// Resend verification handler
+	resendBtn?.addEventListener('click', async () => {
+		const email = emailInput?.value.trim();
+		if (!email) return;
+		resendBtn.disabled = true;
+		resendBtn.textContent = 'Sending...';
+		try {
+			const { error } = await supabase.auth.resend({
+				type: 'signup',
+				email,
+			});
+			if (error) {
+				resendBtn.textContent = 'Failed to resend';
+			} else {
+				resendBtn.textContent = 'Verification email sent!';
+			}
+		} catch {
+			resendBtn.textContent = 'Error sending';
+		}
+	});
+
+	// Email/Password Signin Handler
+	signinBtn?.addEventListener('click', async () => {
+		clearErrors();
+
+		const email = emailInput?.value.trim();
+		const password = passwordInput?.value;
+		let hasClientError = false;
+
+		if (!email) {
+			emailError.textContent = 'Please enter your email address.';
+			emailInput?.classList.add('has-error');
+			hasClientError = true;
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			emailError.textContent = 'Please enter a valid email address.';
+			emailInput?.classList.add('has-error');
+			hasClientError = true;
+		}
+
+		if (!password) {
+			passwordError.textContent = 'Please enter your password.';
+			passwordInput?.classList.add('has-error');
+			hasClientError = true;
+		}
+
+		if (hasClientError) return;
+
+		setLoading(true);
+
+		try {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email,
+				password,
+			});
+
+			if (error) {
+				const msg = error.message.toLowerCase();
+				// Specific error states required: wrong password, unverified email
+				if (msg.includes('email not confirmed') || msg.includes('not verified')) {
+					unverifiedBox.hidden = false;
+					emailError.textContent = 'Your email is not verified yet.';
+					emailInput?.classList.add('has-error');
+				} else if (
+					msg.includes('invalid login credentials') ||
+					msg.includes('invalid credentials') ||
+					msg.includes('wrong password') ||
+					error.status === 400
+				) {
+					passwordError.textContent = 'Incorrect password or email. Please try again.';
+					passwordInput?.classList.add('has-error');
+				} else {
+					generalError.textContent = error.message;
+				}
+				setLoading(false);
+				return;
+			}
+
+			if (data?.session) {
+				setAuthCookies(data.session.access_token, data.session.refresh_token, data.session.expires_in);
+				window.location.href = '/dashboard';
+				return;
+			}
+
+			window.location.href = '/dashboard';
+		} catch (err: any) {
+			generalError.textContent = err?.message || 'Unable to sign in. Please try again.';
+			setLoading(false);
+		}
+	});
+
+	// Enter key trigger
+	[emailInput, passwordInput].forEach((input) => {
+		input?.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				signinBtn?.click();
+			}
+		});
+	});
+</script>
+
+<style>
+	.auth-page {
+		min-height: 80svh;
+		padding: 3rem 1rem 5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+	}
+
+	.auth-card {
+		width: min(100%, 26.5rem);
+		padding: 2.25rem 1.75rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+		box-sizing: border-box;
+	}
+
+	.auth-card__header {
+		text-align: center;
+		margin-bottom: 1.75rem;
+	}
+
+	.auth-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+		margin-bottom: 1.25rem;
+	}
+
+	.auth-logo__icon {
+		display: grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.auth-logo__text {
+		font-family: var(--font-display);
+		font-size: 1.2rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.auth-logo__accent {
+		color: var(--color-accent);
+	}
+
+	.auth-card__header h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		font-weight: 600;
+		letter-spacing: -0.035em;
+		color: #fff;
+	}
+
+	.auth-card__header p {
+		margin: 0.5rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.5;
+	}
+
+	.auth-oauth-group {
+		display: grid;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.auth-oauth-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem;
+		width: 100%;
+		padding: 0.8rem 1rem;
+		border-radius: var(--radius-card);
+		background: #050505;
+		color: #fff;
+		font-family: var(--font-body);
+		font-size: 0.9rem;
+		font-weight: 600;
+		cursor: pointer;
+		min-height: 46px;
+		border: 1px solid var(--color-border);
+		transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.auth-oauth-btn:hover {
+		border-color: rgba(255, 255, 255, 0.25);
+		background: #111111;
+		transform: translateY(-1px);
+	}
+
+	.auth-divider {
+		position: relative;
+		text-align: center;
+		margin: 1.5rem 0;
+	}
+
+	.auth-divider::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: var(--color-border);
+	}
+
+	.auth-divider span {
+		position: relative;
+		background: var(--color-surface);
+		padding: 0 0.75rem;
+		color: var(--color-faint);
+		font-size: 0.78rem;
+		font-family: var(--font-mono);
+	}
+
+	.auth-fields {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.auth-field {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.auth-field-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.auth-field label {
+		font-size: 0.82rem;
+		font-weight: 500;
+		color: #d0d0d0;
+	}
+
+	.auth-forgot-link {
+		font-size: 0.78rem;
+		color: var(--color-muted);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.auth-forgot-link:hover {
+		color: var(--color-accent);
+		text-decoration: underline;
+	}
+
+	.auth-field input {
+		width: 100%;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: #050505;
+		color: #fff;
+		font-family: var(--font-body);
+		font-size: 0.95rem;
+		outline: none;
+		box-sizing: border-box;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+
+	.auth-field input:focus {
+		border-color: rgba(0, 255, 136, 0.5);
+		box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.12);
+	}
+
+	.auth-field input.has-error {
+		border-color: var(--color-danger);
+		box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.12);
+	}
+
+	.inline-error {
+		margin: 0.25rem 0 0;
+		color: var(--color-danger);
+		font-size: 0.8rem;
+		line-height: 1.4;
+		min-height: 1.1rem;
+	}
+
+	.inline-error:empty {
+		min-height: 0;
+		margin: 0;
+	}
+
+	.inline-error--general {
+		text-align: center;
+		margin-top: 0.5rem;
+	}
+
+	.auth-alert-box {
+		padding: 0.85rem 1rem;
+		border-radius: var(--radius-card);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		background: rgba(255, 68, 68, 0.08);
+		color: #fff;
+		font-size: 0.84rem;
+		line-height: 1.45;
+	}
+
+	.auth-alert-box strong {
+		display: block;
+		color: var(--color-danger);
+		margin-bottom: 0.25rem;
+	}
+
+	.auth-alert-box p {
+		margin: 0 0 0.5rem;
+		color: #ccc;
+	}
+
+	.resend-verify-btn {
+		background: transparent;
+		border: 1px solid var(--color-border-hover);
+		color: #fff;
+		padding: 0.35rem 0.75rem;
+		border-radius: var(--radius-sm);
+		font-size: 0.78rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.resend-verify-btn:hover:not(:disabled) {
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.auth-submit-btn {
+		width: 100%;
+		padding: 0.85rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-body);
+		font-weight: 700;
+		font-size: 0.95rem;
+		border: 0;
+		cursor: pointer;
+		min-height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		margin-top: 0.25rem;
+		transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+	}
+
+	.auth-submit-btn:hover:not(:disabled) {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+	}
+
+	.auth-submit-btn:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	.btn-spinner {
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(0, 0, 0, 0.25);
+		border-top-color: #000;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	.auth-footer-text {
+		margin: 1.75rem 0 0;
+		text-align: center;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+	}
+
+	.auth-footer-text a {
+		color: var(--color-accent);
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.auth-footer-text a:hover {
+		text-decoration: underline;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 480px) {
+		.auth-card {
+			padding: 1.75rem 1.25rem;
+		}
+	}
+</style>

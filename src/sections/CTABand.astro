@@ -1,0 +1,115 @@
+---
+---
+
+<section class="cta-band" aria-labelledby="cta-band-title">
+	<div class="cta-band__inner fade-in-up">
+		<div class="cta-band__glow" aria-hidden="true"></div>
+		<h2 id="cta-band-title" class="cta-band__title">
+			Stop paying for<br />subscriptions you forgot about.
+		</h2>
+		<p class="cta-band__subtitle">Join 47,000+ people who already stopped the bleed.</p>
+		<a class="cta-band__button" href="/start">Start free — find my subscriptions →</a>
+		<p class="cta-band__fine">No credit card required. Scans in 30 seconds.</p>
+	</div>
+</section>
+
+<style>
+	.cta-band {
+		position: relative;
+		background: #050505;
+		padding: 5rem 0;
+		border-top: 1px solid var(--color-border);
+		overflow: hidden;
+		width: 100%;
+	}
+
+	.cta-band__inner {
+		position: relative;
+		z-index: 1;
+		width: min(100% - 2rem, 44rem);
+		margin: 0 auto;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	.cta-band__glow {
+		position: absolute;
+		top: -60%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: min(140%, 800px);
+		height: 200%;
+		background: radial-gradient(ellipse 40% 35% at 50% 50%, rgba(0, 255, 136, 0.06) 0%, transparent 70%);
+		pointer-events: none;
+		z-index: -1;
+	}
+
+	.cta-band__title {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(1.85rem, 5vw, 3.25rem);
+		font-weight: 600;
+		letter-spacing: -0.05em;
+		line-height: 1.1;
+		color: #fff;
+		word-break: break-word;
+	}
+
+	.cta-band__subtitle {
+		margin: 1rem 0 0;
+		color: var(--color-muted);
+		font-size: 1rem;
+		line-height: 1.55;
+	}
+
+	.cta-band__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: 1.75rem;
+		padding: 0.9rem 1.75rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-size: 0.95rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition: transform 0.2s, box-shadow 0.2s;
+		min-height: 48px;
+		max-width: 100%;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	.cta-band__button:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 24px rgba(0, 255, 136, 0.2);
+	}
+
+	.cta-band__fine {
+		margin: 0.85rem 0 0;
+		color: var(--color-faint);
+		font-size: 0.78rem;
+	}
+
+	@media (max-width: 480px) {
+		.cta-band {
+			padding: 3.5rem 0;
+		}
+
+		.cta-band__inner {
+			width: min(100% - 1.5rem, 44rem);
+		}
+
+		.cta-band__button {
+			width: 100%;
+			font-size: 0.88rem;
+			padding: 0.85rem 1rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cta-band__button { transition: none; }
+		.cta-band__button:hover { transform: none; }
+	}
+</style>

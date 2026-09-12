@@ -1,0 +1,333 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Unsubscribe — SubZaps';
+const description = 'Manage your SubZaps email preferences.';
+---
+
+<BaseLayout {title} {description}>
+	<Nav />
+	<main class="unsub-page">
+		<div class="unsub-card">
+			<div class="unsub-card__header">
+				<a class="unsub-logo" href="/" aria-label="SubZaps home">
+					<span class="unsub-logo__icon">S</span>
+					<span class="unsub-logo__text">Sub<span class="unsub-logo__accent">Zaps</span></span>
+				</a>
+			</div>
+
+			<!-- Initial / Processing State -->
+			<div id="unsub-loading" class="unsub-state">
+				<div class="unsub-spinner"></div>
+				<p>Processing your request…</p>
+			</div>
+
+			<!-- Success State -->
+			<div id="unsub-success" class="unsub-state" hidden>
+				<div class="unsub-icon unsub-icon--success">
+					<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"/>
+						<polyline points="22 4 12 14.01 9 11.01" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</div>
+				<h1>You've been unsubscribed</h1>
+				<p class="unsub-body">You will no longer receive marketing or recap emails from SubZaps. Transactional emails (password resets, security alerts) will still be delivered.</p>
+				<button type="button" class="unsub-resubscribe-btn" id="resubscribe-btn">
+					Changed your mind? Re-subscribe
+				</button>
+			</div>
+
+			<!-- Re-subscribed State -->
+			<div id="unsub-resubscribed" class="unsub-state" hidden>
+				<div class="unsub-icon unsub-icon--accent">
+					<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"/>
+						<polyline points="22 4 12 14.01 9 11.01" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</div>
+				<h1>Welcome back!</h1>
+				<p class="unsub-body">You've been re-subscribed. You'll receive your weekly savings recaps and renewal alerts again.</p>
+			</div>
+
+			<!-- Error State -->
+			<div id="unsub-error" class="unsub-state" hidden>
+				<div class="unsub-icon unsub-icon--danger">
+					<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10"/>
+						<line x1="15" y1="9" x2="9" y2="15"/>
+						<line x1="9" y1="9" x2="15" y2="15"/>
+					</svg>
+				</div>
+				<h1>Something went wrong</h1>
+				<p class="unsub-body" id="unsub-error-message">We couldn't process your unsubscribe request. Please try again or contact support@subzaps.com.</p>
+			</div>
+		</div>
+	</main>
+	<Footer />
+</BaseLayout>
+
+<script>
+	import { supabase } from '../lib/supabase';
+
+	const loadingEl = document.getElementById('unsub-loading') as HTMLDivElement;
+	const successEl = document.getElementById('unsub-success') as HTMLDivElement;
+	const resubscribedEl = document.getElementById('unsub-resubscribed') as HTMLDivElement;
+	const errorEl = document.getElementById('unsub-error') as HTMLDivElement;
+	const errorMessage = document.getElementById('unsub-error-message') as HTMLParagraphElement;
+	const resubscribeBtn = document.getElementById('resubscribe-btn') as HTMLButtonElement;
+
+	function show(el: HTMLElement | null) {
+		[loadingEl, successEl, resubscribedEl, errorEl].forEach((e) => {
+			if (e) e.hidden = true;
+		});
+		if (el) el.hidden = false;
+	}
+
+	function getToken(): string | null {
+		const params = new URLSearchParams(window.location.search);
+		return params.get('token');
+	}
+
+	async function processUnsubscribe() {
+		const token = getToken();
+
+		if (!token) {
+			show(errorEl);
+			if (errorMessage) errorMessage.textContent = 'Missing unsubscribe token. This link may be malformed.';
+			return;
+		}
+
+		try {
+			// Token is either a user UUID or an encoded email address
+			const identifier = decodeURIComponent(token);
+			const isEmail = identifier.includes('@');
+
+			// Upsert into email_preferences table
+			const { error } = await supabase
+				.from('email_preferences')
+				.upsert(
+					{
+						...(isEmail ? { email: identifier } : { user_id: identifier }),
+						unsubscribed: true,
+						unsubscribed_at: new Date().toISOString(),
+					},
+					{
+						onConflict: isEmail ? 'email' : 'user_id',
+					}
+				);
+
+			if (error) {
+				console.error('Unsubscribe error:', error);
+				show(errorEl);
+				return;
+			}
+
+			show(successEl);
+		} catch (err) {
+			console.error('Unsubscribe error:', err);
+			show(errorEl);
+		}
+	}
+
+	// Re-subscribe handler
+	resubscribeBtn?.addEventListener('click', async () => {
+		const token = getToken();
+		if (!token) return;
+
+		resubscribeBtn.disabled = true;
+		resubscribeBtn.textContent = 'Re-subscribing...';
+
+		try {
+			const identifier = decodeURIComponent(token);
+			const isEmail = identifier.includes('@');
+
+			const { error } = await supabase
+				.from('email_preferences')
+				.upsert(
+					{
+						...(isEmail ? { email: identifier } : { user_id: identifier }),
+						unsubscribed: false,
+						unsubscribed_at: null,
+					},
+					{
+						onConflict: isEmail ? 'email' : 'user_id',
+					}
+				);
+
+			if (error) {
+				console.error('Re-subscribe error:', error);
+				resubscribeBtn.textContent = 'Failed — try again';
+				resubscribeBtn.disabled = false;
+				return;
+			}
+
+			show(resubscribedEl);
+		} catch (err) {
+			console.error('Re-subscribe error:', err);
+			resubscribeBtn.textContent = 'Failed — try again';
+			resubscribeBtn.disabled = false;
+		}
+	});
+
+	// Process on page load
+	processUnsubscribe();
+</script>
+
+<style>
+	.unsub-page {
+		min-height: 80svh;
+		padding: 3rem 1rem 5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background:
+			radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 136, 0.06), transparent 70%),
+			#050505;
+	}
+
+	.unsub-card {
+		width: min(100%, 28rem);
+		padding: 2.5rem 2rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border);
+		background: var(--color-surface);
+		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	.unsub-card__header {
+		margin-bottom: 2rem;
+	}
+
+	.unsub-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		text-decoration: none;
+	}
+
+	.unsub-logo__icon {
+		display: grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 7px;
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+	}
+
+	.unsub-logo__text {
+		font-family: var(--font-display);
+		font-size: 1.2rem;
+		font-weight: 600;
+		letter-spacing: -0.04em;
+		color: #fff;
+	}
+
+	.unsub-logo__accent {
+		color: var(--color-accent);
+	}
+
+	.unsub-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.unsub-state h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 1.6rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.unsub-body {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.55;
+		max-width: 24rem;
+	}
+
+	.unsub-spinner {
+		width: 36px;
+		height: 36px;
+		border: 3px solid rgba(255, 255, 255, 0.1);
+		border-top-color: var(--color-accent);
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	.unsub-state p {
+		color: var(--color-muted);
+		font-size: 0.92rem;
+	}
+
+	.unsub-icon {
+		display: grid;
+		place-items: center;
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		margin-bottom: 0.5rem;
+	}
+
+	.unsub-icon--success {
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent);
+	}
+
+	.unsub-icon--accent {
+		background: rgba(0, 255, 136, 0.15);
+		color: var(--color-accent);
+	}
+
+	.unsub-icon--danger {
+		background: rgba(255, 68, 68, 0.12);
+		color: var(--color-danger);
+	}
+
+	.unsub-resubscribe-btn {
+		margin-top: 1rem;
+		padding: 0.65rem 1.5rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid var(--color-border-hover);
+		background: #111;
+		color: #fff;
+		font-size: 0.88rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s, border-color 0.2s;
+	}
+
+	.unsub-resubscribe-btn:hover:not(:disabled) {
+		background: #1a1a1a;
+		border-color: rgba(0, 255, 136, 0.3);
+	}
+
+	.unsub-resubscribe-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (max-width: 480px) {
+		.unsub-card {
+			padding: 2rem 1.25rem;
+		}
+	}
+</style>

@@ -1,0 +1,116 @@
+---
+interface Props {
+	class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const outlets = [
+	{ name: 'Product Hunt', abbr: 'PH' },
+	{ name: 'TechCrunch', abbr: 'TC' },
+	{ name: 'Lifehacker', abbr: 'LH' },
+	{ name: 'The Hustle', abbr: 'TH' },
+];
+---
+
+<section class:list={['press-strip', className]} aria-label="As featured in">
+	<div class="press-strip__inner">
+		<p class="press-strip__label">As featured in</p>
+		<ul class="press-strip__logos">
+			{outlets.map((o) => (
+				<li class="press-strip__item" title={`${o.name} — logo coming after launch coverage`}>
+					<span class="press-strip__mark" aria-hidden="true">{o.abbr}</span>
+					<span class="press-strip__name">{o.name}</span>
+				</li>
+			))}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.press-strip {
+		background: var(--color-surface);
+		border-block: 1px solid var(--color-border);
+		padding: 1.35rem 0;
+		width: 100%;
+	}
+
+	.press-strip__inner {
+		width: min(100% - 2rem, 72rem);
+		margin: 0 auto;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 1.25rem 2rem;
+	}
+
+	.press-strip__label {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 500;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--color-faint);
+		white-space: nowrap;
+	}
+
+	.press-strip__logos {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem 1.75rem;
+	}
+
+	.press-strip__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		opacity: 0.45;
+		filter: grayscale(1);
+		transition: opacity 0.2s;
+	}
+
+	.press-strip__item:hover {
+		opacity: 0.75;
+	}
+
+	.press-strip__mark {
+		display: grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 6px;
+		border: 1px solid #3a3a3a;
+		background: #111;
+		color: #888;
+		font-family: var(--font-display);
+		font-size: 0.62rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	.press-strip__name {
+		font-family: var(--font-display);
+		font-size: 0.95rem;
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		color: #7a7a7a;
+	}
+
+	@media (max-width: 40rem) {
+		.press-strip__inner {
+			flex-direction: column;
+			gap: 0.85rem;
+		}
+
+		.press-strip__logos {
+			gap: 0.75rem 1.25rem;
+		}
+	}
+</style>

@@ -7,7 +7,7 @@ const apiKey =
 
 export const resend = new Resend(apiKey);
 
-export const EMAIL_FROM = 'CancelKit <hello@cancelkits.com>';
+export const EMAIL_FROM = 'CancelKits <hello@cancelkits.com>';
 
 /** Audience-level defaults shared across every outbound email. */
 export const EMAIL_DEFAULTS = {

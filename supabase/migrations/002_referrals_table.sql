@@ -1,4 +1,4 @@
--- CancelKit Referral System — Viral Growth Engine
+-- CancelKits Referral System — Viral Growth Engine
 -- Model: "Give 1 month free, get 1 month free"
 
 CREATE TABLE IF NOT EXISTS referrals (

@@ -3,8 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const title = 'Refer a Friend — Give 1 Month, Get 1 Month Free | CancelKit';
-const description = 'Invite friends to CancelKit. When they upgrade to Pro, you both get 1 month free.';
+const title = 'Refer a Friend — Give 1 Month, Get 1 Month Free | CancelKits';
+const description = 'Invite friends to CancelKits. When they upgrade to Pro, you both get 1 month free.';
 ---
 
 <BaseLayout {title} {description}>
@@ -17,9 +17,9 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 					<span class="badge-icon">🎁</span>
 					<span>Give 1 Month Free, Get 1 Month Free</span>
 				</div>
-				<h1>Share CancelKit. Earn Free Months.</h1>
+				<h1>Share CancelKits. Earn Free Months.</h1>
 				<p class="refer-subtitle">
-					Share your unique invite link. When a friend upgrades to Pro, you <strong class="text-white">BOTH</strong> get 1 month of CancelKit Pro free. There is no limit to how many months you can earn.
+					Share your unique invite link. When a friend upgrades to Pro, you <strong class="text-white">BOTH</strong> get 1 month of CancelKits Pro free. There is no limit to how many months you can earn.
 				</p>
 			</header>
 
@@ -55,7 +55,7 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 				<div class="share-actions">
 					<a
 						id="share-x-btn"
-						href="https://twitter.com/intent/tweet?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20%40CancelKit%20%E2%80%94%20try%20it%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						href="https://twitter.com/intent/tweet?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20%40CancelKits%20%E2%80%94%20try%20it%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="btn-social btn-social--x"
@@ -69,7 +69,7 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 
 					<a
 						id="share-wa-btn"
-						href="https://api.whatsapp.com/send?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20CancelKit%20%E2%80%94%20get%20your%20first%20month%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						href="https://api.whatsapp.com/send?text=I%20saved%20%24187%2Fmonth%20cancelling%20forgotten%20subscriptions%20with%20CancelKits%20%E2%80%94%20get%20your%20first%20month%20free%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="btn-social btn-social--wa"
@@ -83,7 +83,7 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 
 					<a
 						id="share-email-btn"
-						href="mailto:?subject=Stop%20paying%20for%20subscriptions%20you%20forgot%20about&body=Hey%2C%20I%20used%20CancelKit%20to%20scan%20my%20inbox%20and%20found%20subscriptions%20I%20totally%20forgot%20I%20was%20paying%20for.%20Here's%20a%20link%20for%20a%20free%20month%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
+						href="mailto:?subject=Stop%20paying%20for%20subscriptions%20you%20forgot%20about&body=Hey%2C%20I%20used%20CancelKits%20to%20scan%20my%20inbox%20and%20found%20subscriptions%20I%20totally%20forgot%20I%20was%20paying%20for.%20Here's%20a%20link%20for%20a%20free%20month%3A%20https%3A%2F%2Fcancelkits.com%2Fr%2Fkit-me"
 						class="btn-social btn-social--email"
 						aria-label="Share via Email"
 					>
@@ -107,7 +107,7 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 				<div class="stat-card">
 					<span class="stat-label">Signed Up</span>
 					<div class="stat-number" id="stats-signed-up">0</div>
-					<span class="stat-desc">Created CancelKit account</span>
+					<span class="stat-desc">Created CancelKits account</span>
 				</div>
 
 				<div class="stat-card stat-card--accent">
@@ -210,18 +210,18 @@ const description = 'Invite friends to CancelKit. When they upgrade to Pro, you 
 
 		// Update share URLs
 		const tweetText = encodeURIComponent(
-			`I saved $187/month cancelling forgotten subscriptions with @CancelKit — try it free: ${fullUrl}`
+			`I saved $187/month cancelling forgotten subscriptions with @CancelKits — try it free: ${fullUrl}`
 		);
 		if (shareXBtn) shareXBtn.href = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
 		const waText = encodeURIComponent(
-			`I saved $187/month cancelling forgotten subscriptions with CancelKit — get your first month free: ${fullUrl}`
+			`I saved $187/month cancelling forgotten subscriptions with CancelKits — get your first month free: ${fullUrl}`
 		);
 		if (shareWaBtn) shareWaBtn.href = `https://api.whatsapp.com/send?text=${waText}`;
 
 		const emailSubject = encodeURIComponent('Stop paying for subscriptions you forgot about');
 		const emailBody = encodeURIComponent(
-			`Hey,\n\nI used CancelKit to scan my receipts and found a bunch of subscriptions I totally forgot about.\n\nHere's an invite for a free month of Pro: ${fullUrl}\n\nHope you find it as useful as I did!`
+			`Hey,\n\nI used CancelKits to scan my receipts and found a bunch of subscriptions I totally forgot about.\n\nHere's an invite for a free month of Pro: ${fullUrl}\n\nHope you find it as useful as I did!`
 		);
 		if (shareEmailBtn) shareEmailBtn.href = `mailto:?subject=${emailSubject}&body=${emailBody}`;
 

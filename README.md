@@ -1,4 +1,4 @@
-# CancelKit
+# CancelKits
 
 Subscription cancel guides and tracking for [cancelkits.com](https://cancelkits.com).
 

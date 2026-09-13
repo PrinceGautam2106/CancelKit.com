@@ -8,11 +8,41 @@ import Features from '../sections/Features.astro';
 import HowItWorks from '../sections/HowItWorks.astro';
 import Pricing from '../sections/Pricing.astro';
 import TestimonialGrid from '../components/TestimonialGrid.astro';
+import FAQ from '../sections/FAQ.astro';
 import CTABand from '../sections/CTABand.astro';
+import SeoContent from '../sections/SeoContent.astro';
+import { buildFaqPageSchema } from '../data/faqs';
 import { translations } from '../i18n/translations';
+
+const SEO = {
+	title: 'CancelKits — Cancel Subscriptions & Stop Recurring Charges Instantly',
+	description:
+		'CancelKits finds every subscription draining your money and cancels them in one click. Stop forgotten recurring charges. Free subscription audit — takes 30 seconds. No credit card needed.',
+	ogTitle: 'CancelKits — Cancel Any Subscription in One Click',
+	ogDescription:
+		'The average American wastes $219/month on forgotten subscriptions. CancelKits finds them all and helps you cancel instantly. Free to start — takes 30 seconds.',
+	ogImage: '/og/homepage.png',
+	twitterTitle: 'CancelKits — Kill Forgotten Subscriptions Instantly',
+	twitterDescription:
+		'Find every subscription bleeding your bank account. Cancel what you do not need in one click. Free to start — no credit card needed.',
+};
+
+const faqSchema = buildFaqPageSchema();
 ---
 
-<BaseLayout>
+<BaseLayout
+	title={SEO.title}
+	description={SEO.description}
+	ogTitle={SEO.ogTitle}
+	ogDescription={SEO.ogDescription}
+	ogImage={SEO.ogImage}
+	twitterTitle={SEO.twitterTitle}
+	twitterDescription={SEO.twitterDescription}
+	canonicalPath="/"
+	schemas={[faqSchema]}
+	isHome
+	hreflang="home"
+>
 	<Nav />
 	<main>
 		<Hero t={translations.en} />
@@ -21,6 +51,8 @@ import { translations } from '../i18n/translations';
 		<HowItWorks t={translations.en} />
 		<Pricing t={translations.en} />
 		<TestimonialGrid limit={6} />
+		<SeoContent />
+		<FAQ />
 		<CTABand />
 	</main>
 	<Footer />

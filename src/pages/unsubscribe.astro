@@ -3,18 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 
-const title = 'Unsubscribe — CancelKit';
-const description = 'Manage your CancelKit email preferences.';
+const title = 'Unsubscribe — CancelKits';
+const description = 'Manage your CancelKits email preferences.';
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} noIndex>
 	<Nav />
 	<main class="unsub-page">
 		<div class="unsub-card">
 			<div class="unsub-card__header">
-				<a class="unsub-logo" href="/" aria-label="CancelKit home">
+				<a class="unsub-logo" href="/" aria-label="CancelKits home">
 					<span class="unsub-logo__icon">C</span>
-					<span class="unsub-logo__text">Cancel<span>K<span class="unsub-logo__accent">i</span>t</span></span>
+					<span class="unsub-logo__text">Cancel<span>K<span class="unsub-logo__accent">i</span>ts</span></span>
 				</a>
 			</div>
 
@@ -33,7 +33,7 @@ const description = 'Manage your CancelKit email preferences.';
 					</svg>
 				</div>
 				<h1>You've been unsubscribed</h1>
-				<p class="unsub-body">You will no longer receive marketing or recap emails from CancelKit. Transactional emails (password resets, security alerts) will still be delivered.</p>
+				<p class="unsub-body">You will no longer receive marketing or recap emails from CancelKits. Transactional emails (password resets, security alerts) will still be delivered.</p>
 				<button type="button" class="unsub-resubscribe-btn" id="resubscribe-btn">
 					Changed your mind? Re-subscribe
 				</button>

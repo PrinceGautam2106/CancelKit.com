@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard/
+Disallow: /account/
+Disallow: /api/
+Disallow: /signin/
+Disallow: /signup/
+Disallow: /onboarding/
+Disallow: /auth/
+Disallow: /unsubscribe/
+Disallow: /forgot-password/
+Disallow: /reset-password/
+
+Sitemap: https://cancelkits.com/sitemap-index.xml

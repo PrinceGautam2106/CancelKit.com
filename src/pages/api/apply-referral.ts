@@ -63,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
 
 		const referrerUserId = referralRecord?.referrer_user_id;
 
-		// 2. Apply Stripe Credit to both users ($9.00 = 1 month free CancelKit Pro)
+		// 2. Apply Stripe Credit to both users ($9.00 = 1 month free CancelKits Pro)
 		const creditAmount = -900; // -$9.00 in cents
 
 		// A. Credit newly upgraded customer
@@ -72,7 +72,7 @@ export const POST: APIRoute = async ({ request }) => {
 				await stripe.customers.createBalanceTransaction(stripeCustomerId, {
 					amount: creditAmount,
 					currency: 'usd',
-					description: 'Referral reward: 1 month free CancelKit Pro',
+					description: 'Referral reward: 1 month free CancelKits Pro',
 				});
 			} catch (stripeErr) {
 				console.warn('Could not credit new customer on Stripe:', stripeErr);

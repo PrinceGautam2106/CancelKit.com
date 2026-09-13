@@ -1,1 +1,0 @@
-import{r as e}from"./supabase.3Gqsr5oD.js";var t=document.getElementById(`err-primary-cta`);e.auth.getSession().then(({data:{session:e}})=>{t&&(e?(t.href=`/dashboard`,t.textContent=`Go to dashboard →`):(t.href=`/`,t.textContent=`Go home →`))});

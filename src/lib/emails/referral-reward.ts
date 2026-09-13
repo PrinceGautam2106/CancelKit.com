@@ -1,7 +1,7 @@
 /**
  * referral-reward.ts — Sent to referrer when their friend upgrades to Pro.
  *
- * Subject: "🎉 You earned 1 month of CancelKit Pro free!"
+ * Subject: "🎉 You earned 1 month of CancelKits Pro free!"
  * Tone:    Celebratory, encouraging, clear explanation of Stripe credit.
  */
 
@@ -19,7 +19,7 @@ export interface ReferralRewardEmailData {
 }
 
 export function referralRewardSubject(): string {
-	return '🎉 You earned 1 month of CancelKit Pro free!';
+	return '🎉 You earned 1 month of CancelKits Pro free!';
 }
 
 export function referralRewardHtml(data: ReferralRewardEmailData): string {
@@ -28,7 +28,7 @@ export function referralRewardHtml(data: ReferralRewardEmailData): string {
 	const referralUrl = `${SITE}/r/${data.referralCode}`;
 
 	const tweetText = encodeURIComponent(
-		`I just earned a free month of @CancelKit for helping a friend cancel forgotten subscriptions 💸\n\nGet your first month free: ${referralUrl}`
+		`I just earned a free month of @CancelKits for helping a friend cancel forgotten subscriptions 💸\n\nGet your first month free: ${referralUrl}`
 	);
 	const twitterShareUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
@@ -39,7 +39,7 @@ export function referralRewardHtml(data: ReferralRewardEmailData): string {
 
     <h1 style="${styles.h1}text-align:center;">1 Month Free Unlocked!</h1>
     <p style="${styles.body}text-align:center;">
-      Awesome news, ${firstName}! ${friend} just upgraded to CancelKit Pro. Because you invited them, you <strong style="color:#ffffff;">BOTH</strong> get 1 month of CancelKit Pro on us.
+      Awesome news, ${firstName}! ${friend} just upgraded to CancelKits Pro. Because you invited them, you <strong style="color:#ffffff;">BOTH</strong> get 1 month of CancelKits Pro on us.
     </p>
 
     <!-- Credit Applied Card -->
@@ -91,7 +91,7 @@ export function referralRewardHtml(data: ReferralRewardEmailData): string {
   `;
 
 	return emailLayout(body, {
-		preheader: `You earned 1 free month of CancelKit Pro! $${data.dollarCredit} credit applied to your account.`,
+		preheader: `You earned 1 free month of CancelKits Pro! $${data.dollarCredit} credit applied to your account.`,
 		userId: data.userId,
 		email: data.email,
 	});

@@ -1,7 +1,7 @@
 /**
- * payment-failed.ts — Sent when the user's CancelKit Pro payment fails.
+ * payment-failed.ts — Sent when the user's CancelKits Pro payment fails.
  *
- * Subject: "Your CancelKit Pro access is paused"
+ * Subject: "Your CancelKits Pro access is paused"
  * Tone:    Helpful, not threatening. Clear 3-day grace period.
  */
 
@@ -23,7 +23,7 @@ export interface PaymentFailedData {
 }
 
 export function paymentFailedSubject(): string {
-	return 'Your CancelKit Pro access is paused';
+	return 'Your CancelKits Pro access is paused';
 }
 
 export function paymentFailedHtml(data: PaymentFailedData): string {
@@ -43,7 +43,7 @@ export function paymentFailedHtml(data: PaymentFailedData): string {
         <tr>
           <td style="padding:4px 0;">
             <p style="margin:0;font-size:13px;color:#666666;">Plan</p>
-            <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#ffffff;">CancelKit ${data.planName}</p>
+            <p style="margin:2px 0 0;font-size:15px;font-weight:600;color:#ffffff;">CancelKits ${data.planName}</p>
           </td>
         </tr>
         <tr>
@@ -114,7 +114,7 @@ export function paymentFailedHtml(data: PaymentFailedData): string {
   `;
 
 	return emailLayout(body, {
-		preheader: `Your CancelKit ${data.planName} payment failed. Update your card within 3 days to keep your features.`,
+		preheader: `Your CancelKits ${data.planName} payment failed. Update your card within 3 days to keep your features.`,
 		userId: data.userId,
 		email: data.email,
 	});

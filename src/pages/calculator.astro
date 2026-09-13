@@ -101,11 +101,11 @@ const faqs = [
 	},
 	{
 		q: 'What subscriptions do I have and how can I find them?',
-		a: 'To identify all active subscriptions: (1) Check iOS Settings → Apple ID → Subscriptions; (2) Open Google Play Store → Payments & Subscriptions; (3) Search your email receipts for keywords like "receipt", "subscription", "membership", or "billing period"; (4) Review the past 3 months of bank and credit card statements for recurring monthly merchant names; or (5) Use CancelKit to securely scan your inbox receipts automatically in 30 seconds.',
+		a: 'To identify all active subscriptions: (1) Check iOS Settings → Apple ID → Subscriptions; (2) Open Google Play Store → Payments & Subscriptions; (3) Search your email receipts for keywords like "receipt", "subscription", "membership", or "billing period"; (4) Review the past 3 months of bank and credit card statements for recurring monthly merchant names; or (5) Use CancelKits to securely scan your inbox receipts automatically in 30 seconds.',
 	},
 	{
 		q: 'How can I reduce my monthly subscription costs?',
-		a: 'The most effective strategies include: (1) Rotate video streaming services month-to-month rather than paying for 4–5 simultaneously; (2) Cancel auto-renewals on free trials immediately after signing up; (3) Audit subscriptions quarterly to prune unused gym memberships or SaaS tools; (4) Request retention discount offers before finalizing cancellations; and (5) Use CancelKit to handle cancellations for difficult companies that demand phone calls or certified mail.',
+		a: 'The most effective strategies include: (1) Rotate video streaming services month-to-month rather than paying for 4–5 simultaneously; (2) Cancel auto-renewals on free trials immediately after signing up; (3) Audit subscriptions quarterly to prune unused gym memberships or SaaS tools; (4) Request retention discount offers before finalizing cancellations; and (5) Use CancelKits to handle cancellations for difficult companies that demand phone calls or certified mail.',
 	},
 	{
 		q: 'Why does the 5-year subscription cost matter?',
@@ -293,7 +293,7 @@ const webAppSchema = {
 										You're spending <span id="reveal-yearly-text" class="text-danger">$0</span>/year on subscriptions.
 									</h4>
 									<p class="reveal-desc">
-										CancelKit connects to your receipts and finds the forgotten renewals you didn't even remember to check off.
+										CancelKits connects to your receipts and finds the forgotten renewals you didn't even remember to check off.
 									</p>
 									<a href="/signup?ref=calculator" class="btn-reveal-cta">
 										Find my forgotten ones →
@@ -304,7 +304,7 @@ const webAppSchema = {
 							<!-- Social Share Widget -->
 							<div class="share-results-box">
 								<a
-									href="https://twitter.com/intent/tweet?text=Calculate%20your%20subscription%20spending%20with%20CancelKit"
+									href="https://twitter.com/intent/tweet?text=Calculate%20your%20subscription%20spending%20with%20CancelKits"
 									target="_blank"
 									rel="noopener noreferrer"
 									class="btn-share-tweet"
@@ -380,7 +380,7 @@ const webAppSchema = {
 						<div class="pitch-content">
 							<h3>Want to stop bleeding money on subscriptions?</h3>
 							<p>
-								CancelKit links to your receipts in read-only mode, finds every active recurring fee, and helps you cancel the ones you no longer use with a single click.
+								CancelKits links to your receipts in read-only mode, finds every active recurring fee, and helps you cancel the ones you no longer use with a single click.
 							</p>
 						</div>
 						<a href="/onboarding/connect" class="btn-pitch-cta">
@@ -536,8 +536,8 @@ const webAppSchema = {
 			if (tweetShareBtn) {
 				const roundedMonthly = Math.round(monthlyTotal);
 				const tweetText = roundedMonthly > 0
-					? `I'm spending $${roundedMonthly}/month on subscriptions 😱 Calculate yours: https://cancelkits.com/calculator via @CancelKit`
-					: `How much are you REALLY spending on subscriptions? Calculate your monthly, yearly, and 5-year total with @CancelKit: https://cancelkits.com/calculator`;
+					? `I'm spending $${roundedMonthly}/month on subscriptions 😱 Calculate yours: https://cancelkits.com/calculator via @CancelKits`
+					: `How much are you REALLY spending on subscriptions? Calculate your monthly, yearly, and 5-year total with @CancelKits: https://cancelkits.com/calculator`;
 				tweetShareBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 			}
 		}
@@ -654,7 +654,7 @@ const webAppSchema = {
 			const yearly = monthly * 12;
 			const fiveYear = yearly * 5;
 
-			const summaryText = `My Subscription Cost Breakdown (via CancelKit):
+			const summaryText = `My Subscription Cost Breakdown (via CancelKits):
 • Monthly: ${formatUSD(monthly)}/mo across ${count} services
 • Yearly: ${formatUSD(yearly)}/yr
 • In 5 years: ${formatUSD(fiveYear)}

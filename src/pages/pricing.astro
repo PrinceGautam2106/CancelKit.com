@@ -3,17 +3,17 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Pricing — CancelKit';
+const title = 'Pricing — CancelKits';
 const description =
-	'See the damage free. Kill subscriptions with CancelKit Pro at $9/mo. Family plans for households. 7-day free trial.';
+	'See the damage free. Kill subscriptions with CancelKits Pro at $9/mo. Family plans for households. 7-day free trial.';
 
 const faqs = [
 	{
 		q: 'What if I’m on a free trial that auto-renews?',
-		a: 'CancelKit flags trials before they convert. On Pro, you get a renewal alert 7 days out so you can cancel before the first charge hits.',
+		a: 'CancelKits flags trials before they convert. On Pro, you get a renewal alert 7 days out so you can cancel before the first charge hits.',
 	},
 	{
-		q: 'Can CancelKit cancel on my behalf?',
+		q: 'Can CancelKits cancel on my behalf?',
 		a: 'Yes on Pro and Family. One-click cancel handles supported services for you. Free still includes step-by-step cancel guides if you want to do it yourself.',
 	},
 	{
@@ -201,7 +201,7 @@ const tiers = [
 
 			<p class="pricing__roi-waste" data-roi-waste>You’re wasting $75/month = $900/year</p>
 			<p class="pricing__roi-break" data-roi-break>
-				CancelKit Pro costs $9/month. You break even in 4 days.
+				CancelKits Pro costs $9/month. You break even in 4 days.
 			</p>
 			<button type="button" class="pricing__roi-cta" data-checkout-btn data-tier="pro">
 				<span class="btn-text">Start killing subscriptions →</span>
@@ -284,7 +284,7 @@ const tiers = [
 			wasteEl.textContent = `You’re wasting ${money(monthlyWaste)}/month = ${money(yearlyWaste)}/year`;
 		}
 		if (breakEl) {
-			breakEl.textContent = `CancelKit Pro costs $9/month. You break even in ${breakEvenDays} day${breakEvenDays === 1 ? '' : 's'}.`;
+			breakEl.textContent = `CancelKits Pro costs $9/month. You break even in ${breakEvenDays} day${breakEvenDays === 1 ? '' : 's'}.`;
 		}
 	}
 

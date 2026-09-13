@@ -1,40 +1,113 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Something went wrong — CancelKit';
+const title = 'Something went wrong — CancelKits';
 const description = "We're on it. Try again in a minute.";
 ---
 
-<BaseLayout {title} {description}>
-	<!-- Auto-refresh after 30 seconds -->
+<BaseLayout {title} {description} noIndex>
 	<meta http-equiv="refresh" content="30" slot="head" />
 
 	<main class="err">
-		<a class="err__logo" href="/" aria-label="CancelKit home">
+		<a class="err__logo" href="/" aria-label="CancelKits home">
 			<span class="err__logo-icon">C</span>
-			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>t</span></span>
+			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>ts</span></span>
 		</a>
 
+		<!-- Animated broken circuit illustration -->
+		<div class="err__illustration" aria-hidden="true">
+			<div class="err__circuit">
+				<div class="err__plug err__plug--left">
+					<div class="err__plug-prong"></div>
+					<div class="err__plug-prong"></div>
+					<div class="err__plug-cable"></div>
+				</div>
+				<div class="err__sparks">
+					<span class="err__spark err__spark--1">⚡</span>
+					<span class="err__spark err__spark--2">✦</span>
+					<span class="err__spark err__spark--3">⚡</span>
+					<span class="err__spark err__spark--4">✦</span>
+				</div>
+				<div class="err__plug err__plug--right">
+					<div class="err__plug-cable"></div>
+					<div class="err__plug-prong"></div>
+					<div class="err__plug-prong"></div>
+				</div>
+			</div>
+			<div class="err__smoke">
+				<span class="err__smoke-puff err__smoke-puff--1"></span>
+				<span class="err__smoke-puff err__smoke-puff--2"></span>
+				<span class="err__smoke-puff err__smoke-puff--3"></span>
+			</div>
+		</div>
+
 		<p class="err__code" aria-hidden="true">500</p>
-		<h1>Something went wrong on our end.</h1>
-		<p class="err__sub">We're on it. Try again in a minute.</p>
-		<p class="err__refresh" id="refresh-note">This page refreshes automatically in <span id="refresh-secs">30</span>s.</p>
+		<h1>Oops, something short-circuited.</h1>
+		<p class="err__sub">Our servers tripped over a subscription cable. We're reconnecting now.</p>
+
+		<!-- Live countdown -->
+		<div class="err__countdown">
+			<div class="err__progress-ring" id="progress-ring">
+				<svg viewBox="0 0 60 60" width="60" height="60">
+					<circle cx="30" cy="30" r="26" fill="none" stroke="#1a1a1a" stroke-width="3" />
+					<circle cx="30" cy="30" r="26" fill="none" stroke="url(#ring-grad)" stroke-width="3"
+						stroke-dasharray="163.36" stroke-dashoffset="0"
+						stroke-linecap="round" id="progress-circle"
+						transform="rotate(-90, 30, 30)" />
+					<defs>
+						<linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+							<stop offset="0%" stop-color="#00ff88" />
+							<stop offset="100%" stop-color="#00cc6a" />
+						</linearGradient>
+					</defs>
+				</svg>
+				<span class="err__countdown-num" id="countdown-num">30</span>
+			</div>
+			<p class="err__countdown-label">Auto-retrying in <span id="countdown-text">30</span>s</p>
+		</div>
 
 		<div class="err__actions">
-			<button type="button" class="err__btn err__btn--primary" id="retry-btn">Try again now →</button>
-			<a class="err__btn err__btn--ghost" href="/">Go home</a>
+			<button type="button" class="err__btn err__btn--primary" id="retry-btn">
+				<span class="err__btn-icon">🔄</span> Try again now
+			</button>
+			<a class="err__btn err__btn--ghost" href="/">
+				<span class="err__btn-icon">🏠</span> Go home
+			</a>
+			<a class="err__btn err__btn--ghost" href="/contact">
+				<span class="err__btn-icon">💬</span> Report issue
+			</a>
+		</div>
+
+		<div class="err__status">
+			<div class="err__status-dot"></div>
+			<span>Checking server status…</span>
 		</div>
 	</main>
 </BaseLayout>
 
 <script>
-	const secsEl = document.getElementById('refresh-secs');
+	const TOTAL = 30;
+	const CIRCUMFERENCE = 2 * Math.PI * 26; // 163.36
+	let remaining = TOTAL;
+
+	const numEl = document.getElementById('countdown-num');
+	const textEl = document.getElementById('countdown-text');
+	const circleEl = document.getElementById('progress-circle') as SVGCircleElement | null;
 	const retryBtn = document.getElementById('retry-btn');
-	let remaining = 30;
+	const statusEl = document.querySelector('.err__status span') as HTMLElement | null;
+	const statusDot = document.querySelector('.err__status-dot') as HTMLElement | null;
+
+	function updateRing() {
+		const progress = remaining / TOTAL;
+		const offset = CIRCUMFERENCE * progress;
+		if (circleEl) circleEl.style.strokeDashoffset = String(CIRCUMFERENCE - offset);
+		if (numEl) numEl.textContent = String(remaining);
+		if (textEl) textEl.textContent = String(remaining);
+	}
 
 	const tick = window.setInterval(() => {
 		remaining -= 1;
-		if (secsEl) secsEl.textContent = String(Math.max(0, remaining));
+		updateRing();
 		if (remaining <= 0) {
 			clearInterval(tick);
 			window.location.reload();
@@ -43,13 +116,28 @@ const description = "We're on it. Try again in a minute.";
 
 	retryBtn?.addEventListener('click', () => {
 		clearInterval(tick);
-		window.location.reload();
+		if (retryBtn instanceof HTMLButtonElement) {
+			retryBtn.innerHTML = '<span class="err__btn-icon">⏳</span> Retrying…';
+			retryBtn.disabled = true;
+		}
+		setTimeout(() => window.location.reload(), 300);
 	});
 
-	// Meta refresh fallback if slot/head isn't supported
+	// Simulated status check
+	setTimeout(() => {
+		if (statusEl) statusEl.textContent = 'Servers are responding. Retrying shortly…';
+		if (statusDot) statusDot.style.background = '#ffaa00';
+	}, 5000);
+
+	setTimeout(() => {
+		if (statusEl) statusEl.textContent = 'Almost back online…';
+		if (statusDot) statusDot.style.background = '#00ff88';
+	}, 15000);
+
+	// Safety fallback
 	setTimeout(() => {
 		if (document.visibilityState !== 'hidden') window.location.reload();
-	}, 30_000);
+	}, 31_000);
 </script>
 
 <style>
@@ -62,16 +150,19 @@ const description = "We're on it. Try again in a minute.";
 		text-align: center;
 		padding: 2.5rem 1.25rem;
 		background:
-			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255, 68, 68, 0.08), transparent 70%),
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255, 68, 68, 0.06), transparent 70%),
 			#050505;
+		overflow: hidden;
 	}
 
+	/* Logo */
 	.err__logo {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
-		margin-bottom: 2.5rem;
+		margin-bottom: 1.5rem;
+		animation: fadeDown 0.6s ease-out;
 	}
 
 	.err__logo-icon {
@@ -99,6 +190,91 @@ const description = "We're on it. Try again in a minute.";
 		color: var(--color-accent);
 	}
 
+	/* Broken circuit illustration */
+	.err__illustration {
+		position: relative;
+		width: 200px;
+		height: 80px;
+		margin-bottom: 1.5rem;
+	}
+
+	.err__circuit {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
+		height: 100%;
+		animation: circuitShake 0.5s ease-in-out 1s 3;
+	}
+
+	.err__plug {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.err__plug--left {
+		animation: plugLeft 2s ease-in-out infinite;
+	}
+
+	.err__plug--right {
+		animation: plugRight 2s ease-in-out infinite;
+	}
+
+	.err__plug-prong {
+		width: 6px;
+		height: 20px;
+		background: #444;
+		border-radius: 2px;
+	}
+
+	.err__plug-cable {
+		width: 28px;
+		height: 10px;
+		background: linear-gradient(180deg, #333 0%, #222 100%);
+		border-radius: 5px;
+		border: 1px solid #444;
+	}
+
+	.err__sparks {
+		position: relative;
+		width: 20px;
+		height: 40px;
+	}
+
+	.err__spark {
+		position: absolute;
+		font-size: 0.9rem;
+		opacity: 0;
+		animation: sparkle 1.2s ease-out infinite;
+	}
+
+	.err__spark--1 { top: 0; left: 50%; animation-delay: 0s; color: #ffcc00; }
+	.err__spark--2 { top: 30%; left: 10%; animation-delay: 0.3s; color: var(--color-danger); }
+	.err__spark--3 { top: 60%; right: 10%; animation-delay: 0.6s; color: #ffcc00; }
+	.err__spark--4 { bottom: 0; left: 40%; animation-delay: 0.9s; color: var(--color-danger); }
+
+	.err__smoke {
+		position: absolute;
+		top: 10px;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.err__smoke-puff {
+		position: absolute;
+		width: 10px;
+		height: 10px;
+		background: rgba(255, 255, 255, 0.06);
+		border-radius: 50%;
+		animation: smokePuff 3s ease-out infinite;
+	}
+
+	.err__smoke-puff--1 { left: -8px; animation-delay: 0s; }
+	.err__smoke-puff--2 { left: 2px; animation-delay: 1s; }
+	.err__smoke-puff--3 { left: 12px; animation-delay: 2s; }
+
+	/* Text */
 	.err__code {
 		margin: 0 0 0.75rem;
 		font-family: var(--font-mono);
@@ -106,54 +282,100 @@ const description = "We're on it. Try again in a minute.";
 		font-weight: 600;
 		letter-spacing: 0.14em;
 		color: var(--color-danger);
+		animation: fadeUp 0.5s ease-out 0.2s both;
 	}
 
 	.err h1 {
 		margin: 0;
 		font-family: var(--font-display);
-		font-size: clamp(1.65rem, 4.5vw, 2.25rem);
+		font-size: clamp(1.65rem, 4.5vw, 2.35rem);
 		font-weight: 750;
 		letter-spacing: -0.04em;
 		line-height: 1.2;
 		color: #fff;
-		max-width: 20ch;
+		max-width: 22ch;
+		animation: fadeUp 0.5s ease-out 0.3s both;
 	}
 
 	.err__sub {
 		margin: 0.9rem 0 0;
 		color: var(--color-muted);
-		font-size: 1.05rem;
+		font-size: 1rem;
+		max-width: 38ch;
+		animation: fadeUp 0.5s ease-out 0.4s both;
 	}
 
-	.err__refresh {
-		margin: 0.75rem 0 0;
-		font-size: 0.82rem;
-		color: var(--color-faint);
+	/* Countdown ring */
+	.err__countdown {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 2rem;
+		padding: 0.85rem 1.25rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		animation: fadeUp 0.5s ease-out 0.5s both;
+	}
+
+	.err__progress-ring {
+		position: relative;
+		width: 60px;
+		height: 60px;
+		flex-shrink: 0;
+	}
+
+	.err__progress-ring svg {
+		display: block;
+	}
+
+	.err__countdown-num {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		font-family: var(--font-mono);
+		font-size: 0.95rem;
+		font-weight: 700;
+		color: #fff;
 	}
 
+	.err__countdown-label {
+		margin: 0;
+		font-size: 0.88rem;
+		color: var(--color-muted);
+	}
+
+	/* Actions */
 	.err__actions {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 0.75rem;
-		margin-top: 2rem;
+		gap: 0.65rem;
+		margin-top: 1.5rem;
+		animation: fadeUp 0.5s ease-out 0.6s both;
 	}
 
 	.err__btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.85rem 1.35rem;
+		gap: 0.5rem;
+		padding: 0.75rem 1.25rem;
 		border-radius: var(--radius-pill);
-		font-weight: 700;
-		font-size: 0.95rem;
+		font-weight: 600;
+		font-size: 0.9rem;
 		text-decoration: none;
 		border: 0;
 		cursor: pointer;
 		font-family: inherit;
 		transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+		min-height: 48px;
+	}
+
+	.err__btn-icon {
+		font-size: 1rem;
 	}
 
 	.err__btn--primary {
@@ -161,19 +383,106 @@ const description = "We're on it. Try again in a minute.";
 		color: #000;
 	}
 
-	.err__btn--primary:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 6px 22px rgba(0, 255, 136, 0.28);
+	.err__btn--primary:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(0, 255, 136, 0.25);
+	}
+
+	.err__btn--primary:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
 	}
 
 	.err__btn--ghost {
 		border: 1px solid var(--color-border);
 		background: transparent;
-		color: #ddd;
+		color: #ccc;
 	}
 
 	.err__btn--ghost:hover {
-		background: #111;
+		background: rgba(255, 255, 255, 0.04);
 		border-color: var(--color-border-hover);
+		color: #fff;
+	}
+
+	/* Status indicator */
+	.err__status {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 2rem;
+		font-size: 0.8rem;
+		color: var(--color-faint);
+		font-family: var(--font-mono);
+		animation: fadeUp 0.5s ease-out 0.8s both;
+	}
+
+	.err__status-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--color-danger);
+		animation: pulse 2s ease-in-out infinite;
+		transition: background 0.3s;
+	}
+
+	/* Animations */
+	@keyframes circuitShake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-3px); }
+		75% { transform: translateX(3px); }
+	}
+
+	@keyframes plugLeft {
+		0%, 100% { transform: translateX(0); }
+		50% { transform: translateX(-4px); }
+	}
+
+	@keyframes plugRight {
+		0%, 100% { transform: translateX(0); }
+		50% { transform: translateX(4px); }
+	}
+
+	@keyframes sparkle {
+		0% { opacity: 0; transform: scale(0.5); }
+		20% { opacity: 1; transform: scale(1.2); }
+		100% { opacity: 0; transform: scale(0.3) translateY(-10px); }
+	}
+
+	@keyframes smokePuff {
+		0% { opacity: 0; transform: translateY(0) scale(0.5); }
+		30% { opacity: 0.4; }
+		100% { opacity: 0; transform: translateY(-35px) scale(2.5); }
+	}
+
+	@keyframes pulse {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.5; transform: scale(0.8); }
+	}
+
+	@keyframes fadeUp {
+		from { opacity: 0; transform: translateY(16px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes fadeDown {
+		from { opacity: 0; transform: translateY(-12px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@media (max-width: 480px) {
+		.err { padding: 2rem 1rem; }
+		.err__countdown { flex-direction: column; text-align: center; }
+		.err__actions { flex-direction: column; width: 100%; max-width: 18rem; }
+		.err__btn { width: 100%; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.err__circuit, .err__plug--left, .err__plug--right,
+		.err__spark, .err__smoke-puff, .err__status-dot { animation: none; }
+		.err__spark { opacity: 0.5; }
+		.err__smoke-puff { opacity: 0; }
+		.err__logo, .err__code, .err h1, .err__sub,
+		.err__countdown, .err__actions, .err__status { animation: none; }
 	}
 </style>

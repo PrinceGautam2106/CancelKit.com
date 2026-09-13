@@ -2,18 +2,18 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { STRIPE_PRICES } from '../../lib/stripe';
 
-const title = 'Scan Results — CancelKit';
+const title = 'Scan Results — CancelKits';
 const description = 'See every subscription draining your account and start cancelling.';
 
 const FREE_TEASER = 5;
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} noIndex>
 	<main class="results-page">
 		<div class="results-container">
 			<div class="results-wordmark" aria-hidden="true">
 				<span class="wordmark-icon">C</span>
-				<span class="wordmark-text">Cancel<span>K<span class="wordmark-accent">i</span>t</span></span>
+				<span class="wordmark-text">Cancel<span>K<span class="wordmark-accent">i</span>ts</span></span>
 			</div>
 
 			<header class="results-hero">

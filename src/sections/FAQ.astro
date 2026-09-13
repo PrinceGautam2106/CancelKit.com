@@ -1,0 +1,310 @@
+---
+import { homepageFaqs } from '../data/faqs';
+
+const left = homepageFaqs.filter((_, i) => i % 2 === 0);
+const right = homepageFaqs.filter((_, i) => i % 2 === 1);
+
+const iconPlus = `<svg class="faq-icon-plus" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+const iconMinus = `<svg class="faq-icon-minus" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+---
+
+<section id="faq" class="faq-section" aria-labelledby="faq-heading">
+	<div class="faq-container">
+		<header class="faq-header">
+			<p class="faq-label">FAQ</p>
+			<h2 id="faq-heading" class="faq-title">
+				Frequently Asked Questions About
+				<span class="faq-title-accent">Cancelling Subscriptions</span>
+			</h2>
+			<p class="faq-subtitle">
+				Everything you need to know about CancelKits and how to stop recurring charges.
+				Cannot find your answer? <a href="/contact" class="faq-contact-link">Contact us →</a>
+			</p>
+		</header>
+
+		<div class="faq-grid">
+			<div class="faq-col">
+				{left.map((faq) => (
+					<details class="faq-item" name="faq-group">
+						<summary class="faq-question">
+							<span>{faq.question}</span>
+							<span class="faq-icon" aria-hidden="true" set:html={iconPlus + iconMinus} />
+						</summary>
+						<div class="faq-answer" set:html={faq.answerHtml} />
+					</details>
+				))}
+			</div>
+			<div class="faq-col">
+				{right.map((faq) => (
+					<details class="faq-item" name="faq-group">
+						<summary class="faq-question">
+							<span>{faq.question}</span>
+							<span class="faq-icon" aria-hidden="true" set:html={iconPlus + iconMinus} />
+						</summary>
+						<div class="faq-answer" set:html={faq.answerHtml} />
+					</details>
+				))}
+			</div>
+		</div>
+
+		<div class="faq-cta-row">
+			<p class="faq-cta-text">Still have a question?</p>
+			<a href="/contact" class="faq-cta-btn">Talk to us →</a>
+		</div>
+	</div>
+</section>
+
+<style>
+	.faq-section {
+		background: #000;
+		padding: 96px 24px;
+		border-top: 1px solid #1a1a1a;
+	}
+
+	.faq-container {
+		max-width: 1120px;
+		margin: 0 auto;
+	}
+
+	.faq-header {
+		text-align: center;
+		margin-bottom: 64px;
+	}
+
+	.faq-label {
+		font-size: 11px;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: #00ff88;
+		margin-bottom: 12px;
+	}
+
+	.faq-title {
+		font-family: 'Geist', system-ui, sans-serif;
+		font-size: clamp(28px, 4vw, 40px);
+		font-weight: 600;
+		color: #fff;
+		line-height: 1.2;
+		letter-spacing: -0.02em;
+		margin-bottom: 16px;
+	}
+
+	.faq-title-accent {
+		display: block;
+		color: #00ff88;
+	}
+
+	.faq-subtitle {
+		font-size: 15px;
+		color: #888;
+		max-width: 520px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
+
+	.faq-contact-link {
+		color: #fff;
+		text-decoration: none;
+		border-bottom: 1px solid #333;
+		transition: border-color 0.15s, color 0.15s;
+	}
+
+	.faq-contact-link:hover {
+		border-color: #00ff88;
+		color: #00ff88;
+	}
+
+	.faq-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0 40px;
+		align-items: start;
+	}
+
+	.faq-col {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.faq-item {
+		border-bottom: 1px solid #1a1a1a;
+	}
+
+	.faq-item:first-child {
+		border-top: 1px solid #1a1a1a;
+	}
+
+	.faq-item summary::-webkit-details-marker,
+	.faq-item summary::marker {
+		display: none;
+		content: '';
+	}
+
+	.faq-question {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		padding: 20px 0;
+		font-size: 15px;
+		font-weight: 500;
+		color: #fff;
+		line-height: 1.4;
+		cursor: pointer;
+		list-style: none;
+		transition: color 0.15s;
+		user-select: none;
+	}
+
+	.faq-question:hover {
+		color: #00ff88;
+	}
+
+	.faq-icon {
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+		border: 1px solid #1a1a1a;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #888;
+		transition: all 0.15s;
+	}
+
+	.faq-item[open] .faq-icon {
+		border-color: #00ff88;
+		color: #00ff88;
+		background: rgba(0, 255, 136, 0.06);
+	}
+
+	.faq-icon-minus {
+		display: none;
+	}
+
+	.faq-item[open] .faq-icon-plus {
+		display: none;
+	}
+
+	.faq-item[open] .faq-icon-minus {
+		display: block;
+	}
+
+	.faq-answer {
+		padding: 0 0 20px;
+		animation: faqFadeIn 0.2s ease;
+	}
+
+	.faq-answer :global(p) {
+		font-size: 14px;
+		color: #888;
+		line-height: 1.7;
+		margin: 0 0 10px;
+	}
+
+	.faq-answer :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.faq-answer :global(ul) {
+		margin: 8px 0 10px;
+		padding: 0;
+		list-style: none;
+	}
+
+	.faq-answer :global(li) {
+		font-size: 14px;
+		color: #888;
+		line-height: 1.7;
+		padding-left: 16px;
+		position: relative;
+		margin-bottom: 4px;
+	}
+
+	.faq-answer :global(li::before) {
+		content: '—';
+		position: absolute;
+		left: 0;
+		color: #333;
+	}
+
+	.faq-answer :global(strong) {
+		color: #ccc;
+		font-weight: 500;
+	}
+
+	.faq-answer :global(.faq-inline-link) {
+		color: #00ff88;
+		text-decoration: none;
+		font-size: 13px;
+	}
+
+	.faq-answer :global(.faq-inline-link:hover) {
+		text-decoration: underline;
+	}
+
+	.faq-cta-row {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		justify-content: center;
+		margin-top: 56px;
+		padding-top: 48px;
+		border-top: 1px solid #1a1a1a;
+	}
+
+	.faq-cta-text {
+		font-size: 15px;
+		color: #888;
+		margin: 0;
+	}
+
+	.faq-cta-btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 10px 20px;
+		background: transparent;
+		border: 1px solid #333;
+		border-radius: 8px;
+		color: #fff;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+		transition: border-color 0.15s, color 0.15s;
+	}
+
+	.faq-cta-btn:hover {
+		border-color: #00ff88;
+		color: #00ff88;
+	}
+
+	@keyframes faqFadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (max-width: 768px) {
+		.faq-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.faq-section {
+			padding: 64px 16px;
+		}
+
+		.faq-cta-row {
+			flex-direction: column;
+			text-align: center;
+		}
+	}
+</style>

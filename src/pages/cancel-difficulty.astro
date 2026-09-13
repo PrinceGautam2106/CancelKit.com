@@ -30,7 +30,7 @@ const totalCount = enrichedServices.length;
 const avgScore = (enrichedServices.reduce((acc, s) => acc + s.score, 0) / totalCount).toFixed(1);
 
 const tweetText = encodeURIComponent(
-	"Which subscriptions are hardest to cancel? Planet Fitness (9/10), SiriusXM (8/10), Adobe (7/10)... See the 2026 Subscription Cancel Hall of Shame: https://cancelkits.com/cancel-difficulty via @CancelKit"
+	"Which subscriptions are hardest to cancel? Planet Fitness (9/10), SiriusXM (8/10), Adobe (7/10)... See the 2026 Subscription Cancel Hall of Shame: https://cancelkits.com/cancel-difficulty via @CancelKits"
 );
 const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
@@ -237,7 +237,7 @@ const rankingSchema = {
 
 								<div class="card-actions">
 									<a href={`/signup?ref=hall-of-shame&service=${service.slug}`} class="btn-cancelkit-action">
-										<span>Let CancelKit handle this one</span>
+										<span>Let CancelKits handle this one</span>
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<line x1="5" y1="12" x2="19" y2="12"></line>
 											<polyline points="12 5 19 12 12 19"></polyline>
@@ -259,7 +259,7 @@ const rankingSchema = {
 						Tired of dealing with cancellation mazes?
 					</h3>
 					<p class="interstitial-desc">
-						CancelKit securely scans your receipts, flags forgotten renewals, and handles cancellations directly so you never have to call a phone tree or mail a certified letter again.
+						CancelKits securely scans your receipts, flags forgotten renewals, and handles cancellations directly so you never have to call a phone tree or mail a certified letter again.
 					</p>
 					<div class="interstitial-actions">
 						<a href="/onboarding/connect" class="btn-interstitial-primary">
@@ -330,7 +330,7 @@ const rankingSchema = {
 										View step-by-step guide →
 									</a>
 									<a href={`/signup?ref=difficulty-hard&service=${service.slug}`} class="btn-cancelkit-subtle">
-										Or cancel with CancelKit
+										Or cancel with CancelKits
 									</a>
 								</div>
 							</article>
@@ -457,7 +457,7 @@ const rankingSchema = {
 						<div class="journalist-text">
 							<h4>Citing this study in your article or blog?</h4>
 							<p>
-								Journalists and bloggers are welcome to cite or republish this data with attribution to <strong>CancelKit</strong> and a link to <code>cancelkits.com/cancel-difficulty</code>.
+								Journalists and bloggers are welcome to cite or republish this data with attribution to <strong>CancelKits</strong> and a link to <code>cancelkits.com/cancel-difficulty</code>.
 							</p>
 						</div>
 						<button type="button" class="btn-copy-citation" id="copy-press-citation-btn">
@@ -479,7 +479,7 @@ const rankingSchema = {
 					<div class="bottom-cta-content">
 						<h2 class="bottom-cta-title">Stop paying for subscriptions you don't use</h2>
 						<p class="bottom-cta-desc">
-							Connect your email in 30 seconds. CancelKit detects every hidden charge and cancels unwanted recurring billing in one click.
+							Connect your email in 30 seconds. CancelKits detects every hidden charge and cancels unwanted recurring billing in one click.
 						</p>
 					</div>
 					<div class="bottom-cta-btn-wrap">
@@ -503,13 +503,13 @@ const rankingSchema = {
 
 			<div class="modal-body">
 				<p class="modal-intro">
-					Embed an interactive ranking table on your blog or cite CancelKit data in your research:
+					Embed an interactive ranking table on your blog or cite CancelKits data in your research:
 				</p>
 
 				<div class="embed-field-group">
 					<label class="embed-label" for="embed-iframe-code">1. Responsive Iframe Embed</label>
 					<div class="embed-code-box">
-						<textarea id="embed-iframe-code" readonly rows="3">&lt;iframe src="https://cancelkits.com/cancel-difficulty" width="100%" height="650" style="border:1px solid #222;border-radius:12px;" title="Subscription Cancel Difficulty Ranking 2026 - CancelKit"&gt;&lt;/iframe&gt;</textarea>
+						<textarea id="embed-iframe-code" readonly rows="3">&lt;iframe src="https://cancelkits.com/cancel-difficulty" width="100%" height="650" style="border:1px solid #222;border-radius:12px;" title="Subscription Cancel Difficulty Ranking 2026 - CancelKits"&gt;&lt;/iframe&gt;</textarea>
 						<button type="button" class="btn-copy-snippet" data-copy-target="embed-iframe-code">Copy</button>
 					</div>
 				</div>
@@ -517,7 +517,7 @@ const rankingSchema = {
 				<div class="embed-field-group">
 					<label class="embed-label" for="embed-html-code">2. HTML Citation with Link</label>
 					<div class="embed-code-box">
-						<textarea id="embed-html-code" readonly rows="2">&lt;p&gt;Source: &lt;a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener"&gt;CancelKit Subscription Cancel Difficulty Index (2026)&lt;/a&gt;&lt;/p&gt;</textarea>
+						<textarea id="embed-html-code" readonly rows="2">&lt;p&gt;Source: &lt;a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener"&gt;CancelKits Subscription Cancel Difficulty Index (2026)&lt;/a&gt;&lt;/p&gt;</textarea>
 						<button type="button" class="btn-copy-snippet" data-copy-target="embed-html-code">Copy</button>
 					</div>
 				</div>
@@ -525,7 +525,7 @@ const rankingSchema = {
 				<div class="embed-field-group">
 					<label class="embed-label" for="embed-md-code">3. Markdown Link</label>
 					<div class="embed-code-box">
-						<textarea id="embed-md-code" readonly rows="2">[CancelKit Subscription Cancel Difficulty Index (2026)](https://cancelkits.com/cancel-difficulty)</textarea>
+						<textarea id="embed-md-code" readonly rows="2">[CancelKits Subscription Cancel Difficulty Index (2026)](https://cancelkits.com/cancel-difficulty)</textarea>
 						<button type="button" class="btn-copy-snippet" data-copy-target="embed-md-code">Copy</button>
 					</div>
 				</div>
@@ -691,7 +691,7 @@ const rankingSchema = {
 		const copyPressCitationBtn = document.getElementById('copy-press-citation-btn');
 		const citationBtnLabel = document.getElementById('citation-btn-label');
 		copyPressCitationBtn?.addEventListener('click', async () => {
-			const citationHtml = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener">CancelKit Subscription Cancel Difficulty Index (2026)</a></p>';
+			const citationHtml = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener">CancelKits Subscription Cancel Difficulty Index (2026)</a></p>';
 			try {
 				await navigator.clipboard.writeText(citationHtml);
 				if (citationBtnLabel) citationBtnLabel.textContent = 'Copied Citation HTML!';

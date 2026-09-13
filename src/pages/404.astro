@@ -1,24 +1,64 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Page not found — CancelKit';
+const title = 'Page not found — CancelKits';
 const description = 'This page got cancelled too. Head home or open your dashboard.';
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} noIndex>
 	<main class="err">
-		<a class="err__logo" href="/" aria-label="CancelKit home">
+		<a class="err__logo" href="/" aria-label="CancelKits home">
 			<span class="err__logo-icon">C</span>
-			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>t</span></span>
+			<span class="err__logo-text">Cancel<span>K<span class="err__logo-accent">i</span>ts</span></span>
 		</a>
 
+		<!-- Animated illustration -->
+		<div class="err__illustration" aria-hidden="true">
+			<div class="err__ghost">
+				<div class="err__ghost-body">
+					<div class="err__ghost-face">
+						<div class="err__ghost-eyes">
+							<span class="err__ghost-eye"></span>
+							<span class="err__ghost-eye"></span>
+						</div>
+						<div class="err__ghost-mouth"></div>
+					</div>
+				</div>
+				<div class="err__ghost-tail">
+					<div class="err__ghost-wave"></div>
+					<div class="err__ghost-wave"></div>
+					<div class="err__ghost-wave"></div>
+				</div>
+				<div class="err__ghost-shadow"></div>
+			</div>
+			<div class="err__particles">
+				<span class="err__particle err__particle--1">✕</span>
+				<span class="err__particle err__particle--2">$</span>
+				<span class="err__particle err__particle--3">✕</span>
+				<span class="err__particle err__particle--4">💸</span>
+				<span class="err__particle err__particle--5">✕</span>
+			</div>
+		</div>
+
 		<p class="err__code" aria-hidden="true">404</p>
-		<h1>This page got cancelled too.</h1>
-		<p class="err__sub">The page you're looking for doesn't exist.</p>
+		<h1>This page got <span class="err__strike">cancelled</span> too.</h1>
+		<p class="err__sub">Looks like this subscription expired. Even we couldn't save it.</p>
 
 		<div class="err__actions">
-			<a class="err__btn err__btn--primary" id="err-primary-cta" href="/">Go home →</a>
-			<a class="err__btn err__btn--ghost" href="/cancel">Browse cancel guides</a>
+			<a class="err__btn err__btn--primary" id="err-primary-cta" href="/">
+				<span class="err__btn-icon">🏠</span> Go home
+			</a>
+			<a class="err__btn err__btn--ghost" href="/cancel">
+				<span class="err__btn-icon">📋</span> Cancel guides
+			</a>
+			<a class="err__btn err__btn--ghost" href="/dashboard">
+				<span class="err__btn-icon">📊</span> Dashboard
+			</a>
+		</div>
+
+		<div class="err__fun-fact">
+			<span class="err__fun-label">Did you know?</span>
+			<p id="fun-fact-text">The average American wastes $219/month on forgotten subscriptions.</p>
 		</div>
 	</main>
 </BaseLayout>
@@ -32,11 +72,35 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 		if (!cta) return;
 		if (session) {
 			cta.href = '/dashboard';
-			cta.textContent = 'Go to dashboard →';
-		} else {
-			cta.href = '/';
-			cta.textContent = 'Go home →';
+			cta.innerHTML = '<span class="err__btn-icon">📊</span> Dashboard';
 		}
+	});
+
+	// Rotate fun facts
+	const facts = [
+		'The average American wastes $219/month on forgotten subscriptions.',
+		'73% of people forget at least one active subscription.',
+		'Free trials that auto-convert cost consumers $2.5B annually.',
+		'The average person has 12 active subscriptions right now.',
+		'Most subscription cancellations take under 3 minutes with CancelKits.',
+	];
+	const factEl = document.getElementById('fun-fact-text');
+	if (factEl) {
+		factEl.textContent = facts[Math.floor(Math.random() * facts.length)];
+	}
+
+	// Ghost eye tracking
+	const eyes = document.querySelectorAll('.err__ghost-eye');
+	document.addEventListener('mousemove', (e) => {
+		eyes.forEach((eye) => {
+			const rect = (eye as HTMLElement).getBoundingClientRect();
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 2;
+			const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
+			const dist = 2.5;
+			(eye as HTMLElement).style.setProperty('--ex', `${Math.cos(angle) * dist}px`);
+			(eye as HTMLElement).style.setProperty('--ey', `${Math.sin(angle) * dist}px`);
+		});
 	});
 </script>
 
@@ -50,16 +114,19 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 		text-align: center;
 		padding: 2.5rem 1.25rem;
 		background:
-			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.06), transparent 70%),
 			#050505;
+		overflow: hidden;
 	}
 
+	/* Logo */
 	.err__logo {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
-		margin-bottom: 2.5rem;
+		margin-bottom: 2rem;
+		animation: fadeDown 0.6s ease-out;
 	}
 
 	.err__logo-icon {
@@ -87,6 +154,139 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 		color: var(--color-accent);
 	}
 
+	/* Ghost illustration */
+	.err__illustration {
+		position: relative;
+		width: 140px;
+		height: 160px;
+		margin-bottom: 1.5rem;
+	}
+
+	.err__ghost {
+		position: relative;
+		animation: ghostFloat 3s ease-in-out infinite;
+	}
+
+	.err__ghost-body {
+		width: 100px;
+		height: 90px;
+		background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+		border-radius: 50px 50px 0 0;
+		margin: 0 auto;
+		position: relative;
+		border: 1px solid rgba(0, 255, 136, 0.15);
+		border-bottom: none;
+	}
+
+	.err__ghost-face {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.err__ghost-eyes {
+		display: flex;
+		gap: 18px;
+	}
+
+	.err__ghost-eye {
+		width: 12px;
+		height: 12px;
+		background: #fff;
+		border-radius: 50%;
+		position: relative;
+	}
+
+	.err__ghost-eye::after {
+		content: '';
+		position: absolute;
+		width: 6px;
+		height: 6px;
+		background: var(--color-accent);
+		border-radius: 50%;
+		top: 50%;
+		left: 50%;
+		transform: translate(
+			calc(-50% + var(--ex, 0px)),
+			calc(-50% + var(--ey, 0px))
+		);
+		transition: transform 0.1s ease;
+	}
+
+	.err__ghost-mouth {
+		width: 14px;
+		height: 8px;
+		border: 2px solid #555;
+		border-top: none;
+		border-radius: 0 0 14px 14px;
+	}
+
+	.err__ghost-tail {
+		display: flex;
+		margin: 0 auto;
+		width: 100px;
+	}
+
+	.err__ghost-wave {
+		flex: 1;
+		height: 16px;
+		background: #1a1a1a;
+		border: 1px solid rgba(0, 255, 136, 0.15);
+		border-top: none;
+	}
+
+	.err__ghost-wave:nth-child(1) {
+		border-radius: 0 0 0 50%;
+		border-right: none;
+	}
+
+	.err__ghost-wave:nth-child(2) {
+		border-radius: 0 0 50% 50%;
+		border-left: none;
+		border-right: none;
+		transform: translateY(6px);
+	}
+
+	.err__ghost-wave:nth-child(3) {
+		border-radius: 0 0 50% 0;
+		border-left: none;
+	}
+
+	.err__ghost-shadow {
+		width: 60px;
+		height: 8px;
+		background: rgba(0, 255, 136, 0.08);
+		border-radius: 50%;
+		margin: 20px auto 0;
+		animation: shadowPulse 3s ease-in-out infinite;
+	}
+
+	/* Floating particles */
+	.err__particles {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
+	.err__particle {
+		position: absolute;
+		font-size: 0.85rem;
+		opacity: 0;
+		animation: particleDrift 4s ease-in-out infinite;
+	}
+
+	.err__particle--1 { top: 10%; left: 5%; animation-delay: 0s; color: var(--color-danger); }
+	.err__particle--2 { top: 20%; right: 5%; animation-delay: 0.8s; color: var(--color-accent); }
+	.err__particle--3 { bottom: 30%; left: 0; animation-delay: 1.6s; color: var(--color-danger); }
+	.err__particle--4 { top: 5%; right: 20%; animation-delay: 2.4s; }
+	.err__particle--5 { bottom: 20%; right: 5%; animation-delay: 3.2s; color: var(--color-danger); }
+
+	/* Text */
 	.err__code {
 		margin: 0 0 0.75rem;
 		font-family: var(--font-mono);
@@ -94,6 +294,7 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 		font-weight: 600;
 		letter-spacing: 0.14em;
 		color: var(--color-faint);
+		animation: fadeUp 0.5s ease-out 0.2s both;
 	}
 
 	.err h1 {
@@ -104,34 +305,63 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 		letter-spacing: -0.04em;
 		line-height: 1.15;
 		color: #fff;
-		max-width: 18ch;
+		max-width: 20ch;
+		animation: fadeUp 0.5s ease-out 0.3s both;
+	}
+
+	.err__strike {
+		position: relative;
+		color: var(--color-accent);
+	}
+
+	.err__strike::after {
+		content: '';
+		position: absolute;
+		left: -4px;
+		right: -4px;
+		top: 50%;
+		height: 3px;
+		background: var(--color-danger);
+		border-radius: 2px;
+		transform: rotate(-1deg);
+		animation: strikeThrough 0.6s ease-out 0.8s both;
 	}
 
 	.err__sub {
 		margin: 0.9rem 0 0;
 		color: var(--color-muted);
 		font-size: 1.05rem;
+		max-width: 36ch;
+		animation: fadeUp 0.5s ease-out 0.4s both;
 	}
 
+	/* Action buttons */
 	.err__actions {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-		gap: 0.75rem;
+		gap: 0.65rem;
 		margin-top: 2rem;
+		animation: fadeUp 0.5s ease-out 0.5s both;
 	}
 
 	.err__btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.85rem 1.35rem;
+		gap: 0.5rem;
+		padding: 0.75rem 1.25rem;
 		border-radius: var(--radius-pill);
-		font-weight: 700;
-		font-size: 0.95rem;
+		font-weight: 600;
+		font-size: 0.9rem;
 		text-decoration: none;
 		transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+		min-height: 48px;
+	}
+
+	.err__btn-icon {
+		font-size: 1rem;
 	}
 
 	.err__btn--primary {
@@ -140,18 +370,94 @@ const description = 'This page got cancelled too. Head home or open your dashboa
 	}
 
 	.err__btn--primary:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 6px 22px rgba(0, 255, 136, 0.28);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(0, 255, 136, 0.25);
 	}
 
 	.err__btn--ghost {
 		border: 1px solid var(--color-border);
 		background: transparent;
-		color: #ddd;
+		color: #ccc;
 	}
 
 	.err__btn--ghost:hover {
-		background: #111;
+		background: rgba(255, 255, 255, 0.04);
 		border-color: var(--color-border-hover);
+		color: #fff;
+	}
+
+	/* Fun fact */
+	.err__fun-fact {
+		margin-top: 3rem;
+		padding: 1rem 1.5rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		background: var(--color-surface);
+		max-width: 26rem;
+		animation: fadeUp 0.5s ease-out 0.7s both;
+	}
+
+	.err__fun-label {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		margin-bottom: 0.5rem;
+	}
+
+	.err__fun-fact p {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.5;
+	}
+
+	/* Animations */
+	@keyframes ghostFloat {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-12px); }
+	}
+
+	@keyframes shadowPulse {
+		0%, 100% { transform: scale(1); opacity: 0.6; }
+		50% { transform: scale(0.75); opacity: 0.3; }
+	}
+
+	@keyframes particleDrift {
+		0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+		20% { opacity: 0.7; }
+		100% { opacity: 0; transform: translateY(-40px) rotate(180deg); }
+	}
+
+	@keyframes fadeUp {
+		from { opacity: 0; transform: translateY(16px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes fadeDown {
+		from { opacity: 0; transform: translateY(-12px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes strikeThrough {
+		from { transform: scaleX(0) rotate(-1deg); transform-origin: left; }
+		to { transform: scaleX(1) rotate(-1deg); transform-origin: left; }
+	}
+
+	@media (max-width: 480px) {
+		.err { padding: 2rem 1rem; }
+		.err__actions { flex-direction: column; width: 100%; max-width: 18rem; }
+		.err__btn { width: 100%; }
+		.err__fun-fact { margin-left: 0.5rem; margin-right: 0.5rem; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.err__ghost, .err__ghost-shadow, .err__particle { animation: none; }
+		.err__particle { opacity: 0.4; }
+		.err__strike::after { animation: none; transform: scaleX(1) rotate(-1deg); }
+		.err__logo, .err__code, .err h1, .err__sub, .err__actions, .err__fun-fact { animation: none; }
 	}
 </style>

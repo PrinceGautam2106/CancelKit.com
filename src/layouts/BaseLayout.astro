@@ -2,13 +2,139 @@
 import '../styles/global.css';
 import CookieBanner from '../components/CookieBanner.astro';
 
-interface Props { title?: string; description?: string; ogImage?: string; lang?: string; }
-const { title = 'CancelKit — Cancel subscriptions with confidence', description = 'CancelKit helps you find, manage, and cancel unwanted subscriptions in minutes.', ogImage = '/og/cancelkit.png', lang = 'en' } = Astro.props;
+interface Props {
+	title?: string;
+	description?: string;
+	ogImage?: string;
+	ogTitle?: string;
+	ogDescription?: string;
+	twitterTitle?: string;
+	twitterDescription?: string;
+	lang?: string;
+	keywords?: string;
+	robots?: string;
+	canonicalPath?: string;
+	schemas?: Record<string, unknown>[];
+	noIndex?: boolean;
+	/** Emit WebSite + SoftwareApplication (homepage only) */
+	isHome?: boolean;
+	/** Emit hreflang cluster — only when true locale alternates exist */
+	hreflang?: 'home' | 'none';
+}
+
+const {
+	title = 'CancelKits — Cancel Subscriptions & Stop Recurring Charges Instantly',
+	description = 'CancelKits finds every subscription draining your money and cancels them in one click. Stop forgotten recurring charges. Free to start — no credit card needed.',
+	ogImage = '/og/homepage.png',
+	ogTitle,
+	ogDescription,
+	twitterTitle,
+	twitterDescription,
+	lang = 'en',
+	keywords = 'cancel subscriptions, subscription cancellation, stop recurring charges, cancel subscriptions online, subscription tracker, find forgotten subscriptions, cancel all subscriptions, subscription manager, cancel membership online',
+	robots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+	canonicalPath,
+	schemas = [],
+	noIndex = false,
+	isHome = false,
+	hreflang = 'none',
+} = Astro.props;
+
 const siteUrl = Astro.site ?? new URL('https://cancelkits.com');
-const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+
+function withTrailingSlash(path: string): string {
+	if (path === '') return '/';
+	return path.endsWith('/') ? path : `${path}/`;
+}
+
+const rawPath = canonicalPath ?? Astro.url.pathname;
+const pathForCanonical = withTrailingSlash(rawPath === '' ? '/' : rawPath);
+const canonicalUrl = new URL(pathForCanonical, siteUrl).href;
 const imageUrl = new URL(ogImage, siteUrl).href;
-const languagePath = Astro.url.pathname === '/' ? '' : Astro.url.pathname;
-const applicationSchema = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'CancelKit', applicationCategory: 'FinanceApplication', operatingSystem: 'Web', description, url: siteUrl.href };
+const resolvedOgTitle = ogTitle ?? title;
+const resolvedOgDescription = ogDescription ?? description;
+const resolvedTwitterTitle = twitterTitle ?? resolvedOgTitle;
+const resolvedTwitterDescription = twitterDescription ?? resolvedOgDescription;
+const robotsContent = noIndex ? 'noindex, nofollow' : robots;
+
+const ogLocaleMap: Record<string, string> = {
+	en: 'en_US',
+	es: 'es_ES',
+	fr: 'fr_FR',
+	de: 'de_DE',
+	pt: 'pt_BR',
+};
+
+const applicationSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'CancelKits',
+	applicationCategory: 'FinanceApplication',
+	operatingSystem: 'Web',
+	url: 'https://cancelkits.com/',
+	description:
+		'CancelKits is a subscription cancellation tool that finds recurring charges from your inbox and helps you cancel unwanted subscriptions in one click.',
+	offers: [
+		{
+			'@type': 'Offer',
+			name: 'Free Plan',
+			price: '0',
+			priceCurrency: 'USD',
+			description: 'Scan subscriptions and use cancel guides free',
+		},
+		{
+			'@type': 'Offer',
+			name: 'Pro Plan',
+			price: '9.00',
+			priceCurrency: 'USD',
+			description: 'Unlimited scanning and one-click cancellation',
+		},
+	],
+	featureList: [
+		'Automatic subscription detection from email receipts',
+		'One-click cancellation for major services',
+		'Renewal date alerts',
+		'Savings dashboard',
+		'50+ service cancel guides',
+	],
+};
+
+const websiteSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	name: 'CancelKits',
+	url: 'https://cancelkits.com/',
+	description: 'Cancel any subscription instantly. Find forgotten charges. Stop recurring payments.',
+};
+
+const organizationSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Organization',
+	name: 'CancelKits',
+	url: 'https://cancelkits.com/',
+	logo: 'https://cancelkits.com/favicon.svg',
+	sameAs: ['https://twitter.com/cancelkits', 'https://linkedin.com/company/cancelkits'],
+	contactPoint: {
+		'@type': 'ContactPoint',
+		contactType: 'customer support',
+		email: 'hello@cancelkits.com',
+		availableLanguage: ['English', 'Spanish', 'French', 'German', 'Portuguese'],
+	},
+};
+
+const defaultSchemas = isHome
+	? [organizationSchema, websiteSchema, applicationSchema]
+	: [organizationSchema];
+const allSchemas = [...defaultSchemas, ...schemas];
+
+const homeHreflang = [
+	{ lang: 'en', href: 'https://cancelkits.com/' },
+	{ lang: 'es', href: 'https://cancelkits.com/es/' },
+	{ lang: 'fr', href: 'https://cancelkits.com/fr/' },
+	{ lang: 'de', href: 'https://cancelkits.com/de/' },
+	{ lang: 'pt', href: 'https://cancelkits.com/pt/' },
+	{ lang: 'x-default', href: 'https://cancelkits.com/' },
+];
 ---
 
 <!doctype html>
@@ -17,29 +143,44 @@ const applicationSchema = { '@context': 'https://schema.org', '@type': 'Software
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
+		{keywords && <meta name="keywords" content={keywords} />}
+		<meta name="robots" content={robotsContent} />
 		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#050505" />
+		<meta name="msapplication-TileColor" content="#050505" />
 		<link rel="canonical" href={canonicalUrl} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 		<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
 		<meta property="og:type" content="website" />
-		<meta property="og:site_name" content="CancelKit" />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
+		<meta property="og:site_name" content="CancelKits" />
+		<meta property="og:locale" content={ogLocaleMap[lang] ?? 'en_US'} />
+		<meta property="og:title" content={resolvedOgTitle} />
+		<meta property="og:description" content={resolvedOgDescription} />
 		<meta property="og:image" content={imageUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="CancelKits — find and cancel forgotten subscriptions" />
 		<meta property="og:url" content={canonicalUrl} />
+
 		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
+		<meta name="twitter:site" content="@cancelkits" />
+		<meta name="twitter:creator" content="@cancelkits" />
+		<meta name="twitter:title" content={resolvedTwitterTitle} />
+		<meta name="twitter:description" content={resolvedTwitterDescription} />
 		<meta name="twitter:image" content={imageUrl} />
-		<link rel="alternate" hreflang="en" href={new URL(languagePath || '/', siteUrl).href} />
-		<link rel="alternate" hreflang="es" href={new URL(`/es${languagePath}`, siteUrl).href} />
-		<link rel="alternate" hreflang="fr" href={new URL(`/fr${languagePath}`, siteUrl).href} />
-		<link rel="alternate" hreflang="de" href={new URL(`/de${languagePath}`, siteUrl).href} />
-		<link rel="alternate" hreflang="pt" href={new URL(`/pt${languagePath}`, siteUrl).href} />
-		<script type="application/ld+json" set:html={JSON.stringify(applicationSchema)}></script>
+		<meta name="twitter:image:alt" content="CancelKits subscription cancellation dashboard" />
+
+		{hreflang === 'home' &&
+			homeHreflang.map((item) => <link rel="alternate" hreflang={item.lang} href={item.href} />)}
+
+		{allSchemas.map((schema) => (
+			<script type="application/ld+json" set:html={JSON.stringify(schema)} />
+		))}
 		<title>{title}</title>
 		<slot name="head" />
 	</head>

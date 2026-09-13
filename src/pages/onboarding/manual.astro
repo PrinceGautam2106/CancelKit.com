@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { services } from '../../data/services';
 
-const title = 'Add Subscriptions Manually — CancelKit';
+const title = 'Add Subscriptions Manually — CancelKits';
 const description = 'Add your recurring subscriptions manually without connecting an email inbox.';
 
 const serviceOptions = services.map((s) => ({
@@ -15,12 +15,12 @@ const priceMapJson = JSON.stringify(
 );
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} noIndex>
 	<main class="manual-page">
 		<div class="manual-card">
-			<a class="manual-logo" href="/" aria-label="CancelKit home">
+			<a class="manual-logo" href="/" aria-label="CancelKits home">
 				<span class="manual-logo__icon">C</span>
-				<span class="manual-logo__text">Cancel<span>K<span class="manual-logo__accent">i</span>t</span></span>
+				<span class="manual-logo__text">Cancel<span>K<span class="manual-logo__accent">i</span>ts</span></span>
 			</a>
 
 			<header class="manual-header">

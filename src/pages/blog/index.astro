@@ -12,7 +12,7 @@ const allPosts = (await getCollection('blog')).sort(
 const featuredPost = allPosts[0];
 const remainingPosts = allPosts.slice(1);
 
-const title = 'CancelKit Blog — Stop Recurring Charges, Cancel Subscriptions & Save Money';
+const title = 'CancelKits Blog — Stop Recurring Charges, Cancel Subscriptions & Save Money';
 const description =
 	'Actionable guides to cancel subscriptions, block stubborn recurring payments, spot free trial traps, and claw back money from surprise charges.';
 
@@ -25,7 +25,7 @@ function formatDate(date: Date) {
 const blogSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'Blog',
-	name: 'CancelKit Blog',
+	name: 'CancelKits Blog',
 	description,
 	url: 'https://cancelkits.com/blog',
 	blogPost: allPosts.map((post) => ({
@@ -172,7 +172,7 @@ const blogSchema = {
 			<div class="blog__promo-content">
 				<span class="blog__promo-tag">FAST CANCEL PROTOCOL</span>
 				<h2>Don't want to cancel by hand?</h2>
-				<p>CancelKit scans your inbox for recurring billing receipts in 30 seconds and cancels unwanted subscriptions with one click.</p>
+				<p>CancelKits scans your inbox for recurring billing receipts in 30 seconds and cancels unwanted subscriptions with one click.</p>
 				<div class="blog__promo-actions">
 					<a href="/start" class="blog__promo-button">Scan My Subscriptions Free →</a>
 					<span class="blog__promo-fine">Zero credit card needed · Read-only access</span>

@@ -1,6 +1,5 @@
 ---
 import type { Translation } from '../i18n/translations';
-import SavingsCounter from '../components/SavingsCounter.astro';
 
 const subscriptions = ['Netflix', 'Spotify', 'Adobe', 'Hulu', 'Disney+', 'Planet Fitness', 'NYT', 'Audible', 'Canva', 'NordVPN'];
 interface Props { t?: Translation; }
@@ -12,14 +11,13 @@ const { t } = Astro.props;
 
 	<div class="hero__content">
 		<div class="hero__intro fade-in-up">
-			<p class="hero__eyebrow"><span class="hero__dot"></span> STOP PAYING FOR STUFF YOU DON'T USE</p>
+			<p class="hero__eyebrow"><span class="hero__dot"></span> CANCEL SUBSCRIPTIONS · STOP RECURRING CHARGES</p>
 			<h1 id="hero-title" class="hero__title">
-				<span>{t?.hero_headline_1 ?? "You're paying for"}</span>
-				<span class="hero__title-accent">{t?.hero_headline_2 ?? '8 subscriptions'}</span>
-				<span>{t?.hero_headline_3 ?? 'you forgot about.'}</span>
+				<span>Cancel any subscription instantly —</span>
+				<span class="hero__title-accent">find what's draining you</span>
 			</h1>
 			<p class="hero__description">
-				{t?.hero_sub ?? 'The average American wastes $219/month on forgotten subscriptions. CancelKit finds them. CancelKit kills them.'}
+				{t?.hero_sub ?? 'The average American wastes $219/month on forgotten subscriptions. CancelKits finds them. CancelKits helps you cancel them.'}
 			</p>
 		</div>
 
@@ -36,28 +34,30 @@ const { t } = Astro.props;
 				/>
 				<button class="hero__button" type="submit">{t?.cta_button ?? 'Find my subscriptions →'}</button>
 			</div>
-			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card required · Scans in 30 seconds'}</p>
+			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card required · Free subscription audit in 30 seconds'}</p>
 		</form>
 
-		<div class="hero__proof fade-in-up stagger-2" aria-label="CancelKit customer results">
-			<div class="hero__counter">
-				<SavingsCounter variant="hero" initial={2_341_882} />
-			</div>
-			<div class="hero__stat-row">
+		<div class="hero__proof fade-in-up stagger-2" aria-label="CancelKits product highlights">
+			<div class="hero__stat-row hero__stat-row--solo">
 				<div class="hero__stat">
-					<strong>47,293</strong>
-					<span>subscriptions cancelled</span>
+					<strong>$219/mo</strong>
+					<span>avg. wasted on forgotten subscriptions</span>
 				</div>
 				<div class="hero__divider" aria-hidden="true"></div>
 				<div class="hero__stat">
-					<strong>4.9 ★</strong>
-					<span>from 12k+ reviews</span>
+					<strong>50+</strong>
+					<span>verified cancel guides</span>
+				</div>
+				<div class="hero__divider" aria-hidden="true"></div>
+				<div class="hero__stat">
+					<strong>30 sec</strong>
+					<span>free subscription scan</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="hero__ticker fade-in-up stagger-3" aria-label="Services cancelled with CancelKit">
+	<div class="hero__ticker fade-in-up stagger-3" aria-label="Services cancelled with CancelKits">
 		<div class="hero__ticker-track">
 			<div class="hero__ticker-group">
 				{subscriptions.map((s) => <span class="hero__ticker-pill">{s}</span>)}
@@ -239,11 +239,17 @@ const { t } = Astro.props;
 	.hero__stat-row {
 		display: flex;
 		justify-content: center;
-		align-items: center;
+		align-items: stretch;
+		flex-wrap: wrap;
+		gap: 0;
 		padding: 0.85rem 1.25rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-card);
 		background: var(--color-surface);
+	}
+
+	.hero__stat-row--solo {
+		width: min(100%, 42rem);
 	}
 
 	.hero__stat {

@@ -1,6 +1,6 @@
 /**
  * Shared email layout shell.
- * Every CancelKit transactional email wraps its body in this HTML scaffold.
+ * Every CancelKits transactional email wraps its body in this HTML scaffold.
  * Inline styles only — email clients strip <style> blocks.
  *
  * Design tokens (mapped from global.css):
@@ -37,7 +37,7 @@ export function emailLayout(body: string, options: LayoutOptions = {}): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>CancelKit</title>
+  <title>CancelKits</title>
 </head>
 <body style="margin:0;padding:0;background-color:#050505;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
   <!-- Preheader (hidden inbox preview text) -->
@@ -53,7 +53,7 @@ export function emailLayout(body: string, options: LayoutOptions = {}): string {
             <td style="padding-bottom:32px;">
               <a href="${SITE_URL}" style="text-decoration:none;display:inline-flex;align-items:center;">
                 <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;border-radius:7px;background-color:#00ff88;color:#000000;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;">C</span>
-                <span style="margin-left:8px;font-family:'Geist',sans-serif;font-size:18px;font-weight:600;letter-spacing:-0.04em;color:#ffffff;">Cancel<span style="color:#00ff88;">Kit</span></span>
+                <span style="margin-left:8px;font-family:'Geist',sans-serif;font-size:18px;font-weight:600;letter-spacing:-0.04em;color:#ffffff;">Cancel<span style="color:#00ff88;">Kits</span></span>
               </a>
             </td>
           </tr>
@@ -73,7 +73,7 @@ export function emailLayout(body: string, options: LayoutOptions = {}): string {
           <tr>
             <td style="padding:28px 0 0;text-align:center;">
               <p style="margin:0 0 6px;font-size:12px;color:#555555;">
-                CancelKit · Cancel subscriptions you forgot about
+                CancelKits · Cancel subscriptions you forgot about
               </p>
               <p style="margin:0 0 6px;font-size:12px;color:#555555;">
                 <a href="${SITE_URL}/dashboard" style="color:#888888;text-decoration:underline;">Dashboard</a>
@@ -83,7 +83,7 @@ export function emailLayout(body: string, options: LayoutOptions = {}): string {
                 <a href="${unsubLink}" style="color:#888888;text-decoration:underline;">Unsubscribe</a>
               </p>
               <p style="margin:12px 0 0;font-size:11px;color:#444444;">
-                © ${year} CancelKit. You received this email because you have a CancelKit account.
+                © ${year} CancelKits. You received this email because you have a CancelKits account.
               </p>
             </td>
           </tr>

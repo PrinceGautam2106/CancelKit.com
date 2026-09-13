@@ -29,7 +29,7 @@ const relatedPosts = (allPosts || [])
 	.sort((a, b) => (a.data.category === category ? -1 : 1))
 	.slice(0, 3);
 
-const title = `${post.data.title} | CancelKit Intelligence`;
+const title = `${post.data.title} | CancelKits Intelligence`;
 const description = post.data.description;
 
 const articleSchema = {
@@ -42,12 +42,12 @@ const articleSchema = {
 	keywords: (post.data.keywords || []).join(', '),
 	author: {
 		'@type': 'Organization',
-		name: 'CancelKit Research',
+		name: 'CancelKits Research',
 		url: 'https://cancelkits.com',
 	},
 	publisher: {
 		'@type': 'Organization',
-		name: 'CancelKit',
+		name: 'CancelKits',
 		url: 'https://cancelkits.com',
 		logo: {
 			'@type': 'ImageObject',
@@ -101,7 +101,7 @@ function formatDate(date: Date) {
 				<div class="post__author-strip">
 					<div class="post__author-avatar" aria-hidden="true">CK</div>
 					<div class="post__author-info">
-						<span class="post__author-name">CancelKit Research Team</span>
+						<span class="post__author-name">CancelKits Research Team</span>
 						<span class="post__author-meta">
 							<span>Published {formatDate(post.data.publishDate)}</span>
 							<span class="dot" aria-hidden="true">·</span>
@@ -127,7 +127,7 @@ function formatDate(date: Date) {
 					<li>Identify whether charges originate from Apple/Google App Stores, merchant direct billing, or automated bank debits.</li>
 					<li>Always revoke authorization in writing to create an official paper trail before filing disputes.</li>
 					<li>Act within 48 to 72 hours of an accidental charge for the highest refund approval rate.</li>
-					<li>Use read-only scanning like CancelKit to catch renewal dates 7 days before charges hit.</li>
+					<li>Use read-only scanning like CancelKits to catch renewal dates 7 days before charges hit.</li>
 				</ul>
 			</aside>
 
@@ -142,7 +142,7 @@ function formatDate(date: Date) {
 				<div class="post__action-content">
 					<span class="post__action-tag">ONE-CLICK EXIT</span>
 					<h2 id="action-box-heading">Ready to see what's quietly draining your card?</h2>
-					<p>CancelKit securely scans your inbox receipts in 30 seconds. You see every active charge, renewal date, and total monthly burn.</p>
+					<p>CancelKits securely scans your inbox receipts in 30 seconds. You see every active charge, renewal date, and total monthly burn.</p>
 					
 					<form class="post__action-form" action="/start" method="get">
 						<input

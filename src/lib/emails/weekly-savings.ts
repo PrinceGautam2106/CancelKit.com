@@ -1,7 +1,7 @@
 /**
  * weekly-savings.ts — Sent every Sunday.
  *
- * Subject: "Your CancelKit recap: $X saved this week"
+ * Subject: "Your CancelKits recap: $X saved this week"
  *
  * Includes viral "Share your savings" Twitter/X button.
  * Achievement badge system encourages engagement.
@@ -32,7 +32,7 @@ export interface WeeklySavingsData {
 }
 
 export function weeklySavingsSubject(data: WeeklySavingsData): string {
-	return `Your CancelKit recap: $${data.savedThisWeek} saved this week`;
+	return `Your CancelKits recap: $${data.savedThisWeek} saved this week`;
 }
 
 export function weeklySavingsHtml(data: WeeklySavingsData): string {
@@ -40,7 +40,7 @@ export function weeklySavingsHtml(data: WeeklySavingsData): string {
 	const hasCancellations = data.cancelledThisWeek.length > 0;
 
 	const tweetText = encodeURIComponent(
-		`I've saved $${data.totalSaved} on subscriptions I forgot about using @CancelKit 💸\n\nStop paying for things you don't use → cancelkits.com`
+		`I've saved $${data.totalSaved} on subscriptions I forgot about using @CancelKits 💸\n\nStop paying for things you don't use → cancelkits.com`
 	);
 	const twitterShareUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
@@ -113,7 +113,7 @@ export function weeklySavingsHtml(data: WeeklySavingsData): string {
     <!-- Viral Share Section -->
     <div style="text-align:center;margin-bottom:24px;">
       <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#ffffff;">
-        You've saved $${data.totalSaved} with CancelKit 🎉
+        You've saved $${data.totalSaved} with CancelKits 🎉
       </p>
       <p style="margin:0 0 16px;font-size:13px;color:#888888;">Flex your savings and help a friend stop overpaying:</p>
       <a href="${twitterShareUrl}" style="display:inline-block;padding:10px 20px;border-radius:100px;background-color:#1DA1F2;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;">
@@ -131,7 +131,7 @@ export function weeklySavingsHtml(data: WeeklySavingsData): string {
   `;
 
 	return emailLayout(body, {
-		preheader: `You saved $${data.savedThisWeek} this week. Total: $${data.totalSaved} with CancelKit.`,
+		preheader: `You saved $${data.savedThisWeek} this week. Total: $${data.totalSaved} with CancelKits.`,
 		userId: data.userId,
 		email: data.email,
 	});

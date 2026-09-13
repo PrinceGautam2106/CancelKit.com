@@ -8,7 +8,10 @@ import Features from '../../sections/Features.astro';
 import HowItWorks from '../../sections/HowItWorks.astro';
 import Pricing from '../../sections/Pricing.astro';
 import TestimonialGrid from '../../components/TestimonialGrid.astro';
+import FAQ from '../../sections/FAQ.astro';
 import CTABand from '../../sections/CTABand.astro';
+import SeoContent from '../../sections/SeoContent.astro';
+import { buildFaqPageSchema } from '../../data/faqs';
 import { locales, translations, type Locale } from '../../i18n/translations';
 
 export function getStaticPaths() {
@@ -17,9 +20,18 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Locale;
 const t = translations[lang];
+const faqSchema = buildFaqPageSchema();
 ---
 
-<BaseLayout lang={lang} title={t.meta_title} description={t.meta_description}>
+<BaseLayout
+	lang={lang}
+	title={t.meta_title}
+	description={t.meta_description}
+	canonicalPath={`/${lang}/`}
+	schemas={[faqSchema]}
+	isHome
+	hreflang="home"
+>
 	<Nav />
 	<main>
 		<Hero t={t} />
@@ -28,6 +40,8 @@ const t = translations[lang];
 		<HowItWorks t={t} />
 		<Pricing t={t} />
 		<TestimonialGrid limit={6} />
+		<SeoContent />
+		<FAQ />
 		<CTABand />
 	</main>
 	<Footer />

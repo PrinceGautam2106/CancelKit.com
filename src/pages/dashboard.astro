@@ -8,22 +8,22 @@ import NothingCancelled from '../components/NothingCancelled.astro';
 import AllCancelled from '../components/AllCancelled.astro';
 import LoadingCard from '../components/LoadingCard.astro';
 
-const title = 'Dashboard — CancelKit';
+const title = 'Dashboard — CancelKits';
 const description = 'See every subscription draining your account and cancel what you do not need.';
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} noIndex>
 	<div class="dash" data-dashboard data-connected="false" data-loading="true">
 		<!-- LOADING SKELETON -->
 		<section class="dash__loading" data-loading-state aria-busy="true">
-			<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+			<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>ts</span></a>
 			<LoadingCard rows={6} />
 		</section>
 
 		<!-- CONNECT EMPTY STATE -->
 		<section class="dash__empty" data-empty-state hidden aria-labelledby="empty-title">
 			<div class="dash__empty-inner">
-				<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+				<a class="dash__wordmark" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>ts</span></a>
 				<h1 id="empty-title">Connect your email to see what's draining you</h1>
 				<p class="dash__empty-copy">We’ll scan receipts for recurring charges. Nothing is cancelled until you say so.</p>
 				<div class="dash__empty-actions">
@@ -37,7 +37,7 @@ const description = 'See every subscription draining your account and cancel wha
 		<!-- APP SHELL -->
 		<div class="dash__shell" data-app-shell hidden>
 			<aside class="dash__sidebar" aria-label="Dashboard navigation">
-				<a class="dash__wordmark dash__wordmark--side" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>t</span></a>
+				<a class="dash__wordmark dash__wordmark--side" href="/">Cancel<span>K<span class="dash__wordmark-i">i</span>ts</span></a>
 				<nav class="dash__nav">
 					<a class="is-active" href="/dashboard" data-nav="dashboard">Dashboard</a>
 					<a href="#subscriptions" data-nav="subscriptions">Subscriptions</a>
@@ -64,7 +64,7 @@ const description = 'See every subscription draining your account and cancel wha
 					<div class="dash__upgrade-text">
 						<span class="dash__upgrade-icon">🎉</span>
 						<div>
-							<strong>Welcome to CancelKit Pro!</strong>
+							<strong>Welcome to CancelKits Pro!</strong>
 							<p>All 14 subscriptions unlocked. Instant 1-click cancellation and renewal radar active.</p>
 						</div>
 					</div>
@@ -177,7 +177,7 @@ const description = 'See every subscription draining your account and cancel wha
 				<div class="dash__stat">
 					<p class="dash__stat-label" id="burn-heading">Monthly burn</p>
 					<p class="dash__stat-value dash__stat-value--danger" data-burn-before>$0/mo</p>
-					<p class="dash__stat-meta">Before CancelKit</p>
+					<p class="dash__stat-meta">Before CancelKits</p>
 				</div>
 
 				<div class="dash__arrow" aria-hidden="true">↓</div>
@@ -248,7 +248,7 @@ const description = 'See every subscription draining your account and cancel wha
 				</h2>
 				<p class="viral-modal-sub">
 					Know someone paying for subscriptions they forgot about?<br/>
-					<strong>Share CancelKit → you both get a free month.</strong>
+					<strong>Share CancelKits → you both get a free month.</strong>
 				</p>
 
 				<div class="viral-referral-box">
@@ -554,7 +554,7 @@ const description = 'See every subscription draining your account and cancel wha
 			const saved = allCancelledEl?.querySelector<HTMLElement>('[data-saved-total]');
 			const share = allCancelledEl?.querySelector<HTMLAnchorElement>('[data-share-savings]');
 			if (saved) saved.textContent = money(yearly);
-			if (share) share.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just cancelled every subscription on my list and saved ${money(yearly)} a year with CancelKit. ⚡`)}`;
+			if (share) share.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just cancelled every subscription on my list and saved ${money(yearly)} a year with CancelKits. ⚡`)}`;
 		}
 
 		const gateWrap = document.getElementById('dash-gate-wrap');
@@ -619,14 +619,14 @@ const description = 'See every subscription draining your account and cancel wha
 
 		if (twitterBtn) {
 			const text = encodeURIComponent(
-				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with @CancelKit 🎉 Try it free: ${referralUrl}`
+				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with @CancelKits 🎉 Try it free: ${referralUrl}`
 			);
 			twitterBtn.href = `https://twitter.com/intent/tweet?text=${text}`;
 		}
 
 		if (waBtn) {
 			const text = encodeURIComponent(
-				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with CancelKit 🎉 Get your first month free: ${referralUrl}`
+				`I just cancelled ${serviceName} and saved $${monthlyAmount.toFixed(2)}/month with CancelKits 🎉 Get your first month free: ${referralUrl}`
 			);
 			waBtn.href = `https://api.whatsapp.com/send?text=${text}`;
 		}

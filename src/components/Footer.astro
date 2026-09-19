@@ -115,6 +115,9 @@ const topCancellations = [
 					<li role="option"><a href="/fr/" data-lang="fr"><span class="lang-flag">🇫🇷</span> Français</a></li>
 					<li role="option"><a href="/de/" data-lang="de"><span class="lang-flag">🇩🇪</span> Deutsch</a></li>
 					<li role="option"><a href="/pt/" data-lang="pt"><span class="lang-flag">🇧🇷</span> Português</a></li>
+					<li role="option"><a href="/ja/" data-lang="ja"><span class="lang-flag">🇯🇵</span> 日本語</a></li>
+					<li role="option"><a href="/ko/" data-lang="ko"><span class="lang-flag">🇰🇷</span> 한국어</a></li>
+					<li role="option"><a href="/it/" data-lang="it"><span class="lang-flag">🇮🇹</span> Italiano</a></li>
 				</ul>
 			</div>
 
@@ -437,9 +440,9 @@ const topCancellations = [
 
 		// Detect current language from URL path
 		const langMap: Record<string, string> = {
-			en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch', pt: 'Português',
+			en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch', pt: 'Português', ja: '日本語', ko: '한국어', it: 'Italiano',
 		};
-		const pathLang = window.location.pathname.match(/^\/(es|fr|de|pt)\b/)?.[1] ?? 'en';
+		const pathLang = window.location.pathname.match(/^\/(es|fr|de|pt|ja|ko|it)\b/)?.[1] ?? 'en';
 		currentLabel.textContent = langMap[pathLang] ?? 'English';
 
 		// Highlight active language

@@ -1,15 +1,22 @@
 ---
+import type { Translation } from '../i18n/translations';
+
+interface Props {
+	t?: Translation;
+}
+
+const { t } = Astro.props;
 ---
 
 <section class="cta-band" aria-labelledby="cta-band-title">
 	<div class="cta-band__inner fade-in-up">
 		<div class="cta-band__glow" aria-hidden="true"></div>
 		<h2 id="cta-band-title" class="cta-band__title">
-			Stop paying for<br />subscriptions you forgot about.
+			{t?.cta_title ?? 'Stop paying for subscriptions you forgot about.'}
 		</h2>
-		<p class="cta-band__subtitle">Join 47,000+ people who already stopped the bleed.</p>
-		<a class="cta-band__button" href="/onboarding/connect">Start free — find my subscriptions →</a>
-		<p class="cta-band__fine">No credit card required. Scans in 30 seconds.</p>
+		<p class="cta-band__subtitle">{t?.cta_subtitle ?? 'Join 47,000+ people who already stopped the bleed.'}</p>
+		<a class="cta-band__button" href="/onboarding/connect">{t?.cta_button_text ?? 'Start free — find my subscriptions →'}</a>
+		<p class="cta-band__fine">{t?.cta_fine ?? 'No credit card required. Scans in 30 seconds.'}</p>
 	</div>
 </section>
 

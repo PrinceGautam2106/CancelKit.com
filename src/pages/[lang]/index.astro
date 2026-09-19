@@ -27,6 +27,11 @@ const faqSchema = buildFaqPageSchema();
 	lang={lang}
 	title={t.meta_title}
 	description={t.meta_description}
+	keywords={t.meta_keywords}
+	ogTitle={t.meta_title}
+	ogDescription={t.meta_description}
+	twitterTitle={t.meta_title}
+	twitterDescription={t.meta_description}
 	canonicalPath={`/${lang}/`}
 	schemas={[faqSchema]}
 	isHome
@@ -36,13 +41,13 @@ const faqSchema = buildFaqPageSchema();
 	<main>
 		<Hero t={t} />
 		<PressStrip />
-		<Features />
+		<Features t={t} />
 		<HowItWorks t={t} />
 		<Pricing t={t} />
 		<TestimonialGrid limit={6} />
 		<SeoContent />
-		<FAQ />
-		<CTABand />
+		<FAQ t={t} />
+		<CTABand t={t} />
 	</main>
 	<Footer />
 </BaseLayout>

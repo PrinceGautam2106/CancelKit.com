@@ -9,7 +9,7 @@ const { t } = Astro.props;
 		<header class="pricing__header fade-in-up">
 			<p class="pricing__eyebrow">PRICING</p>
 			<h2 id="pricing-title" class="pricing__title">{t.pricing_title}</h2>
-			<p class="pricing__subtitle">One plan. No surprise fees. Cancel anytime.</p>
+			<p class="pricing__subtitle">{t?.pricing_subtitle ?? 'One plan. No surprise fees. Cancel anytime.'}</p>
 		</header>
 
 		<article class="pricing__card fade-in-up stagger-1">
@@ -37,7 +37,7 @@ const { t } = Astro.props;
 				<span>{t.nav_start}</span>
 				<span aria-hidden="true">→</span>
 			</a>
-			<small class="pricing__fine">No credit card required for your trial.</small>
+			<small class="pricing__fine">{t?.pricing_fine ?? 'No credit card required for your trial.'}</small>
 		</article>
 
 		<p class="pricing__see-all fade-in-up stagger-2">

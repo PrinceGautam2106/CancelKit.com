@@ -25,7 +25,7 @@ export default defineConfig({
 				!page.includes('/404') &&
 				!page.includes('/500') &&
 				!page.includes('/start') &&
-				!/\/(es|fr|de|pt)\/cancel\//.test(page),
+				!/\/(es|fr|de|pt|ja|ko|it)\/cancel\//.test(page),
 
 			// Assign priority + changefreq based on page type
 			// Google says it "mostly ignores" these, but Bing, Yandex, and
@@ -69,7 +69,7 @@ export default defineConfig({
 				}
 
 				// ── i18n homepages ──
-				if (/\/(es|fr|de|pt)\/?$/.test(url)) {
+				if (/\/(es|fr|de|pt|ja|ko|it)\/?$/.test(url)) {
 					return { ...item, changefreq: 'weekly', priority: 0.6 };
 				}
 

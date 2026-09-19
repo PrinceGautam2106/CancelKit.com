@@ -1,5 +1,12 @@
 ---
+import type { Translation } from '../i18n/translations';
 import { homepageFaqs } from '../data/faqs';
+
+interface Props {
+	t?: Translation;
+}
+
+const { t } = Astro.props;
 
 const left = homepageFaqs.filter((_, i) => i % 2 === 0);
 const right = homepageFaqs.filter((_, i) => i % 2 === 1);
@@ -11,14 +18,13 @@ const iconMinus = `<svg class="faq-icon-minus" width="16" height="16" viewBox="0
 <section id="faq" class="faq-section" aria-labelledby="faq-heading">
 	<div class="faq-container">
 		<header class="faq-header">
-			<p class="faq-label">FAQ</p>
+			<p class="faq-label">{t?.faq_label ?? 'FAQ'}</p>
 			<h2 id="faq-heading" class="faq-title">
-				Frequently Asked Questions About
-				<span class="faq-title-accent">Cancelling Subscriptions</span>
+				{t?.faq_heading ?? 'Frequently Asked Questions About Cancelling Subscriptions'}
 			</h2>
 			<p class="faq-subtitle">
-				Everything you need to know about CancelKits and how to stop recurring charges.
-				Cannot find your answer? <a href="/contact" class="faq-contact-link">Contact us →</a>
+				{t?.faq_subtitle ?? 'Everything you need to know about CancelKits and how to stop recurring charges.'}
+				<a href="/contact" class="faq-contact-link">{t?.faq_contact ?? 'Contact us →'}</a>
 			</p>
 		</header>
 
@@ -48,8 +54,8 @@ const iconMinus = `<svg class="faq-icon-minus" width="16" height="16" viewBox="0
 		</div>
 
 		<div class="faq-cta-row">
-			<p class="faq-cta-text">Still have a question?</p>
-			<a href="/contact" class="faq-cta-btn">Talk to us →</a>
+			<p class="faq-cta-text">{t?.faq_still ?? 'Still have a question?'}</p>
+			<a href="/contact" class="faq-cta-btn">{t?.faq_talk ?? 'Talk to us →'}</a>
 		</div>
 	</div>
 </section>

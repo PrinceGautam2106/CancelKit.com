@@ -63,6 +63,9 @@ const ogLocaleMap: Record<string, string> = {
 	fr: 'fr_FR',
 	de: 'de_DE',
 	pt: 'pt_BR',
+	ja: 'ja_JP',
+	ko: 'ko_KR',
+	it: 'it_IT',
 };
 
 const applicationSchema = {
@@ -118,7 +121,7 @@ const organizationSchema = {
 		'@type': 'ContactPoint',
 		contactType: 'customer support',
 		email: 'hello@cancelkits.com',
-		availableLanguage: ['English', 'Spanish', 'French', 'German', 'Portuguese'],
+		availableLanguage: ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Japanese', 'Korean', 'Italian'],
 	},
 };
 
@@ -133,6 +136,9 @@ const homeHreflang = [
 	{ lang: 'fr', href: 'https://cancelkits.com/fr/' },
 	{ lang: 'de', href: 'https://cancelkits.com/de/' },
 	{ lang: 'pt', href: 'https://cancelkits.com/pt/' },
+	{ lang: 'ja', href: 'https://cancelkits.com/ja/' },
+	{ lang: 'ko', href: 'https://cancelkits.com/ko/' },
+	{ lang: 'it', href: 'https://cancelkits.com/it/' },
 	{ lang: 'x-default', href: 'https://cancelkits.com/' },
 ];
 ---

@@ -11,7 +11,7 @@ const { t } = Astro.props;
 
 	<div class="hero__content">
 		<div class="hero__intro fade-in-up">
-			<p class="hero__eyebrow"><span class="hero__dot"></span> CANCEL SUBSCRIPTIONS · STOP RECURRING CHARGES</p>
+			<p class="hero__eyebrow"><span class="hero__dot"></span> {t?.hero_eyebrow ?? 'CANCEL SUBSCRIPTIONS · STOP RECURRING CHARGES'}</p>
 			<h1 id="hero-title" class="hero__title">
 				<span>{t?.hero_headline_1 ?? 'Cancel any subscription instantly'}</span>
 				<span class="hero__title-accent">{t?.hero_headline_2 ?? "find what's draining you"}</span>
@@ -42,17 +42,17 @@ const { t } = Astro.props;
 			<div class="hero__stat-row hero__stat-row--solo">
 				<div class="hero__stat">
 					<strong>$219/mo</strong>
-					<span>avg. wasted on forgotten subscriptions</span>
+					<span>{t?.hero_stat_wasted ?? 'avg. wasted on forgotten subscriptions'}</span>
 				</div>
 				<div class="hero__divider" aria-hidden="true"></div>
 				<div class="hero__stat">
 					<strong>50+</strong>
-					<span>verified cancel guides</span>
+					<span>{t?.hero_stat_guides ?? 'verified cancel guides'}</span>
 				</div>
 				<div class="hero__divider" aria-hidden="true"></div>
 				<div class="hero__stat">
 					<strong>30 sec</strong>
-					<span>free subscription scan</span>
+					<span>{t?.hero_stat_scan ?? 'free subscription scan'}</span>
 				</div>
 			</div>
 		</div>

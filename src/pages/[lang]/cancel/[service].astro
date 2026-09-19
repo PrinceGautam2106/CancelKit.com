@@ -8,6 +8,9 @@ const titles = {
 	fr: 'Comment annuler Netflix',
 	de: 'Netflix kündigen: Anleitung',
 	pt: 'Como cancelar a Netflix',
+	ja: 'Netflixの解約方法',
+	ko: '넷플릭스 해지 방법',
+	it: 'Come disdire Netflix',
 } as const;
 
 /** Localized stubs — noindex until full parity with /cancel/netflix */
@@ -17,8 +20,30 @@ export function getStaticPaths() {
 		.map((lang) => ({ params: { lang, service: 'netflix' } }));
 }
 
+const descriptions = {
+	es: 'Cómo cancelar Netflix paso a paso en 2026. Guía completa con CancelKits.',
+	fr: 'Comment annuler Netflix étape par étape en 2026. Guide complet avec CancelKits.',
+	de: 'Netflix kündigen: Schritt-für-Schritt-Anleitung 2026 mit CancelKits.',
+	pt: 'Como cancelar a Netflix passo a passo em 2026. Guia completo com CancelKits.',
+	ja: '2026年版 Netflix（ネットフリックス）の解約手順。CancelKitsで簡単手続き。',
+	ko: '2026년 넷플릭스 멤버십 해지 단계별 안내. CancelKits와 함께 빠르고 간편하게.',
+	it: 'Come disdire o cancellare l’abbonamento Netflix passo dopo passo nel 2026 con CancelKits.',
+} as const;
+
+const cancelKeywords = {
+	es: 'cancelar netflix, cómo cancelar netflix, dar de baja netflix, anular suscripción netflix',
+	fr: 'résilier netflix, comment annuler netflix, supprimer abonnement netflix, désabonnement netflix',
+	de: 'netflix kündigen, netflix abo kündigen, netflix mitgliedschaft beenden, wie kündige ich netflix',
+	pt: 'cancelar netflix, como cancelar a netflix, cancelar assinatura netflix, encerrar conta netflix',
+	ja: 'netflix 解約, ネットフリックス 解約方法, netflix 退会, netflix サブスク 解約',
+	ko: '넷플릭스 해지, 넷플릭스 구독 취소, 넷플릭스 멤버십 해지, 넷플릭스 자동결제 해제',
+	it: 'disdire netflix, come cancellare netflix, annullare abbonamento netflix, disattivare netflix',
+} as const;
+
 const lang = Astro.params.lang as Locale;
 const title = titles[lang as keyof typeof titles];
+const description = descriptions[lang as keyof typeof descriptions];
+const keywords = cancelKeywords[lang as keyof typeof cancelKeywords];
 const guide = {
 	es: [
 		'Inicia sesión en tu cuenta de Netflix.',
@@ -40,13 +65,29 @@ const guide = {
 		'Abra as configurações da sua conta.',
 		'Selecione cancelar assinatura e confirme.',
 	],
+	ja: [
+		'Netflixのアカウントにログインします。',
+		'アカウント設定を開きます。',
+		'「メンバーシップのキャンセル」を選択し、確認します。',
+	],
+	ko: [
+		'넷플릭스 계정에 로그인합니다.',
+		'계정 설정 페이지로 이동합니다.',
+		'멤버십 해지를 선택하고 확인을 누릅니다.',
+	],
+	it: [
+		'Accedi al tuo account Netflix.',
+		'Apri le impostazioni dell’account.',
+		'Seleziona "Disdici abbonamento" e conferma.',
+	],
 }[lang as keyof typeof titles];
 ---
 
 <BaseLayout
 	lang={lang}
 	title={`${title} | CancelKits`}
-	description={`${title}. Guía paso a paso con CancelKits.`}
+	description={description}
+	keywords={keywords}
 	canonicalPath={`/${lang}/cancel/netflix/`}
 	noIndex
 >

@@ -27,8 +27,8 @@ const subscriptions = [
 						<path d="m53 45 4 4 8-9" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 					</svg>
 				</div>
-				<h3>Connect your email in 30 seconds</h3>
-				<p>CancelKits scans your inbox for subscription receipts. Read-only access — we never send emails or change anything.</p>
+				<h3>{t?.step1_title ?? 'Connect your email in 30 seconds'}</h3>
+				<p>{t?.step1_desc ?? 'CancelKits scans your inbox for subscription receipts. Read-only access — we never send emails or change anything.'}</p>
 			</article>
 
 			<article class="step fade-in-up stagger-2">
@@ -42,8 +42,8 @@ const subscriptions = [
 						</div>
 					))}
 				</div>
-				<h3>See every recurring charge in one dashboard</h3>
-				<p>Your full subscription map appears in seconds — every charge, renewal date, and total monthly burn.</p>
+				<h3>{t?.step2_title ?? 'See every recurring charge in one dashboard'}</h3>
+				<p>{t?.step2_desc ?? 'Your full subscription map appears in seconds — every charge, renewal date, and total monthly burn.'}</p>
 			</article>
 
 			<article class="step fade-in-up stagger-3">
@@ -54,8 +54,8 @@ const subscriptions = [
 					<button type="button" class="cancel-mini__button">Cancel subscription <span aria-hidden="true">×</span></button>
 					<p class="cancel-mini__confirm">✓ Cancellation confirmed</p>
 				</div>
-				<h3>Cancel subscriptions with one click</h3>
-				<p>Hit cancel on anything you don't need. We help complete the cancellation. You get confirmation.</p>
+				<h3>{t?.step3_title ?? 'Cancel subscriptions with one click'}</h3>
+				<p>{t?.step3_desc ?? 'Hit cancel on anything you don’t need. We help complete the cancellation. You get confirmation.'}</p>
 			</article>
 		</div>
 

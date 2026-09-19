@@ -116,7 +116,7 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 
 	if (window.location.pathname === '/' && !localStorage.getItem('cancelkit-language')) {
 		const detected = navigator.language.slice(0, 2);
-		if (['es', 'fr', 'de', 'pt'].includes(detected)) goToLanguage(detected);
+		if (['es', 'fr', 'de', 'pt', 'ja', 'ko', 'it'].includes(detected)) goToLanguage(detected);
 	}
 
 	import { supabase } from '../lib/supabase';

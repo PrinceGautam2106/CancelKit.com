@@ -215,6 +215,35 @@ const FREE_TEASER = 5;
 		emailText.textContent = `Receipts detected for: ${userEmail}`;
 	}
 
+	// ── Phase 1: Automated Audit Report Email Dispatch ──
+	if (userEmail && userEmail.includes('@') && !sessionStorage.getItem(`cancelkit-audit-sent-${userEmail}`)) {
+		sessionStorage.setItem(`cancelkit-audit-sent-${userEmail}`, '1');
+		fetch('/api/send-email', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				template: 'audit-report',
+				to: userEmail,
+				data: {
+					email: userEmail,
+					count,
+					monthlyTotal: monthly,
+					annualTotal: annual,
+					topSubscriptions: subs.slice(0, 5).map((s) => ({
+						name: s.name,
+						category: s.category,
+						monthly: s.monthly,
+						renewsIn: s.renewsIn,
+					})),
+					renewingSoonCount: subs.filter((s) => (s.renewsIn ?? 99) <= 7).length,
+					upgradeUrl: `${window.location.origin}/pricing`,
+				},
+			}),
+		}).catch((err) => {
+			console.warn('Audit email dispatch notice:', err);
+		});
+	}
+
 	if (foundCountEl) foundCountEl.textContent = String(count);
 	if (monthlyEl) monthlyEl.textContent = formatMoney(monthly);
 	if (annualEl) annualEl.textContent = `$${formatMoney(annual)}`;

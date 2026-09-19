@@ -391,3 +391,105 @@ export function getHeuristicScan(email?: string): DetectedSubscription[] {
 		detectedFrom: email ? `Receipt verified for ${email}` : 'Verified subscription signature',
 	}));
 }
+
+export interface ParsedReceiptResult {
+	serviceId: string;
+	serviceName: string;
+	monthlyAmount: number;
+	category: string;
+	isFreeTrial: boolean;
+	trialDaysRemaining: number;
+	confidence: 'high' | 'medium';
+	detectedFrom: string;
+	color: string;
+	domain: string;
+}
+
+/**
+ * Phase 3 Real-time Receipt & Trial Parser.
+ * Analyzes an individual incoming email message to detect subscriptions, renewals, or free trials.
+ */
+export function parseIncomingEmailReceipt(params: {
+	from: string;
+	subject: string;
+	body?: string;
+}): ParsedReceiptResult | null {
+	const from = (params.from || '').toLowerCase();
+	const subject = (params.subject || '').toLowerCase();
+	const body = (params.body || '').toLowerCase();
+	const fullText = `${from} ${subject} ${body}`;
+
+	// Check for free trial signals
+	const trialSignals = [
+		'free trial',
+		'trial started',
+		'trial begins',
+		'trial period',
+		'welcome to your trial',
+		'7-day trial',
+		'14-day trial',
+		'30-day trial',
+		'trial subscription',
+	];
+	const isFreeTrial = trialSignals.some((signal) => fullText.includes(signal));
+
+	// Extract trial duration if specified
+	let trialDaysRemaining = 7;
+	if (fullText.includes('14-day') || fullText.includes('14 days')) trialDaysRemaining = 14;
+	if (fullText.includes('30-day') || fullText.includes('30 days')) trialDaysRemaining = 30;
+	if (fullText.includes('3-day') || fullText.includes('3 days')) trialDaysRemaining = 3;
+
+	// Check against known services signatures
+	for (const sig of KNOWN_SERVICES) {
+		const senderMatch = sig.senderPatterns.some((pattern) => from.includes(pattern));
+		const subjectMatch = sig.subjectPatterns.some((pattern) => subject.includes(pattern));
+		const nameMatch = fullText.includes(sig.name.toLowerCase());
+
+		if (senderMatch || (subjectMatch && nameMatch) || (nameMatch && (fullText.includes('receipt') || fullText.includes('invoice') || isFreeTrial))) {
+			const extracted = extractAmount(`${subject} ${body}`);
+			const amount = extracted && extracted > 0 ? extracted : sig.defaultPrice;
+
+			return {
+				serviceId: sig.id,
+				serviceName: sig.name,
+				monthlyAmount: amount,
+				category: sig.category,
+				isFreeTrial,
+				trialDaysRemaining,
+				confidence: senderMatch && subjectMatch ? 'high' : 'medium',
+				detectedFrom: `Live receipt: ${params.subject.slice(0, 50)}`,
+				color: sig.color,
+				domain: sig.domain,
+			};
+		}
+	}
+
+	// Generic fallback if standard invoice/receipt keywords are present
+	const isReceipt =
+		fullText.includes('subscription confirmation') ||
+		fullText.includes('recurring payment') ||
+		fullText.includes('invoice #') ||
+		fullText.includes('membership confirmation') ||
+		isFreeTrial;
+
+	if (isReceipt) {
+		const extracted = extractAmount(`${subject} ${body}`) || 14.99;
+		const cleanSubject = params.subject.replace(/receipt|invoice|your|payment|confirmation|for/gi, '').trim();
+		const name = cleanSubject.length > 2 && cleanSubject.length < 40 ? cleanSubject : 'Recurring Service';
+
+		return {
+			serviceId: name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+			serviceName: name,
+			monthlyAmount: extracted,
+			category: 'Subscription',
+			isFreeTrial,
+			trialDaysRemaining,
+			confidence: 'medium',
+			detectedFrom: `Live alert: ${params.subject.slice(0, 50)}`,
+			color: '#00ff88',
+			domain: '',
+		};
+	}
+
+	return null;
+}

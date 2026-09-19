@@ -1,0 +1,18 @@
+name: Weekly Renewal Radar
+
+on:
+  schedule:
+    # Run every Monday at 08:00 UTC (01:00 PDT / 13:30 IST)
+    - cron: '0 8 * * 1'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  dispatch-radar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CancelKits Weekly Renewal Radar
+        run: |
+          echo "Triggering Weekly Renewal Radar..."
+          curl -s -X POST https://cancelkits.com/api/cron/weekly-radar \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"

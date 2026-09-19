@@ -23,6 +23,12 @@ import {
 	paymentFailedHtml,
 	weeklySavingsSubject,
 	weeklySavingsHtml,
+	auditReportSubject,
+	auditReportHtml,
+	weeklyRenewalRadarSubject,
+	weeklyRenewalRadarHtml,
+	liveSubscriptionAlertSubject,
+	liveSubscriptionAlertHtml,
 } from '../../lib/emails';
 
 export const prerender = false;
@@ -32,7 +38,10 @@ type TemplateName =
 	| 'cancel-confirmation'
 	| 'renewal-alert'
 	| 'payment-failed'
-	| 'weekly-savings';
+	| 'weekly-savings'
+	| 'audit-report'
+	| 'weekly-renewal-radar'
+	| 'live-subscription-alert';
 
 interface SendEmailRequest {
 	template: TemplateName;
@@ -72,6 +81,21 @@ function resolveTemplate(
 			return {
 				subject: weeklySavingsSubject(data as any),
 				html: weeklySavingsHtml(data as any),
+			};
+		case 'audit-report':
+			return {
+				subject: auditReportSubject(data as any),
+				html: auditReportHtml(data as any),
+			};
+		case 'weekly-renewal-radar':
+			return {
+				subject: weeklyRenewalRadarSubject(data as any),
+				html: weeklyRenewalRadarHtml(data as any),
+			};
+		case 'live-subscription-alert':
+			return {
+				subject: liveSubscriptionAlertSubject(data as any),
+				html: liveSubscriptionAlertHtml(data as any),
 			};
 		default:
 			return null;

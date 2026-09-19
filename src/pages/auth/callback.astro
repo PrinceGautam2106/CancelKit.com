@@ -4,54 +4,113 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout title="Authenticating — CancelKits" description="Verifying your authentication session...">
 	<div class="callback-container">
-		<div class="callback-spinner"></div>
-		<p class="callback-text">Completing sign in, please wait...</p>
+		<div class="callback-card" id="callback-card">
+			<div class="callback-spinner" id="callback-spinner"></div>
+			<h2 class="callback-title" id="callback-title">Completing sign in...</h2>
+			<p class="callback-text" id="callback-text">Verifying your Google session with CancelKits.</p>
+			<div class="callback-error-actions" id="callback-error-actions" hidden>
+				<a href="/signin" class="btn-retry">Back to Sign In</a>
+				<a href="/onboarding/connect" class="btn-retry btn-retry--secondary">Continue with Email</a>
+			</div>
+		</div>
 	</div>
 </BaseLayout>
 
 <script>
 	import { supabase, setAuthCookies } from '../../lib/supabase';
 
+	const titleEl = document.getElementById('callback-title');
+	const textEl = document.getElementById('callback-text');
+	const spinnerEl = document.getElementById('callback-spinner');
+	const errorActionsEl = document.getElementById('callback-error-actions');
+
+	function showError(message: string) {
+		if (spinnerEl) spinnerEl.hidden = true;
+		if (titleEl) titleEl.textContent = 'Authentication Failed';
+		if (textEl) textEl.textContent = message;
+		if (errorActionsEl) errorActionsEl.hidden = false;
+	}
+
 	async function handleCallback() {
 		try {
-			// Check for hash parameters or code
-			const params = new URLSearchParams(window.location.search);
-			const nextUrl = params.get('next') || '/dashboard';
-			const code = params.get('code');
+			const searchParams = new URLSearchParams(window.location.search);
+			const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-			if (code) {
-				const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-				if (!error && data.session) {
-					setAuthCookies(data.session.access_token, data.session.refresh_token, data.session.expires_in);
-					window.location.href = nextUrl;
-					return;
+			// Check for OAuth error in query or hash
+			const error = searchParams.get('error') || hashParams.get('error');
+			const errorDesc =
+				searchParams.get('error_description') ||
+				hashParams.get('error_description') ||
+				searchParams.get('error_message') ||
+				'';
+
+			if (error) {
+				console.error('[OAuth Error]', error, errorDesc);
+				showError(errorDesc || `Sign in was interrupted (${error}). Please try again.`);
+				return;
+			}
+
+			let nextUrl = searchParams.get('next') || '/dashboard';
+			const code = searchParams.get('code');
+
+			function persistOAuthSession(session: any) {
+				setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+				if (session.provider_token) {
+					localStorage.setItem('cancelkit-provider-token', session.provider_token);
+				}
+				if (session.user?.email) {
+					localStorage.setItem('cancelkit-user-email', session.user.email);
+					if (nextUrl.includes('/onboarding/scanning') && !nextUrl.includes('email=')) {
+						const separator = nextUrl.includes('?') ? '&' : '?';
+						nextUrl += `${separator}email=${encodeURIComponent(session.user.email)}`;
+					}
 				}
 			}
 
-			// Handle hash fragment session if present
-			const { data: { session }, error } = await supabase.auth.getSession();
-			if (!error && session) {
-				setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+			// 1. Exchange PKCE code
+			if (code) {
+				const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+				if (!exchangeError && data?.session) {
+					persistOAuthSession(data.session);
+					window.location.href = nextUrl;
+					return;
+				}
+				if (exchangeError) {
+					console.warn('PKCE exchange error, trying fallback:', exchangeError.message);
+				}
+			}
+
+			// 2. Check existing / hash fragment session
+			const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+			if (!sessionError && session) {
+				persistOAuthSession(session);
 				window.location.href = nextUrl;
 				return;
 			}
 
-			// Listen for auth state change
-			const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-				if (session) {
-					setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+			// 3. Listen for auth state change
+			const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+				if (newSession) {
+					persistOAuthSession(newSession);
 					subscription.unsubscribe();
 					window.location.href = nextUrl;
 				}
 			});
 
-			// Fallback timeout after 3.5s
+			// 4. Timeout fallback
 			setTimeout(() => {
-				window.location.href = nextUrl;
-			}, 3500);
-		} catch (err) {
-			console.error('OAuth callback error:', err);
-			window.location.href = '/signin';
+				supabase.auth.getSession().then(({ data }) => {
+					if (data?.session) {
+						persistOAuthSession(data.session);
+						window.location.href = nextUrl;
+					} else {
+						showError('Could not verify your session. Please try signing in again.');
+					}
+				});
+			}, 3000);
+		} catch (err: any) {
+			console.error('OAuth callback exception:', err);
+			showError(err?.message || 'An unexpected error occurred during sign in.');
 		}
 	}
 
@@ -62,26 +121,81 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 	.callback-container {
 		min-height: 80vh;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1.5rem;
+		padding: 2rem 1.25rem;
 		background: #050505;
+	}
+
+	.callback-card {
+		max-width: 24rem;
+		width: 100%;
+		text-align: center;
+		padding: 2.5rem 2rem;
+		background: #0d0d0d;
+		border: 1px solid #1f1f1f;
+		border-radius: 16px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
 	}
 
 	.callback-spinner {
 		width: 44px;
 		height: 44px;
 		border: 3px solid rgba(255, 255, 255, 0.1);
-		border-top-color: var(--color-accent);
+		border-top-color: var(--color-accent, #00ff88);
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 	}
 
+	.callback-title {
+		color: #fff;
+		font-size: 1.25rem;
+		font-weight: 700;
+		margin: 0;
+	}
+
 	.callback-text {
-		color: var(--color-muted);
+		color: var(--color-muted, #888);
 		font-size: 0.95rem;
-		font-family: var(--font-body);
+		line-height: 1.5;
+		margin: 0;
+	}
+
+	.callback-error-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		width: 100%;
+		margin-top: 0.5rem;
+	}
+
+	.btn-retry {
+		display: inline-block;
+		padding: 0.75rem 1.25rem;
+		background: var(--color-accent, #00ff88);
+		color: #000;
+		font-weight: 600;
+		font-size: 0.9rem;
+		border-radius: 8px;
+		text-decoration: none;
+		transition: opacity 0.2s;
+	}
+
+	.btn-retry:hover {
+		opacity: 0.9;
+	}
+
+	.btn-retry--secondary {
+		background: transparent;
+		color: #fff;
+		border: 1px solid #2a2a2a;
+	}
+
+	.btn-retry--secondary:hover {
+		background: #1a1a1a;
 	}
 
 	@keyframes spin {

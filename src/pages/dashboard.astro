@@ -295,6 +295,24 @@ const description = 'See every subscription draining your account and cancel wha
 				return;
 			}
 			setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
+
+			// Synchronize live plan from Supabase users profile
+			try {
+				const { data: profile } = await supabase
+					.from('users')
+					.select('plan')
+					.eq('id', session.user.id)
+					.maybeSingle();
+
+				if (profile?.plan && profile.plan !== userPlan) {
+					userPlan = profile.plan as any;
+					localStorage.setItem(USER_PLAN_KEY, userPlan);
+					updatePlanBadgeUi();
+					render();
+				}
+			} catch {
+				// Non-fatal if users table is not yet populated
+			}
 		} catch {
 			window.location.href = '/signin';
 		}
@@ -574,9 +592,12 @@ const description = 'See every subscription draining your account and cancel wha
 		listEl.innerHTML = displayedRows.map((sub) => {
 			const cancelled = sub.status === 'cancelled';
 			const icon = faviconUrl(sub.domain);
+			const cleanSlug = sub.id.replace(/^custom-/, '').toLowerCase();
+			const hasGuide = !sub.id.startsWith('custom-');
+			const guideLink = hasGuide ? `<a href="/cancel/${escapeHtml(cleanSlug)}" target="_blank" class="dash__guide-link" rel="noopener">Guide ↗</a>` : '';
 			const action = cancelled
-				? `<span class="dash__saved-badge">Saved ${money(sub.monthly)}</span>`
-				: `<button type="button" class="dash__cancel" data-cancel="${escapeHtml(sub.id)}">Cancel</button>`;
+				? `<div class="dash__saved-action-group"><span class="dash__saved-badge">Saved ${money(sub.monthly)}</span><button type="button" class="dash__restore-btn" data-restore="${escapeHtml(sub.id)}" title="Undo cancellation">↺ Restore</button></div>`
+				: `<div class="dash__action-cell">${guideLink}<button type="button" class="dash__cancel" data-cancel="${escapeHtml(sub.id)}">Cancel</button></div>`;
 			return `<tr class="${cancelled ? 'is-cancelled-row' : ''}">
 				<td><div class="dash__svc"><span class="dash__logo" data-initial="${initial(sub.name)}">${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}</span><div><div class="dash__svc-name ${cancelled ? 'is-cancelled' : ''}">${escapeHtml(sub.name)}</div><span class="dash__tag">${escapeHtml(sub.category)}</span></div></div></td>
 				<td><div class="dash__amount">${money(sub.monthly)}</div><div class="dash__annual">${money(sub.monthly * 12)}/yr</div></td>
@@ -592,15 +613,60 @@ const description = 'See every subscription draining your account and cancel wha
 		renderHistory();
 	}
 
-	function cancelSub(id: string) {
+	async function cancelSub(id: string) {
 		const item = subs.find((s) => s.id === id);
 		if (!item || item.status === 'cancelled') return;
 		item.status = 'cancelled';
 		saveSubs();
 		render();
 
+		// Asynchronously sync cancellation to Supabase cancel_history
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (session?.user?.id) {
+				await supabase.from('cancel_history').insert({
+					user_id: session.user.id,
+					subscription_name: item.name,
+					monthly_savings: item.monthly,
+					annual_savings: item.monthly * 12,
+					method: 'one_click',
+					status: 'completed',
+					cancelled_at: new Date().toISOString(),
+				});
+
+				await supabase
+					.from('subscriptions')
+					.update({ status: 'cancelled' })
+					.eq('user_id', session.user.id)
+					.eq('name', item.name);
+			}
+		} catch (dbErr) {
+			console.warn('Could not sync cancellation to Supabase:', dbErr);
+		}
+
 		// Trigger viral referral popup right after emotional satisfaction of cancelling!
 		showViralReferralModal(item.name, item.monthly);
+	}
+
+	async function restoreSub(id: string) {
+		const item = subs.find((s) => s.id === id);
+		if (!item || item.status !== 'cancelled') return;
+		item.status = 'active';
+		saveSubs();
+		render();
+
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (session?.user?.id) {
+				await supabase
+					.from('subscriptions')
+					.update({ status: 'active' })
+					.eq('user_id', session.user.id)
+					.eq('name', item.name);
+			}
+		} catch (dbErr) {
+			console.warn('Could not sync restore to Supabase:', dbErr);
+		}
 	}
 
 	function showViralReferralModal(serviceName: string, monthlyAmount: number) {
@@ -723,9 +789,16 @@ const description = 'See every subscription draining your account and cancel wha
 
 	listEl?.addEventListener('click', (event) => {
 		const target = event.target as HTMLElement | null;
-		const btn = target?.closest<HTMLButtonElement>('[data-cancel]');
-		if (!btn?.dataset.cancel) return;
-		cancelSub(btn.dataset.cancel);
+		const cancelBtn = target?.closest<HTMLButtonElement>('[data-cancel]');
+		if (cancelBtn?.dataset.cancel) {
+			cancelSub(cancelBtn.dataset.cancel);
+			return;
+		}
+		const restoreBtn = target?.closest<HTMLButtonElement>('[data-restore]');
+		if (restoreBtn?.dataset.restore) {
+			restoreSub(restoreBtn.dataset.restore);
+			return;
+		}
 	});
 
 	document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((link) => {
@@ -1209,6 +1282,56 @@ const description = 'See every subscription draining your account and cancel wha
 		color: var(--color-accent);
 		font-size: 0.72rem;
 		font-weight: 600;
+	}
+
+	.dash__action-cell {
+		display: inline-flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	.dash__guide-link {
+		color: var(--color-muted);
+		text-decoration: none;
+		font-size: 0.75rem;
+		font-weight: 500;
+		padding: 0.25rem 0.5rem;
+		border-radius: var(--radius-input);
+		border: 1px solid var(--color-border);
+		transition: color 0.15s ease, border-color 0.15s ease;
+	}
+
+	.dash__guide-link:hover {
+		color: #fff;
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+
+	.dash__saved-action-group {
+		display: inline-flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	.dash__restore-btn {
+		appearance: none;
+		border: 1px solid var(--color-border);
+		background: transparent;
+		color: var(--color-muted);
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 500;
+		padding: 0.25rem 0.45rem;
+		border-radius: var(--radius-input);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.dash__restore-btn:hover {
+		color: #fff;
+		border-color: rgba(255, 255, 255, 0.3);
+		background: rgba(255, 255, 255, 0.05);
 	}
 
 	.dash__table-empty {

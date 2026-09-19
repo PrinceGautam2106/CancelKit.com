@@ -28,6 +28,14 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/api/customer-portal/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/lemon-webhook/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/api/savings-total/?$",
 			"dest": "_render"
 		},

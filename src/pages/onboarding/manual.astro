@@ -19,7 +19,7 @@ const priceMapJson = JSON.stringify(
 	<main class="manual-page">
 		<div class="manual-card">
 			<a class="manual-logo" href="/" aria-label="CancelKits home">
-				<span class="manual-logo__icon">C</span>
+				<img class="manual-logo__icon" src="/favicon.svg" alt="" width="28" height="28" />
 				<span class="manual-logo__text">Cancel<span>K<span class="manual-logo__accent">i</span>ts</span></span>
 			</a>
 
@@ -292,16 +292,12 @@ const priceMapJson = JSON.stringify(
 	}
 
 	.manual-logo__icon {
-		display: grid;
-		place-items: center;
+		display: block;
 		width: 1.85rem;
 		height: 1.85rem;
-		border-radius: 7px;
-		background: var(--color-accent);
-		color: #000;
-		font-family: var(--font-display);
-		font-size: 0.85rem;
-		font-weight: 700;
+		border-radius: 6px;
+		object-fit: contain;
+		flex-shrink: 0;
 	}
 
 	.manual-logo__text {

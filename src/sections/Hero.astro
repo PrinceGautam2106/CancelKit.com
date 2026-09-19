@@ -13,20 +13,21 @@ const { t } = Astro.props;
 		<div class="hero__intro fade-in-up">
 			<p class="hero__eyebrow"><span class="hero__dot"></span> CANCEL SUBSCRIPTIONS · STOP RECURRING CHARGES</p>
 			<h1 id="hero-title" class="hero__title">
-				<span>Cancel any subscription instantly —</span>
-				<span class="hero__title-accent">find what's draining you</span>
+				<span>{t?.hero_headline_1 ?? 'Cancel any subscription instantly'}</span>
+				<span class="hero__title-accent">{t?.hero_headline_2 ?? "find what's draining you"}</span>
 			</h1>
 			<p class="hero__description">
 				{t?.hero_sub ?? 'The average American wastes $219/month on forgotten subscriptions. CancelKits finds them. CancelKits helps you cancel them.'}
 			</p>
 		</div>
 
-		<form class="hero__form fade-in-up stagger-1" action="/onboarding/connect" method="get">
+		<form class="hero__form fade-in-up stagger-1" action="/onboarding/connect" method="get" id="hero-scan-form">
 			<div class="hero__field-row">
 				<input
 					class="hero__input"
 					type="email"
 					name="email"
+					id="hero-email-input"
 					autocomplete="email"
 					aria-label="Email address"
 					placeholder={t?.email_placeholder ?? 'you@example.com'}
@@ -361,3 +362,14 @@ const { t } = Astro.props;
 		}
 	}
 </style>
+
+<script>
+	const heroForm = document.getElementById('hero-scan-form') as HTMLFormElement | null;
+	const heroEmail = document.getElementById('hero-email-input') as HTMLInputElement | null;
+	heroForm?.addEventListener('submit', () => {
+		if (heroEmail?.value) {
+			const email = heroEmail.value.trim();
+			localStorage.setItem('cancelkit-user-email', email);
+		}
+	});
+</script>

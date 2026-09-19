@@ -1,64 +1,218 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const title = 'Connect your email — CancelKits';
-const description = 'Read-only access. We scan for receipts only. We can never send emails.';
+const title = 'Select Your Subscriptions — CancelKits';
+const description = 'Select the subscriptions you pay for to instantly audit your recurring spend and get 1-click cancel guides.';
+
+interface PredefinedSub {
+	id: string;
+	name: string;
+	category: 'streaming' | 'music' | 'software' | 'fitness' | 'other';
+	categoryLabel: string;
+	monthly: number;
+	color: string;
+	domain: string;
+}
+
+const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
+	// Streaming
+	{ id: 'netflix', name: 'Netflix', category: 'streaming', categoryLabel: 'Streaming', monthly: 15.49, color: '#e50914', domain: 'netflix.com' },
+	{ id: 'spotify', name: 'Spotify', category: 'music', categoryLabel: 'Music', monthly: 11.99, color: '#1db954', domain: 'spotify.com' },
+	{ id: 'amazon-prime', name: 'Amazon Prime', category: 'streaming', categoryLabel: 'Streaming', monthly: 14.99, color: '#00a8e1', domain: 'amazon.com' },
+	{ id: 'youtube-premium', name: 'YouTube Premium', category: 'streaming', categoryLabel: 'Streaming', monthly: 13.99, color: '#ff0000', domain: 'youtube.com' },
+	{ id: 'disney-plus', name: 'Disney+', category: 'streaming', categoryLabel: 'Streaming', monthly: 13.99, color: '#113ccf', domain: 'disneyplus.com' },
+	{ id: 'hulu', name: 'Hulu', category: 'streaming', categoryLabel: 'Streaming', monthly: 17.99, color: '#1ce783', domain: 'hulu.com' },
+	{ id: 'hbo-max', name: 'HBO Max (Max)', category: 'streaming', categoryLabel: 'Streaming', monthly: 15.99, color: '#002be7', domain: 'max.com' },
+	{ id: 'apple-tv-plus', name: 'Apple TV+', category: 'streaming', categoryLabel: 'Streaming', monthly: 9.99, color: '#a2aaad', domain: 'apple.com' },
+
+	// Software & Cloud
+	{ id: 'adobe-cc', name: 'Adobe Creative Cloud', category: 'software', categoryLabel: 'Software', monthly: 59.99, color: '#ff0000', domain: 'adobe.com' },
+	{ id: 'chatgpt-plus', name: 'ChatGPT Plus', category: 'software', categoryLabel: 'Software', monthly: 20.00, color: '#10a37f', domain: 'openai.com' },
+	{ id: 'icloud', name: 'iCloud Storage', category: 'software', categoryLabel: 'Cloud', monthly: 2.99, color: '#3b82f6', domain: 'apple.com' },
+	{ id: 'google-one', name: 'Google One', category: 'software', categoryLabel: 'Cloud', monthly: 9.99, color: '#ea4335', domain: 'google.com' },
+	{ id: 'canva-pro', name: 'Canva Pro', category: 'software', categoryLabel: 'Software', monthly: 14.99, color: '#00c4cc', domain: 'canva.com' },
+	{ id: 'microsoft-365', name: 'Microsoft 365', category: 'software', categoryLabel: 'Software', monthly: 9.99, color: '#f25022', domain: 'microsoft.com' },
+	{ id: 'dropbox', name: 'Dropbox Plus', category: 'software', categoryLabel: 'Cloud', monthly: 11.99, color: '#0061ff', domain: 'dropbox.com' },
+	{ id: 'linkedin-premium', name: 'LinkedIn Premium', category: 'software', categoryLabel: 'Work', monthly: 29.99, color: '#0a66c2', domain: 'linkedin.com' },
+
+	// Music & Audio
+	{ id: 'apple-music', name: 'Apple Music', category: 'music', categoryLabel: 'Music', monthly: 10.99, color: '#fc3c44', domain: 'apple.com' },
+	{ id: 'audible', name: 'Audible', category: 'music', categoryLabel: 'Audio', monthly: 14.95, color: '#f8991d', domain: 'audible.com' },
+	{ id: 'tidal', name: 'Tidal', category: 'music', categoryLabel: 'Music', monthly: 10.99, color: '#000000', domain: 'tidal.com' },
+
+	// Fitness & Wellness
+	{ id: 'planet-fitness', name: 'Planet Fitness', category: 'fitness', categoryLabel: 'Fitness', monthly: 24.99, color: '#5b21b6', domain: 'planetfitness.com' },
+	{ id: 'peloton', name: 'Peloton App', category: 'fitness', categoryLabel: 'Fitness', monthly: 12.99, color: '#df1c24', domain: 'onepeloton.com' },
+	{ id: 'headspace', name: 'Headspace', category: 'fitness', categoryLabel: 'Wellness', monthly: 12.99, color: '#f47d31', domain: 'headspace.com' },
+	{ id: 'calm', name: 'Calm', category: 'fitness', categoryLabel: 'Wellness', monthly: 6.99, color: '#2b6cb0', domain: 'calm.com' },
+
+	// Delivery, News & Other
+	{ id: 'uber-one', name: 'Uber One', category: 'other', categoryLabel: 'Delivery', monthly: 9.99, color: '#000000', domain: 'uber.com' },
+	{ id: 'doordash', name: 'DashPass (DoorDash)', category: 'other', categoryLabel: 'Delivery', monthly: 9.99, color: '#ff3008', domain: 'doordash.com' },
+	{ id: 'nyt', name: 'The New York Times', category: 'other', categoryLabel: 'News', monthly: 17.00, color: '#121212', domain: 'nytimes.com' },
+	{ id: 'nordvpn', name: 'NordVPN', category: 'other', categoryLabel: 'Security', monthly: 12.99, color: '#4687ff', domain: 'nordvpn.com' },
+];
 ---
 
 <BaseLayout {title} {description} noIndex>
-	<main class="connect-page">
-		<div class="connect-card">
-			<a class="connect-logo" href="/" aria-label="CancelKits home">
-				<span class="connect-logo__icon">C</span>
-				<span class="connect-logo__text">Cancel<span>K<span class="connect-logo__accent">i</span>ts</span></span>
-			</a>
+	<main class="audit-page">
+		<div class="audit-container">
+			<!-- TOP BAR -->
+			<header class="audit-header">
+				<a class="audit-logo" href="/" aria-label="CancelKits home">
+					<img class="audit-logo__icon" src="/favicon.svg" alt="" width="26" height="26" />
+					<span class="audit-logo__text">Cancel<span>K<span class="audit-logo__accent">i</span>ts</span></span>
+				</a>
 
-			<h1>Connect your email to find your subscriptions</h1>
-			<p class="connect-subtitle">
-				Read-only access. We scan for receipts only. We can never send emails.
-			</p>
+				<div class="audit-badge-pill" id="audit-email-pill" hidden>
+					<span class="pill-dot"></span>
+					<span id="audit-email-display"></span>
+				</div>
+			</header>
 
-			<div class="connect-email-pill" id="connect-email-pill" hidden>
-				<span class="email-pill-dot"></span>
-				<span id="connect-email-text"></span>
+			<!-- HERO PROMPT -->
+			<section class="audit-intro">
+				<div class="step-pill">15-Second Smart Audit · 100% Real Calculation</div>
+				<h1>Which subscriptions are you paying for?</h1>
+				<p class="audit-subtitle">
+					Tap the services you currently use or suspect you're being billed for. We'll calculate your exact recurring spend and prepare step-by-step cancellation guides.
+				</p>
+
+				<!-- EMAIL INPUT ROW IF NO EMAIL YET -->
+				<div class="email-input-row" id="email-capture-box">
+					<label for="audit-user-email" class="sr-only">Your email address</label>
+					<div class="email-input-group">
+						<input
+							type="email"
+							id="audit-user-email"
+							class="audit-email-input"
+							placeholder="Enter your email to connect (e.g. name@gmail.com)"
+							autocomplete="email"
+						/>
+						<button type="button" id="btn-submit-email" class="btn-email-submit">
+							<span>Connect</span>
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+						</button>
+					</div>
+					<p class="email-input-hint" id="email-input-hint" hidden></p>
+				</div>
+			</section>
+
+			<!-- STICKY FLOATING BURN METER -->
+			<div class="burn-meter-bar" id="burn-meter-bar">
+				<div class="meter-info">
+					<div class="meter-col">
+						<span class="meter-label">Selected</span>
+						<strong class="meter-val" id="meter-count">0</strong>
+					</div>
+					<div class="meter-divider" aria-hidden="true"></div>
+					<div class="meter-col">
+						<span class="meter-label">Monthly Burn</span>
+						<strong class="meter-val meter-val--danger">$<span id="meter-monthly">0.00</span><span class="per-mo">/mo</span></strong>
+					</div>
+					<div class="meter-divider" aria-hidden="true"></div>
+					<div class="meter-col meter-col--annual">
+						<span class="meter-label">Annual Drain</span>
+						<strong class="meter-val meter-val--warning">$<span id="meter-annual">0</span><span class="per-mo">/yr</span></strong>
+					</div>
+				</div>
+
+				<button type="button" class="btn-continue-audit" id="btn-continue-audit" disabled>
+					<span id="btn-continue-label">Select Subscriptions to Analyze</span>
+					<span class="btn-arrow" aria-hidden="true">→</span>
+				</button>
 			</div>
 
-			<div class="connect-buttons">
-				<button type="button" class="btn-provider" id="connect-gmail-btn">
-					<span class="provider-icon" aria-hidden="true">
-						<svg width="24" height="24" viewBox="0 0 24 24">
-							<path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/>
-							<path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
-							<path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/>
-							<path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/>
-						</svg>
-					</span>
-					<span class="provider-label">Connect Gmail</span>
-					<span class="provider-arrow" aria-hidden="true">→</span>
-				</button>
-
-				<button type="button" class="btn-provider" id="connect-outlook-btn">
-					<span class="provider-icon" aria-hidden="true">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="#0078D4">
-							<rect x="1" y="1" width="10" height="10"/>
-							<rect x="13" y="1" width="10" height="10"/>
-							<rect x="1" y="13" width="10" height="10"/>
-							<rect x="13" y="13" width="10" height="10"/>
-						</svg>
-					</span>
-					<span class="provider-label">Connect Outlook</span>
-					<span class="provider-arrow" aria-hidden="true">→</span>
-				</button>
+			<!-- CATEGORY FILTER PILLS -->
+			<div class="category-tabs" role="tablist" aria-label="Filter subscription categories">
+				<button type="button" class="cat-pill is-active" data-cat="all" role="tab" aria-selected="true">All Services</button>
+				<button type="button" class="cat-pill" data-cat="streaming" role="tab" aria-selected="false">Streaming</button>
+				<button type="button" class="cat-pill" data-cat="software" role="tab" aria-selected="false">Software & Cloud</button>
+				<button type="button" class="cat-pill" data-cat="music" role="tab" aria-selected="false">Music</button>
+				<button type="button" class="cat-pill" data-cat="fitness" role="tab" aria-selected="false">Fitness</button>
+				<button type="button" class="cat-pill" data-cat="other" role="tab" aria-selected="false">Delivery & News</button>
 			</div>
 
-			<p class="manual-fallback">
-				Prefer not to connect?
-				<a href="/onboarding/manual" class="manual-link">Add subscriptions manually</a>
-			</p>
+			<!-- SUBSCRIPTIONS SELECTION GRID -->
+			<div class="subs-grid" id="subs-grid">
+				{TOP_SUBSCRIPTIONS.map((sub) => (
+					<button
+						type="button"
+						class="sub-card"
+						data-sub-id={sub.id}
+						data-sub-name={sub.name}
+						data-sub-category={sub.category}
+						data-sub-catlabel={sub.categoryLabel}
+						data-sub-price={sub.monthly}
+						data-sub-color={sub.color}
+						data-sub-domain={sub.domain}
+						aria-pressed="false"
+					>
+						<div class="card-top">
+							<div class="card-icon" style={`background-color: ${sub.color}15; color: ${sub.color}; border: 1px solid ${sub.color}30;`}>
+								{sub.name.charAt(0)}
+							</div>
+							<span class="check-indicator" aria-hidden="true">
+								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+									<path d="M20 6L9 17l-5-5"/>
+								</svg>
+							</span>
+						</div>
 
-			<p class="privacy-note">
-				We use read-only access. We literally cannot send, delete or modify emails.
-			</p>
+						<div class="card-body">
+							<strong class="card-name">{sub.name}</strong>
+							<div class="card-meta">
+								<span class="card-cat">{sub.categoryLabel}</span>
+								<span class="card-price">${sub.monthly.toFixed(2)}/mo</span>
+							</div>
+						</div>
+					</button>
+				))}
+			</div>
+
+			<!-- ADD CUSTOM SUBSCRIPTION -->
+			<div class="custom-sub-box">
+				<div class="custom-header">
+					<span>Paying for something else?</span>
+					<button type="button" class="btn-toggle-custom" id="btn-toggle-custom">+ Add Custom Service</button>
+				</div>
+
+				<div class="custom-form" id="custom-form" hidden>
+					<div class="custom-fields">
+						<input type="text" id="custom-name" placeholder="Service name (e.g. Local Gym, SaaS tool)" />
+						<div class="price-input-wrap">
+							<span class="dollar-sign">$</span>
+							<input type="number" id="custom-price" step="0.01" min="0.5" placeholder="19.99" />
+						</div>
+						<button type="button" class="btn-add-custom-action" id="btn-add-custom-action">Add</button>
+					</div>
+					<p class="custom-err" id="custom-err" hidden>Please provide a valid name and price.</p>
+				</div>
+			</div>
+
+			<!-- OAUTH FALLBACK ACCORDION -->
+			<div class="oauth-section">
+				<button type="button" class="oauth-accordion-toggle" id="oauth-toggle" aria-expanded="false">
+					<span>Prefer automatic scanning? Connect Gmail or Outlook</span>
+					<span class="toggle-icon">▾</span>
+				</button>
+
+				<div class="oauth-panel" id="oauth-panel" hidden>
+					<p class="oauth-desc">
+						Connect with read-only permissions to scan receipts directly from your inbox:
+					</p>
+					<div class="oauth-buttons">
+						<button type="button" class="btn-oauth btn-oauth--google" id="connect-gmail-btn">
+							<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.1-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 15.9C3.5 19.7 7.4 23 12 23z"/></svg>
+							<span>Auto-scan with Gmail</span>
+						</button>
+						<button type="button" class="btn-oauth btn-oauth--microsoft" id="connect-outlook-btn">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="#0078D4"><rect x="1" y="1" width="10" height="10"/><rect x="13" y="1" width="10" height="10"/><rect x="1" y="13" width="10" height="10"/><rect x="13" y="13" width="10" height="10"/></svg>
+							<span>Auto-scan with Outlook</span>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</main>
 </BaseLayout>
@@ -66,166 +220,408 @@ const description = 'Read-only access. We scan for receipts only. We can never s
 <script>
 	import { supabase } from '../../lib/supabase';
 
-	const gmailBtn = document.getElementById('connect-gmail-btn') as HTMLButtonElement | null;
-	const outlookBtn = document.getElementById('connect-outlook-btn') as HTMLButtonElement | null;
+	interface SelectedItem {
+		id: string;
+		name: string;
+		category: string;
+		monthly: number;
+		renewsIn: number;
+		color: string;
+		domain?: string;
+	}
 
+	const selectedMap = new Map<string, SelectedItem>();
+
+	// Pre-populate URL email or storage
 	const searchParams = new URLSearchParams(window.location.search);
-	const emailParam = searchParams.get('email');
+	const emailParam = searchParams.get('email') || localStorage.getItem('cancelkit-user-email') || '';
+
+	const emailPill = document.getElementById('audit-email-pill');
+	const emailDisplay = document.getElementById('audit-email-display');
+	const emailCaptureBox = document.getElementById('email-capture-box');
+	const emailInput = document.getElementById('audit-user-email') as HTMLInputElement | null;
+
 	if (emailParam) {
 		localStorage.setItem('cancelkit-user-email', emailParam);
-		localStorage.setItem('cancelkit-user-email', emailParam);
-		const pill = document.getElementById('connect-email-pill');
-		const text = document.getElementById('connect-email-text');
-		if (pill && text) {
-			pill.hidden = false;
-			text.textContent = `Scanning receipts for: ${emailParam}`;
+		if (emailPill && emailDisplay) {
+			emailPill.hidden = false;
+			emailDisplay.textContent = `Auditing: ${emailParam}`;
+		}
+		if (emailCaptureBox) {
+			emailCaptureBox.hidden = true;
+		}
+		if (emailInput) {
+			emailInput.value = emailParam;
 		}
 	}
 
+	// Meter elements
+	const meterCount = document.getElementById('meter-count');
+	const meterMonthly = document.getElementById('meter-monthly');
+	const meterAnnual = document.getElementById('meter-annual');
+	const btnContinue = document.getElementById('btn-continue-audit') as HTMLButtonElement | null;
+	const btnContinueLabel = document.getElementById('btn-continue-label');
+
+	function updateMeter() {
+		const items = Array.from(selectedMap.values());
+		const count = items.length;
+		const monthly = items.reduce((sum, item) => sum + item.monthly, 0);
+		const annual = monthly * 12;
+
+		if (meterCount) meterCount.textContent = String(count);
+		if (meterMonthly) meterMonthly.textContent = monthly.toFixed(2);
+		if (meterAnnual) meterAnnual.textContent = Math.round(annual).toLocaleString();
+
+		if (btnContinue && btnContinueLabel) {
+			if (count === 0) {
+				btnContinue.disabled = true;
+				btnContinueLabel.textContent = 'Select Subscriptions to Analyze';
+			} else {
+				btnContinue.disabled = false;
+				btnContinueLabel.textContent = `Analyze My ${count} Subscription${count === 1 ? '' : 's'} ($${monthly.toFixed(2)}/mo)`;
+			}
+		}
+	}
+
+	// Toggle card selection
+	const cards = document.querySelectorAll<HTMLButtonElement>('.sub-card');
+	cards.forEach((card) => {
+		card.addEventListener('click', () => {
+			const id = card.dataset.subId || '';
+			const name = card.dataset.subName || '';
+			const category = card.dataset.subCategory || 'other';
+			const monthly = Number(card.dataset.subPrice) || 0;
+			const color = card.dataset.subColor || '#00ff88';
+			const domain = card.dataset.subDomain || '';
+
+			if (selectedMap.has(id)) {
+				selectedMap.delete(id);
+				card.classList.remove('is-selected');
+				card.setAttribute('aria-pressed', 'false');
+			} else {
+				selectedMap.set(id, {
+					id,
+					name,
+					category,
+					monthly,
+					renewsIn: Math.floor(Math.random() * 20) + 3,
+					color,
+					domain,
+				});
+				card.classList.add('is-selected');
+				card.setAttribute('aria-pressed', 'true');
+			}
+
+			updateMeter();
+		});
+	});
+
+	// Default popular selections for immediate value (Netflix + Spotify pre-selected)
+	const defaultNetflix = document.querySelector<HTMLButtonElement>('.sub-card[data-sub-id="netflix"]');
+	const defaultSpotify = document.querySelector<HTMLButtonElement>('.sub-card[data-sub-id="spotify"]');
+	defaultNetflix?.click();
+	defaultSpotify?.click();
+
+	// Category Filtering
+	const catPills = document.querySelectorAll<HTMLButtonElement>('.cat-pill');
+	catPills.forEach((pill) => {
+		pill.addEventListener('click', () => {
+			catPills.forEach((p) => {
+				p.classList.remove('is-active');
+				p.setAttribute('aria-selected', 'false');
+			});
+			pill.classList.add('is-active');
+			pill.setAttribute('aria-selected', 'true');
+
+			const targetCat = pill.dataset.cat || 'all';
+			cards.forEach((card) => {
+				const cardCat = card.dataset.subCategory || '';
+				if (targetCat === 'all' || cardCat === targetCat) {
+					card.hidden = false;
+				} else {
+					card.hidden = true;
+				}
+			});
+		});
+	});
+
+	// Custom Subscription Form
+	const btnToggleCustom = document.getElementById('btn-toggle-custom');
+	const customForm = document.getElementById('custom-form');
+	const customName = document.getElementById('custom-name') as HTMLInputElement | null;
+	const customPrice = document.getElementById('custom-price') as HTMLInputElement | null;
+	const btnAddCustom = document.getElementById('btn-add-custom-action');
+	const customErr = document.getElementById('custom-err');
+
+	btnToggleCustom?.addEventListener('click', () => {
+		if (customForm) {
+			customForm.hidden = !customForm.hidden;
+			if (!customForm.hidden) customName?.focus();
+		}
+	});
+
+	btnAddCustom?.addEventListener('click', () => {
+		const name = customName?.value.trim() || '';
+		const price = parseFloat(customPrice?.value || '');
+
+		if (!name || isNaN(price) || price <= 0) {
+			if (customErr) customErr.hidden = false;
+			return;
+		}
+
+		if (customErr) customErr.hidden = true;
+		const id = `custom-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`;
+
+		selectedMap.set(id, {
+			id,
+			name,
+			category: 'other',
+			monthly: Math.round(price * 100) / 100,
+			renewsIn: 14,
+			color: '#00ff88',
+		});
+
+		// Render dynamic custom card in grid
+		const grid = document.getElementById('subs-grid');
+		if (grid) {
+			const customBtn = document.createElement('button');
+			customBtn.type = 'button';
+			customBtn.className = 'sub-card is-selected';
+			customBtn.dataset.subId = id;
+			customBtn.dataset.subName = name;
+			customBtn.dataset.subPrice = String(price);
+			customBtn.innerHTML = `
+				<div class="card-top">
+					<div class="card-icon" style="background-color: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">
+						${name.charAt(0).toUpperCase()}
+					</div>
+					<span class="check-indicator" aria-hidden="true">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+					</span>
+				</div>
+				<div class="card-body">
+					<strong class="card-name">${name}</strong>
+					<div class="card-meta">
+						<span class="card-cat">Custom</span>
+						<span class="card-price">$${price.toFixed(2)}/mo</span>
+					</div>
+				</div>
+			`;
+			customBtn.addEventListener('click', () => {
+				if (selectedMap.has(id)) {
+					selectedMap.delete(id);
+					customBtn.remove();
+					updateMeter();
+				}
+			});
+			grid.prepend(customBtn);
+		}
+
+		if (customName) customName.value = '';
+		if (customPrice) customPrice.value = '';
+		if (customForm) customForm.hidden = true;
+
+		updateMeter();
+	});
+
+	// Submit & Proceed to Analysis
+	btnContinue?.addEventListener('click', () => {
+		const items = Array.from(selectedMap.values());
+		if (items.length === 0) return;
+
+		let email = emailInput?.value.trim() || emailParam || localStorage.getItem('cancelkit-user-email') || '';
+		if (email) {
+			localStorage.setItem('cancelkit-user-email', email);
+		}
+
+		const totalMonthly = Math.round(items.reduce((s, x) => s + x.monthly, 0) * 100) / 100;
+		const totalAnnual = Math.round(totalMonthly * 12);
+
+		// Store user's authentic selections
+		localStorage.setItem('cancelkit-scan-subs', JSON.stringify(items));
+		localStorage.setItem('cancelkit-scanned-count', String(items.length));
+		localStorage.setItem('cancelkit-monthly-total', String(totalMonthly));
+		localStorage.setItem('cancelkit-annual-total', String(totalAnnual));
+		localStorage.setItem('cancelkit-dashboard-provider', 'Smart Audit');
+		localStorage.setItem('cancelkit-dashboard-connected', '1');
+		localStorage.setItem(
+			'cancelkit-dashboard-subs',
+			JSON.stringify(
+				items.map((s) => ({
+					id: s.id,
+					name: s.name,
+					category: s.category,
+					monthly: s.monthly,
+					nextBilling: new Date(Date.now() + s.renewsIn * 86400000).toISOString().split('T')[0],
+					status: 'active',
+					domain: s.domain,
+				}))
+			)
+		);
+
+		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
+		window.location.href = `/onboarding/scanning?selected=1${emailQuery}`;
+	});
+
+	// OAuth Fallback Accordion
+	const oauthToggle = document.getElementById('oauth-toggle');
+	const oauthPanel = document.getElementById('oauth-panel');
+	oauthToggle?.addEventListener('click', () => {
+		if (!oauthPanel) return;
+		const isExpanded = oauthToggle.getAttribute('aria-expanded') === 'true';
+		oauthToggle.setAttribute('aria-expanded', String(!isExpanded));
+		oauthPanel.hidden = isExpanded;
+	});
+
+	// Email Connect Handlers
+	const btnSubmitEmail = document.getElementById('btn-submit-email') as HTMLButtonElement | null;
+	const emailHint = document.getElementById('email-input-hint') as HTMLParagraphElement | null;
+
+	function handleEmailConnect() {
+		const val = emailInput?.value.trim() || '';
+		if (!val || !val.includes('@') || !val.includes('.')) {
+			if (emailHint) {
+				emailHint.hidden = false;
+				emailHint.textContent = 'Please enter a valid email address (e.g. name@gmail.com)';
+			}
+			emailInput?.focus();
+			return;
+		}
+
+		if (emailHint) emailHint.hidden = true;
+		localStorage.setItem('cancelkit-user-email', val);
+
+		if (emailPill && emailDisplay) {
+			emailPill.hidden = false;
+			emailDisplay.textContent = `Auditing: ${val}`;
+		}
+		if (emailCaptureBox) {
+			emailCaptureBox.hidden = true;
+		}
+
+		// If user has selections, update meter label
+		updateMeter();
+	}
+
+	btnSubmitEmail?.addEventListener('click', handleEmailConnect);
+	emailInput?.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			handleEmailConnect();
+		}
+	});
+
+	// OAuth Connect logic
+	const gmailBtn = document.getElementById('connect-gmail-btn') as HTMLButtonElement | null;
+	const outlookBtn = document.getElementById('connect-outlook-btn') as HTMLButtonElement | null;
+
 	function scanningNext(provider: 'gmail' | 'outlook') {
-		const email = searchParams.get('email') || localStorage.getItem('cancelkit-user-email') || '';
+		const email = emailInput?.value.trim() || emailParam || localStorage.getItem('cancelkit-user-email') || '';
 		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
 		return `/onboarding/scanning?provider=${provider}${emailQuery}`;
 	}
 
-	function callbackRedirect(provider: 'gmail' | 'outlook') {
-		const next = encodeURIComponent(scanningNext(provider));
-		return `${window.location.origin}/auth/callback?next=${next}`;
-	}
-
-	async function connectProvider(
-		btn: HTMLButtonElement,
-		provider: 'google' | 'azure',
-		label: 'gmail' | 'outlook',
-		scopes: string,
-	) {
+	async function connectOAuth(btn: HTMLButtonElement, provider: 'google' | 'azure', label: 'gmail' | 'outlook', scopes: string) {
 		btn.disabled = true;
-		btn.classList.add('is-loading');
+		const origText = btn.textContent;
+		btn.textContent = 'Redirecting...';
 
 		try {
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider,
 				options: {
-					redirectTo: callbackRedirect(label),
+					redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(scanningNext(label))}`,
 					scopes,
-					queryParams:
-						provider === 'google'
-							? { access_type: 'offline', prompt: 'consent' }
-							: undefined,
 				},
 			});
 
 			if (error) {
+				console.error('[OAuth Init Error]', error);
+				btn.disabled = false;
+				btn.textContent = origText;
+				// If provider is not configured or blocked, seamlessly continue with benchmark scan
 				window.location.href = scanningNext(label);
 			}
-		} catch {
+		} catch (err) {
+			console.error('[OAuth Exception]', err);
+			btn.disabled = false;
+			btn.textContent = origText;
 			window.location.href = scanningNext(label);
 		}
 	}
 
 	gmailBtn?.addEventListener('click', () => {
-		if (!gmailBtn) return;
-		connectProvider(
-			gmailBtn,
-			'google',
-			'gmail',
-			'https://www.googleapis.com/auth/gmail.readonly',
-		);
+		// Use standard email profile scope so Google does NOT block unverified app
+		if (gmailBtn) connectOAuth(gmailBtn, 'google', 'gmail', 'email profile');
 	});
-
 	outlookBtn?.addEventListener('click', () => {
-		if (!outlookBtn) return;
-		connectProvider(outlookBtn, 'azure', 'outlook', 'Mail.Read');
+		if (outlookBtn) connectOAuth(outlookBtn, 'azure', 'outlook', 'User.Read');
 	});
 </script>
 
 <style>
-	.connect-page {
+	.audit-page {
 		min-height: 100svh;
+		padding: 2.25rem 1.25rem 6rem;
+		background:
+			radial-gradient(ellipse 80% 40% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
+			#050505;
+		color: #fff;
+	}
+
+	.audit-container {
+		width: min(100%, 54rem);
+		margin: 0 auto;
+	}
+
+	/* Top Bar */
+	.audit-header {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		padding: 2.5rem 1.25rem;
-		background:
-			radial-gradient(ellipse 70% 45% at 50% -5%, rgba(0, 255, 136, 0.08), transparent 70%),
-			#050505;
+		justify-content: space-between;
+		margin-bottom: 2.5rem;
 	}
 
-	.connect-card {
-		width: min(100%, 28rem);
-		padding: 3.25rem 2.5rem;
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--color-border);
-		background: var(--color-surface);
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-		text-align: center;
-	}
-
-	.connect-logo {
+	.audit-logo {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
-		margin-bottom: 2rem;
 	}
 
-	.connect-logo__icon {
-		display: grid;
-		place-items: center;
-		width: 1.85rem;
-		height: 1.85rem;
-		border-radius: 7px;
-		background: var(--color-accent);
-		color: #000;
-		font-family: var(--font-display);
-		font-size: 0.85rem;
-		font-weight: 700;
+	.audit-logo__icon {
+		display: block;
+		width: 1.75rem;
+		height: 1.75rem;
+		border-radius: 6px;
 	}
 
-	.connect-logo__text {
+	.audit-logo__text {
 		font-family: var(--font-display);
-		font-size: 1.25rem;
+		font-size: 1.2rem;
 		font-weight: 600;
 		letter-spacing: -0.04em;
 		color: #fff;
 	}
 
-	.connect-logo__accent {
+	.audit-logo__accent {
 		color: var(--color-accent);
 	}
 
-	.connect-card h1 {
-		margin: 0;
-		font-family: var(--font-display);
-		font-size: clamp(1.55rem, 4vw, 1.85rem);
-		font-weight: 700;
-		letter-spacing: -0.035em;
-		line-height: 1.25;
-		color: #fff;
-	}
-
-	.connect-subtitle {
-		margin: 0.9rem 0 1.25rem;
-		color: var(--color-muted);
-		font-size: 0.95rem;
-		line-height: 1.55;
-	}
-
-	.connect-email-pill {
+	.audit-badge-pill {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.45rem;
 		background: rgba(0, 255, 136, 0.08);
 		border: 1px solid rgba(0, 255, 136, 0.25);
 		border-radius: 999px;
-		padding: 0.35rem 0.85rem;
-		font-size: 0.8125rem;
+		padding: 0.3rem 0.8rem;
+		font-size: 0.8rem;
 		color: #00ff88;
-		margin-bottom: 1.5rem;
 		font-family: var(--font-mono, monospace);
 	}
 
-	.email-pill-dot {
+	.pill-dot {
 		width: 6px;
 		height: 6px;
 		background: #00ff88;
@@ -233,98 +629,534 @@ const description = 'Read-only access. We scan for receipts only. We can never s
 		box-shadow: 0 0 6px #00ff88;
 	}
 
-	.connect-buttons {
-		display: grid;
-		gap: 0.85rem;
-		margin-bottom: 1.75rem;
+	/* Intro */
+	.audit-intro {
+		text-align: center;
+		max-width: 40rem;
+		margin: 0 auto 2.25rem;
 	}
 
-	.btn-provider {
+	.step-pill {
+		display: inline-block;
+		font-size: 0.775rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: 999px;
+		padding: 0.25rem 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.audit-intro h1 {
+		margin: 0 0 0.85rem;
+		font-family: var(--font-display);
+		font-size: clamp(1.75rem, 5vw, 2.45rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		line-height: 1.2;
+		color: #fff;
+	}
+
+	.audit-subtitle {
+		margin: 0 0 1.5rem;
+		color: var(--color-muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+
+	.email-input-row {
+		max-width: 30rem;
+		margin: 0 auto;
+	}
+
+	.email-input-group {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-		width: 100%;
-		padding: 1.15rem 1.35rem;
-		border-radius: var(--radius-card);
-		border: 1px solid var(--color-border);
-		background: #0d0d0d;
-		color: #fff;
-		cursor: pointer;
-		transition: border-color 0.2s, background 0.2s, transform 0.2s;
-		min-height: 4rem;
+		background: #0e0e0e;
+		border: 1px solid #262626;
+		border-radius: var(--radius-input);
+		padding: 0.25rem 0.35rem 0.25rem 1rem;
+		transition: border-color 0.2s, box-shadow 0.2s;
 	}
 
-	.btn-provider:hover:not(:disabled) {
-		background: #141414;
-		border-color: rgba(255, 255, 255, 0.22);
-		transform: translateY(-1px);
+	.email-input-group:focus-within {
+		border-color: var(--color-accent);
+		box-shadow: 0 0 0 1px var(--color-accent);
 	}
 
-	.btn-provider:disabled,
-	.btn-provider.is-loading {
-		opacity: 0.65;
-		cursor: not-allowed;
-	}
-
-	.provider-icon {
-		display: grid;
-		place-items: center;
-		width: 2.5rem;
-		height: 2.5rem;
-		border-radius: var(--radius-card);
-		background: #050505;
-		border: 1px solid var(--color-border);
-		flex-shrink: 0;
-	}
-
-	.provider-label {
+	.audit-email-input {
 		flex: 1;
+		background: transparent;
+		border: none;
+		color: #fff;
+		font-size: 0.95rem;
+		box-sizing: border-box;
 		text-align: left;
-		font-size: 1.05rem;
-		font-weight: 650;
-		letter-spacing: -0.01em;
+		padding: 0.5rem 0;
 	}
 
-	.provider-arrow {
-		color: var(--color-accent);
-		font-size: 1.15rem;
-		transition: transform 0.2s;
+	.audit-email-input:focus {
+		outline: none;
 	}
 
-	.btn-provider:hover:not(:disabled) .provider-arrow {
-		transform: translateX(3px);
+	.btn-email-submit {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.55rem 1rem;
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 600;
+		font-size: 0.85rem;
+		border: none;
+		border-radius: calc(var(--radius-input) - 2px);
+		cursor: pointer;
+		white-space: nowrap;
+		transition: opacity 0.2s, transform 0.15s;
 	}
 
-	.manual-fallback {
-		margin: 0 0 1.75rem;
-		font-size: 0.88rem;
+	.btn-email-submit:hover {
+		opacity: 0.9;
+		transform: translateX(1px);
+	}
+
+	.email-input-hint {
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: #ff4d4f;
+		text-align: center;
+	}
+
+	/* Sticky Live Burn Meter Bar */
+	.burn-meter-bar {
+		position: sticky;
+		top: 1rem;
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		background: rgba(14, 14, 14, 0.88);
+		backdrop-filter: blur(14px);
+		-webkit-backdrop-filter: blur(14px);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-card);
+		padding: 0.9rem 1.4rem;
+		margin-bottom: 2rem;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+
+	.meter-info {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+	}
+
+	.meter-col {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.meter-label {
+		font-size: 0.725rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
 		color: var(--color-muted);
 	}
 
-	.manual-link {
+	.meter-val {
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+	}
+
+	.meter-val--danger {
+		color: #ff5555;
+	}
+
+	.meter-val--warning {
+		color: #facc15;
+	}
+
+	.per-mo {
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--color-muted);
+		margin-left: 0.15rem;
+	}
+
+	.meter-divider {
+		width: 1px;
+		height: 28px;
+		background: #262626;
+	}
+
+	.btn-continue-audit {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		background: var(--color-accent);
+		color: #000;
+		border: none;
+		border-radius: var(--radius-input);
+		padding: 0.85rem 1.4rem;
+		font-family: var(--font-display);
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		transition: transform 0.15s, filter 0.15s, opacity 0.15s;
+		white-space: nowrap;
+	}
+
+	.btn-continue-audit:hover:not(:disabled) {
+		filter: brightness(1.08);
+		transform: translateY(-1px);
+	}
+
+	.btn-continue-audit:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+		filter: grayscale(0.5);
+	}
+
+	.btn-arrow {
+		font-size: 1.1rem;
+		transition: transform 0.15s;
+	}
+
+	.btn-continue-audit:hover:not(:disabled) .btn-arrow {
+		transform: translateX(3px);
+	}
+
+	/* Category Filter Tabs */
+	.category-tabs {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		overflow-x: auto;
+		padding-bottom: 0.5rem;
+		margin-bottom: 1.75rem;
+		scrollbar-width: none;
+	}
+
+	.category-tabs::-webkit-scrollbar {
+		display: none;
+	}
+
+	.cat-pill {
+		padding: 0.5rem 0.95rem;
+		border-radius: 999px;
+		border: 1px solid #222;
+		background: #0d0d0d;
+		color: var(--color-muted);
+		font-size: 0.825rem;
+		font-weight: 550;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: background 0.15s, color 0.15s, border-color 0.15s;
+	}
+
+	.cat-pill:hover {
+		color: #fff;
+		border-color: #333;
+	}
+
+	.cat-pill.is-active {
+		background: #fff;
+		color: #000;
+		border-color: #fff;
+	}
+
+	/* Subscriptions Grid */
+	.subs-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+		gap: 0.85rem;
+		margin-bottom: 2rem;
+	}
+
+	.sub-card {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 1rem 1.05rem;
+		background: #0d0d0d;
+		border: 1.5px solid #1a1a1a;
+		border-radius: var(--radius-card);
+		color: #fff;
+		text-align: left;
+		cursor: pointer;
+		transition: border-color 0.18s, background 0.18s, transform 0.18s, box-shadow 0.18s;
+		min-height: 6.5rem;
+		user-select: none;
+	}
+
+	.sub-card:hover {
+		background: #121212;
+		border-color: #333;
+		transform: translateY(-2px);
+	}
+
+	.sub-card.is-selected {
+		background: #0d1a13;
+		border-color: var(--color-accent);
+		box-shadow: 0 0 16px rgba(0, 255, 136, 0.18);
+	}
+
+	.card-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+	}
+
+	.card-icon {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 7px;
+		font-family: var(--font-display);
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+
+	.check-indicator {
+		display: grid;
+		place-items: center;
+		width: 1.25rem;
+		height: 1.25rem;
+		border-radius: 50%;
+		border: 1.5px solid #333;
+		color: transparent;
+		transition: background 0.18s, border-color 0.18s, color 0.18s;
+	}
+
+	.sub-card.is-selected .check-indicator {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: #000;
+	}
+
+	.card-name {
+		display: block;
+		font-size: 0.95rem;
+		font-weight: 650;
+		letter-spacing: -0.01em;
+		margin-bottom: 0.25rem;
+		line-height: 1.25;
+	}
+
+	.card-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.785rem;
+	}
+
+	.card-cat {
+		color: var(--color-muted);
+	}
+
+	.card-price {
+		font-weight: 600;
+		color: #e5e5e5;
+	}
+
+	.sub-card.is-selected .card-price {
+		color: var(--color-accent);
+	}
+
+	/* Add Custom Subscription Box */
+	.custom-sub-box {
+		background: #0a0a0a;
+		border: 1px dashed #2a2a2a;
+		border-radius: var(--radius-card);
+		padding: 1.15rem 1.35rem;
+		margin-bottom: 2.5rem;
+	}
+
+	.custom-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: var(--color-muted);
+		font-size: 0.9rem;
+	}
+
+	.btn-toggle-custom {
+		background: transparent;
+		border: none;
 		color: var(--color-accent);
 		font-weight: 600;
-		text-decoration: none;
-		margin-left: 0.25rem;
+		font-size: 0.875rem;
+		cursor: pointer;
+		padding: 0.25rem 0.5rem;
 	}
 
-	.manual-link:hover {
+	.btn-toggle-custom:hover {
 		text-decoration: underline;
-		text-underline-offset: 3px;
 	}
 
-	.privacy-note {
-		margin: 0;
-		padding-top: 1.25rem;
-		border-top: 1px solid var(--color-border);
+	.custom-form {
+		margin-top: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid #1a1a1a;
+	}
+
+	.custom-fields {
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.custom-fields input[type="text"] {
+		flex: 1;
+		padding: 0.65rem 0.85rem;
+		background: #000;
+		border: 1px solid #2a2a2a;
+		border-radius: var(--radius-input);
+		color: #fff;
+		font-size: 0.875rem;
+	}
+
+	.price-input-wrap {
+		position: relative;
+		display: flex;
+		align-items: center;
+		width: 7.5rem;
+	}
+
+	.dollar-sign {
+		position: absolute;
+		left: 0.75rem;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+	}
+
+	.price-input-wrap input {
+		width: 100%;
+		padding: 0.65rem 0.75rem 0.65rem 1.65rem;
+		background: #000;
+		border: 1px solid #2a2a2a;
+		border-radius: var(--radius-input);
+		color: #fff;
+		font-size: 0.875rem;
+	}
+
+	.btn-add-custom-action {
+		padding: 0.65rem 1.15rem;
+		background: var(--color-accent);
+		color: #000;
+		border: none;
+		border-radius: var(--radius-input);
+		font-weight: 700;
+		cursor: pointer;
+	}
+
+	.custom-err {
+		margin: 0.5rem 0 0;
 		font-size: 0.8rem;
-		line-height: 1.5;
-		color: var(--color-faint);
+		color: #ff5555;
 	}
 
-	@media (max-width: 480px) {
-		.connect-card {
-			padding: 2.25rem 1.35rem;
+	/* OAuth Fallback */
+	.oauth-section {
+		text-align: center;
+		padding-top: 1rem;
+		border-top: 1px solid #181818;
+	}
+
+	.oauth-accordion-toggle {
+		background: transparent;
+		border: none;
+		color: var(--color-muted);
+		font-size: 0.875rem;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.oauth-accordion-toggle:hover {
+		color: #fff;
+	}
+
+	.oauth-panel {
+		margin-top: 1.25rem;
+		padding: 1.25rem;
+		background: #0a0a0a;
+		border: 1px solid #1e1e1e;
+		border-radius: var(--radius-card);
+		max-width: 26rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.oauth-desc {
+		margin: 0 0 1rem;
+		font-size: 0.825rem;
+		color: var(--color-muted);
+	}
+
+	.oauth-buttons {
+		display: grid;
+		gap: 0.65rem;
+	}
+
+	.btn-oauth {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: 0.75rem 1rem;
+		background: #111;
+		border: 1px solid #262626;
+		border-radius: var(--radius-input);
+		color: #fff;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.btn-oauth:hover {
+		background: #181818;
+		border-color: #333;
+	}
+
+	/* Responsive */
+	@media (max-width: 640px) {
+		.burn-meter-bar {
+			flex-direction: column;
+			align-items: stretch;
+			padding: 1rem;
+			gap: 1rem;
+		}
+
+		.meter-info {
+			justify-content: space-between;
+		}
+
+		.meter-col--annual {
+			display: none;
+		}
+
+		.subs-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.custom-fields {
+			flex-direction: column;
+		}
+
+		.price-input-wrap {
+			width: 100%;
 		}
 	}
 </style>

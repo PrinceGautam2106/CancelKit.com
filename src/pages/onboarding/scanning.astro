@@ -9,7 +9,7 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 	<main class="scan-page">
 		<div class="scan-container">
 			<a class="scan-logo" href="/" aria-label="CancelKits home">
-				<span class="scan-logo__icon">C</span>
+				<img class="scan-logo__icon" src="/favicon.svg" alt="" width="28" height="28" />
 				<span class="scan-logo__text">Cancel<span>K<span class="scan-logo__accent">i</span>ts</span></span>
 			</a>
 
@@ -27,6 +27,10 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 			</div>
 
 			<div class="scan-content">
+				<div class="scan-email-badge" id="scan-email-badge" hidden>
+					<span class="badge-dot"></span>
+					<span id="scan-email-label">Scanning inbox...</span>
+				</div>
 				<h1 id="scan-headline" class="scan-headline">Scanning receipts...</h1>
 
 				<div
@@ -79,22 +83,63 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 	const progressWrap = document.getElementById('progress-bar-wrap');
 
 	const params = new URLSearchParams(window.location.search);
-	const provider = params.get('provider') === 'outlook' ? 'Outlook' : 'Gmail';
+	const emailParam = params.get('email') || localStorage.getItem('cancelkit-user-email') || '';
+
+	const emailBadge = document.getElementById('scan-email-badge');
+	const emailLabel = document.getElementById('scan-email-label');
+	if (emailParam && emailBadge && emailLabel) {
+		emailBadge.hidden = false;
+		emailLabel.textContent = `Receipts scanning for: ${emailParam}`;
+		localStorage.setItem('cancelkit-user-email', emailParam);
+	}
+
+	let provider = params.get('provider');
+	if (!provider) {
+		const lower = emailParam.toLowerCase();
+		if (lower.includes('outlook') || lower.includes('hotmail') || lower.includes('live')) {
+			provider = 'Outlook';
+		} else if (lower.includes('yahoo')) {
+			provider = 'Yahoo Mail';
+		} else if (lower.includes('icloud') || lower.includes('apple')) {
+			provider = 'iCloud';
+		} else {
+			provider = 'Gmail';
+		}
+	} else {
+		provider = provider === 'outlook' ? 'Outlook' : 'Gmail';
+	}
+
+	const hasUserSelections = params.get('selected') === '1';
+	let activeSubs: ScanSub[] = DEMO_SUBS;
+
+	if (hasUserSelections) {
+		try {
+			const saved = localStorage.getItem('cancelkit-scan-subs');
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				if (Array.isArray(parsed) && parsed.length > 0) {
+					activeSubs = parsed;
+				}
+			}
+		} catch {
+			/* fallback */
+		}
+	}
 
 	// Accurately compute totals from detected subscriptions
-	const calculatedMonthly = Math.round(DEMO_SUBS.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
+	const calculatedMonthly = Math.round(activeSubs.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
 	const calculatedAnnual = Math.round(calculatedMonthly * 12);
 
-	localStorage.setItem('cancelkit-scanned-count', String(DEMO_SUBS.length));
+	localStorage.setItem('cancelkit-scanned-count', String(activeSubs.length));
 	localStorage.setItem('cancelkit-monthly-total', String(calculatedMonthly));
 	localStorage.setItem('cancelkit-annual-total', String(calculatedAnnual));
-	localStorage.setItem('cancelkit-scan-subs', JSON.stringify(DEMO_SUBS));
-	localStorage.setItem('cancelkit-dashboard-provider', provider);
+	localStorage.setItem('cancelkit-scan-subs', JSON.stringify(activeSubs));
+	localStorage.setItem('cancelkit-dashboard-provider', hasUserSelections ? 'Smart Audit' : provider);
 	localStorage.setItem('cancelkit-dashboard-connected', '1');
 	localStorage.setItem(
 		'cancelkit-dashboard-subs',
 		JSON.stringify(
-			DEMO_SUBS.map((s) => ({
+			activeSubs.map((s) => ({
 				id: s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
 				name: s.name,
 				category: s.category.toLowerCase().includes('stream') || s.category.toLowerCase().includes('music')
@@ -105,61 +150,81 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 							? 'news'
 							: 'software',
 				monthly: s.monthly,
-				nextBilling: new Date(Date.now() + s.renewsIn * 86400000)
+				nextBilling: new Date(Date.now() + (s.renewsIn || 14) * 86400000)
 					.toISOString()
 					.split('T')[0],
 				status: 'active',
-				domain: s.name.toLowerCase().includes('netflix')
-					? 'netflix.com'
-					: s.name.toLowerCase().includes('spotify')
-						? 'spotify.com'
-						: s.name.toLowerCase().includes('adobe')
-							? 'adobe.com'
-							: s.name.toLowerCase().includes('hulu')
-								? 'hulu.com'
-								: s.name.toLowerCase().includes('disney')
-									? 'disneyplus.com'
-									: s.name.toLowerCase().includes('planet')
-										? 'planetfitness.com'
-										: s.name.toLowerCase().includes('times')
-											? 'nytimes.com'
-											: s.name.toLowerCase().includes('canva')
-												? 'canva.com'
-												: s.name.toLowerCase().includes('nord')
-													? 'nordvpn.com'
-													: s.name.toLowerCase().includes('dropbox')
-														? 'dropbox.com'
-														: s.name.toLowerCase().includes('audible')
-															? 'audible.com'
-															: s.name.toLowerCase().includes('youtube')
-																? 'youtube.com'
-																: s.name.toLowerCase().includes('apple')
-																	? 'apple.com'
-																	: undefined,
+				domain: (s as any).domain,
 			})),
 		),
 	);
 
-	// Kick off real scan in background when API exists (non-blocking)
-	const providerParam = params.get('provider') || 'gmail';
-	fetch('/api/scan-inbox', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ provider: providerParam }),
-	}).catch(() => {
-		/* Demo: API may not be live yet — animation still completes */
-	});
+	// Kick off real receipt scan in background
+	const providerParam = provider.toLowerCase();
+	const providerToken = localStorage.getItem('cancelkit-provider-token') || '';
 
-	const stages = [
-		{ at: 0, text: 'Scanning receipts...' },
-		{ at: 1800, text: 'Found Netflix ($15.49/mo)...' },
-		{ at: 3200, text: 'Found Spotify ($11.99/mo)...' },
-		{ at: 4600, text: 'Found Adobe Creative Cloud ($59.99/mo)...' },
-		{ at: 6000, text: 'Found 14 active subscriptions...' },
-		{ at: 7200, text: 'Calculating your total recurring spend...' },
-	];
+	if (!hasUserSelections) {
+		fetch('/api/scan-inbox', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				provider: providerParam,
+				providerToken,
+				email: emailParam,
+			}),
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				if (data?.ok && Array.isArray(data.subscriptions) && data.subscriptions.length > 0) {
+					activeSubs = data.subscriptions;
+					const newMonthly = data.monthlyTotal || Math.round(activeSubs.reduce((s: any, x: any) => s + x.monthly, 0) * 100) / 100;
+					const newAnnual = data.annualTotal || Math.round(newMonthly * 12);
+					localStorage.setItem('cancelkit-scanned-count', String(activeSubs.length));
+					localStorage.setItem('cancelkit-monthly-total', String(newMonthly));
+					localStorage.setItem('cancelkit-annual-total', String(newAnnual));
+					localStorage.setItem('cancelkit-scan-subs', JSON.stringify(activeSubs));
+					localStorage.setItem(
+						'cancelkit-dashboard-subs',
+						JSON.stringify(
+							activeSubs.map((s: any) => ({
+								id: s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+								name: s.name,
+								category: s.category || 'Subscription',
+								monthly: s.monthly,
+								nextBilling: new Date(Date.now() + (s.renewsIn || 14) * 86400000).toISOString().split('T')[0],
+								status: 'active',
+								domain: s.domain,
+							})),
+						),
+					);
+				}
+			})
+			.catch(() => {
+				/* Demo: API may be unreachable — animation still completes */
+			});
+	}
 
-	const DURATION_MS = 8000;
+	const firstNames = activeSubs.slice(0, 3).map((s) => s.name).join(', ');
+
+	const stages = hasUserSelections
+		? [
+				{ at: 0, text: `Verifying your ${activeSubs.length} selected subscriptions...` },
+				{ at: 600, text: `Analyzing billing cycles & refund policies for ${firstNames}...` },
+				{ at: 1300, text: `Calculating cancellation difficulty scores (1–10)...` },
+				{ at: 2000, text: `Aggregating monthly recurring burn: $${calculatedMonthly}/mo...` },
+				{ at: 2600, text: `Audit complete! Preparing your cancel kit...` },
+			]
+		: [
+				{ at: 0, text: emailParam ? `Connecting to ${provider}...` : 'Scanning receipts...' },
+				{ at: 900, text: 'Scanning invoices & payment confirmations...' },
+				{ at: 1800, text: 'Found Netflix ($15.49/mo)...' },
+				{ at: 2600, text: 'Found Spotify ($11.99/mo)...' },
+				{ at: 3400, text: 'Found Adobe Creative Cloud ($59.99/mo)...' },
+				{ at: 4200, text: 'Found 14 active subscriptions...' },
+				{ at: 4800, text: 'Calculating your total recurring spend...' },
+			];
+
+	const DURATION_MS = hasUserSelections ? 3000 : 5200;
 	const startTime = Date.now();
 
 	const interval = setInterval(() => {
@@ -174,7 +239,8 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 
 		if (elapsed >= DURATION_MS) {
 			clearInterval(interval);
-			window.location.href = '/onboarding/results';
+			const emailQuery = emailParam ? `?email=${encodeURIComponent(emailParam)}` : '';
+			window.location.href = `/onboarding/results${emailQuery}`;
 		}
 	}, 50);
 </script>
@@ -208,16 +274,12 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 	}
 
 	.scan-logo__icon {
-		display: grid;
-		place-items: center;
+		display: block;
 		width: 1.85rem;
 		height: 1.85rem;
-		border-radius: 7px;
-		background: var(--color-accent);
-		color: #000;
-		font-family: var(--font-display);
-		font-size: 0.85rem;
-		font-weight: 700;
+		border-radius: 6px;
+		object-fit: contain;
+		flex-shrink: 0;
 	}
 
 	.scan-logo__text {
@@ -297,6 +359,28 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 
 	.scan-content {
 		width: 100%;
+	}
+
+	.scan-email-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: 999px;
+		padding: 0.35rem 0.85rem;
+		font-size: 0.825rem;
+		color: #00ff88;
+		font-family: var(--font-mono, monospace);
+		margin-bottom: 1.25rem;
+	}
+
+	.badge-dot {
+		width: 6px;
+		height: 6px;
+		background: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 6px #00ff88;
 	}
 
 	.scan-headline {

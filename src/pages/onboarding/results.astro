@@ -17,6 +17,10 @@ const FREE_TEASER = 5;
 			</div>
 
 			<header class="results-hero">
+				<div class="results-email-pill" id="results-email-pill" hidden>
+					<span class="pill-dot"></span>
+					<span id="results-email-text"></span>
+				</div>
 				<p class="found-line" id="found-line">We found <span id="found-count">—</span> subscriptions</p>
 
 				<div class="spend-block">
@@ -202,6 +206,15 @@ const FREE_TEASER = 5;
 	const blurredList = document.getElementById('blurred-list');
 	const hiddenHeadline = document.getElementById('hidden-headline');
 
+	const urlParams = new URLSearchParams(window.location.search);
+	const userEmail = urlParams.get('email') || localStorage.getItem('cancelkit-user-email') || '';
+	const emailPill = document.getElementById('results-email-pill');
+	const emailText = document.getElementById('results-email-text');
+	if (userEmail && emailPill && emailText) {
+		emailPill.hidden = false;
+		emailText.textContent = `Receipts detected for: ${userEmail}`;
+	}
+
 	if (foundCountEl) foundCountEl.textContent = String(count);
 	if (monthlyEl) monthlyEl.textContent = formatMoney(monthly);
 	if (annualEl) annualEl.textContent = `$${formatMoney(annual)}`;
@@ -317,6 +330,28 @@ const FREE_TEASER = 5;
 		text-align: center;
 		margin-bottom: 2rem;
 		width: 100%;
+	}
+
+	.results-email-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: 999px;
+		padding: 0.35rem 0.85rem;
+		font-size: 0.8125rem;
+		color: #00ff88;
+		font-family: var(--font-mono, monospace);
+		margin-bottom: 0.85rem;
+	}
+
+	.pill-dot {
+		width: 6px;
+		height: 6px;
+		background: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 6px #00ff88;
 	}
 
 	.found-line {

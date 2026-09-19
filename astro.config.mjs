@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
-import vercel from '@astrojs/vercel';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
@@ -103,6 +103,6 @@ export default defineConfig({
 	},
 	site: 'https://cancelkits.com',
 	output: 'static',
-	adapter: vercel(),
+	adapter: cloudflare(),
 	trailingSlash: 'ignore',
 });

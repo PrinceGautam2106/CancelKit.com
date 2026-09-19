@@ -34,7 +34,7 @@ const topCancellations = [
 			<!-- Column 1: Brand -->
 			<div class="footer-col footer-col--brand">
 				<a class="footer-logo" href="/" aria-label="CancelKits home">
-					<span class="footer-logo__icon">C</span>
+					<img class="footer-logo__icon" src="/favicon.svg" alt="" width="26" height="26" />
 					<span class="footer-logo__text">Cancel<span>K<span class="footer-logo__accent">i</span>ts</span></span>
 				</a>
 				<p class="footer-tagline">Cancel subscriptions. Keep your money.</p>
@@ -42,14 +42,14 @@ const topCancellations = [
 				<!-- Social Links (SVG Icons, no libraries) -->
 				<div class="footer-socials" aria-label="Social links">
 					<!-- Twitter / X Icon -->
-					<a href="https://twitter.com/cancelkits" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="CancelKits on Twitter / X">
+					<a href="https://x.com/PrinceGaut5631" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Prince Gautam on Twitter / X">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
 						</svg>
 					</a>
 
 					<!-- LinkedIn Icon -->
-					<a href="https://linkedin.com/company/cancelkits" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="CancelKits on LinkedIn">
+					<a href="https://www.linkedin.com/in/prince-gautam-21a308292" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Prince Gautam on LinkedIn">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.64a1.65 1.65 0 1 0 0 3.3 1.65 1.65 0 0 0 0-3.3z"/>
 						</svg>
@@ -95,6 +95,29 @@ const topCancellations = [
 			<p class="footer-copyright">
 				© {new Date().getFullYear()} CancelKits. All rights reserved.
 			</p>
+
+			<!-- Language Switcher -->
+			<div class="lang-switcher" id="lang-switcher">
+				<button class="lang-toggle" type="button" aria-expanded="false" aria-haspopup="listbox" aria-label="Select language">
+					<svg class="lang-globe" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"/>
+						<path d="M2 12h20"/>
+						<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/>
+					</svg>
+					<span class="lang-current">English</span>
+					<svg class="lang-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="6 15 12 9 18 15"/>
+					</svg>
+				</button>
+				<ul class="lang-menu" role="listbox" aria-label="Available languages">
+					<li role="option"><a href="/" data-lang="en"><span class="lang-flag">🇺🇸</span> English</a></li>
+					<li role="option"><a href="/es/" data-lang="es"><span class="lang-flag">🇪🇸</span> Español</a></li>
+					<li role="option"><a href="/fr/" data-lang="fr"><span class="lang-flag">🇫🇷</span> Français</a></li>
+					<li role="option"><a href="/de/" data-lang="de"><span class="lang-flag">🇩🇪</span> Deutsch</a></li>
+					<li role="option"><a href="/pt/" data-lang="pt"><span class="lang-flag">🇧🇷</span> Português</a></li>
+				</ul>
+			</div>
+
 			<div class="footer-legal-links">
 				<a href="/privacy">Privacy</a>
 				<span class="footer-sep" aria-hidden="true">•</span>
@@ -144,16 +167,12 @@ const topCancellations = [
 	}
 
 	.footer-logo__icon {
-		display: grid;
-		place-items: center;
+		display: block;
 		width: 1.75rem;
 		height: 1.75rem;
-		border-radius: 7px;
-		background: var(--color-accent);
-		color: #000;
-		font-family: var(--font-display);
-		font-size: 0.85rem;
-		font-weight: 700;
+		border-radius: 6px;
+		object-fit: contain;
+		flex-shrink: 0;
 	}
 
 	.footer-logo__text {
@@ -306,4 +325,148 @@ const topCancellations = [
 			gap: 0.75rem;
 		}
 	}
+
+	/* ── Language Switcher ── */
+	.lang-switcher {
+		position: relative;
+	}
+
+	.lang-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.75rem;
+		border-radius: 8px;
+		border: 1px solid var(--color-border);
+		background: rgba(255, 255, 255, 0.04);
+		color: #999;
+		font-size: 0.84rem;
+		font-family: var(--font-body);
+		cursor: pointer;
+		transition: all 0.15s ease;
+		white-space: nowrap;
+	}
+
+	.lang-toggle:hover {
+		color: #ccc;
+		background: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.18);
+	}
+
+	.lang-toggle[aria-expanded="true"] {
+		color: #fff;
+		background: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.lang-globe {
+		flex-shrink: 0;
+	}
+
+	.lang-chevron {
+		flex-shrink: 0;
+		transition: transform 0.2s ease;
+	}
+
+	.lang-toggle[aria-expanded="true"] .lang-chevron {
+		transform: rotate(180deg);
+	}
+
+	.lang-menu {
+		position: absolute;
+		bottom: calc(100% + 8px);
+		left: 50%;
+		transform: translateX(-50%);
+		list-style: none;
+		margin: 0;
+		padding: 6px;
+		min-width: 170px;
+		background: #1a1a1a;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 12px;
+		box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.4);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateX(-50%) translateY(6px);
+		transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+		z-index: 50;
+	}
+
+	.lang-menu.is-open {
+		opacity: 1;
+		visibility: visible;
+		transform: translateX(-50%) translateY(0);
+	}
+
+	.lang-menu li a {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 8px;
+		color: #aaa;
+		text-decoration: none;
+		font-size: 0.88rem;
+		transition: all 0.12s ease;
+		white-space: nowrap;
+	}
+
+	.lang-menu li a:hover {
+		color: #fff;
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.lang-menu li a.is-active {
+		color: #fff;
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.lang-flag {
+		font-size: 1.05rem;
+		line-height: 1;
+	}
 </style>
+
+<script>
+	const switcher = document.getElementById('lang-switcher');
+	if (switcher) {
+		const toggle = switcher.querySelector('.lang-toggle') as HTMLButtonElement;
+		const menu = switcher.querySelector('.lang-menu') as HTMLUListElement;
+		const currentLabel = switcher.querySelector('.lang-current') as HTMLSpanElement;
+		const links = menu.querySelectorAll('a');
+
+		// Detect current language from URL path
+		const langMap: Record<string, string> = {
+			en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch', pt: 'Português',
+		};
+		const pathLang = window.location.pathname.match(/^\/(es|fr|de|pt)\b/)?.[1] ?? 'en';
+		currentLabel.textContent = langMap[pathLang] ?? 'English';
+
+		// Highlight active language
+		links.forEach((a) => {
+			if (a.dataset.lang === pathLang) a.classList.add('is-active');
+		});
+
+		// Toggle menu
+		toggle.addEventListener('click', () => {
+			const open = menu.classList.toggle('is-open');
+			toggle.setAttribute('aria-expanded', String(open));
+		});
+
+		// Close on outside click
+		document.addEventListener('click', (e) => {
+			if (!switcher.contains(e.target as Node)) {
+				menu.classList.remove('is-open');
+				toggle.setAttribute('aria-expanded', 'false');
+			}
+		});
+
+		// Close on Escape
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				menu.classList.remove('is-open');
+				toggle.setAttribute('aria-expanded', 'false');
+			}
+		});
+	}
+</script>

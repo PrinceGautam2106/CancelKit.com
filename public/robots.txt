@@ -1,15 +1,26 @@
+# CancelKit Robots.txt
+# https://cancelkits.com
+
 User-agent: *
 Allow: /
 
-Disallow: /dashboard/
-Disallow: /account/
+# Private & Authenticated Routes
+Disallow: /dashboard
+Disallow: /account
 Disallow: /api/
-Disallow: /signin/
-Disallow: /signup/
-Disallow: /onboarding/
 Disallow: /auth/
-Disallow: /unsubscribe/
-Disallow: /forgot-password/
-Disallow: /reset-password/
 
+# Auth & Onboarding Flows
+Disallow: /signin
+Disallow: /signup
+Disallow: /onboarding
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /start
+
+# Utility Endpoints
+Disallow: /unsubscribe
+Disallow: /r/
+
+# Sitemaps
 Sitemap: https://cancelkits.com/sitemap-index.xml

@@ -487,29 +487,39 @@ const description = 'Manage your CancelKits profile, connected email accounts, s
 	const deleteDataBtn = document.getElementById('delete-data-btn') as HTMLButtonElement;
 	const dangerStatusMsg = document.getElementById('danger-status-msg') as HTMLDivElement;
 
-	// Cancel my CancelKits subscription
-	cancelCancelKitsBtn?.addEventListener('click', () => {
-		const confirmed = window.confirm(
-			'Are you sure you want to cancel your CancelKits subscription? You will continue to have access until the end of your billing cycle.'
-		);
-		if (!confirmed) return;
-
+	// Cancel my CancelKits subscription via official Stripe Customer Portal
+	cancelCancelKitsBtn?.addEventListener('click', async () => {
 		cancelCancelKitsBtn.disabled = true;
-		cancelCancelKitsBtn.textContent = 'Cancelling...';
+		const origText = cancelCancelKitsBtn.textContent;
+		cancelCancelKitsBtn.textContent = 'Opening Billing Portal...';
 
-		setTimeout(() => {
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			const res = await fetch('/api/customer-portal', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ userId: session?.user?.id }),
+			});
+
+			const data = await res.json();
+			if (data?.url) {
+				window.location.href = data.url;
+			} else {
+				if (dangerStatusMsg) {
+					dangerStatusMsg.hidden = false;
+					dangerStatusMsg.textContent = data?.error || 'You are currently on the Free plan with no active paid subscription.';
+				}
+				cancelCancelKitsBtn.disabled = false;
+				cancelCancelKitsBtn.textContent = origText;
+			}
+		} catch {
 			if (dangerStatusMsg) {
 				dangerStatusMsg.hidden = false;
-				dangerStatusMsg.textContent =
-					'Your CancelKits subscription has been cancelled. You will retain access until October 15, 2026.';
+				dangerStatusMsg.textContent = 'Unable to open billing portal. Please check your connection or contact support.';
 			}
-			cancelCancelKitsBtn.textContent = 'Subscription Cancelled';
-			const currentBadge = document.getElementById('current-plan-badge');
-			if (currentBadge) {
-				currentBadge.textContent = 'Cancelling at period end';
-				currentBadge.className = 'badge badge--inactive';
-			}
-		}, 1000);
+			cancelCancelKitsBtn.disabled = false;
+			cancelCancelKitsBtn.textContent = origText;
+		}
 	});
 
 	// Delete all my data (GDPR)

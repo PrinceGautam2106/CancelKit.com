@@ -161,8 +161,8 @@ const description = 'See every subscription draining your account and cancel wha
 							<h3 class="dash__gate-title" id="dash-gate-title">
 								Upgrade to Pro to see all 14 subscriptions
 							</h3>
-							<p class="dash__gate-desc">
-								Free plan only displays your top 10 subscriptions. Unlock all 14, 1-click cancellations, and renewal radar alerts.
+							<p class="dash__gate-desc" id="dash-gate-desc">
+								Free plan only displays your top 5 subscriptions. Unlock all subscriptions, 1-click cancellations, and renewal radar alerts.
 							</p>
 							<button type="button" class="dash__gate-upgrade-btn" id="dash-upgrade-btn">
 								<span class="btn-text">Upgrade to Pro ($9/mo) →</span>
@@ -342,6 +342,8 @@ const description = 'See every subscription draining your account and cancel wha
 		nextBilling: string; // ISO date
 		status: SubStatus;
 		domain?: string;
+		selectedByUser?: boolean;
+		unselectedDiscovery?: boolean;
 	}
 
 	const STORAGE_KEY = 'cancelkit-dashboard-connected';
@@ -431,6 +433,38 @@ const description = 'See every subscription draining your account and cancel wha
 		} catch {
 			/* ignore */
 		}
+
+		// Connect actual scanned subscriptions from email onboarding
+		try {
+			const scannedRaw = localStorage.getItem('cancelkit-scan-subs');
+			if (scannedRaw !== null) {
+				const scanned = JSON.parse(scannedRaw);
+				if (Array.isArray(scanned) && scanned.length > 0) {
+					const converted: Subscription[] = scanned.map((s: any) => {
+						const cat = (s.category?.toLowerCase() || 'software') as SubCategory;
+						const validCat: SubCategory = ['streaming', 'software', 'fitness', 'news'].includes(cat)
+							? cat
+							: 'software';
+						return {
+							id: s.id || s.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+							name: s.name,
+							category: validCat,
+							monthly: Number(s.monthly) || 0,
+							nextBilling: s.nextBilling || new Date(Date.now() + (s.renewsIn || 14) * 86400000).toISOString().split('T')[0],
+							status: (s.status || 'active') as SubStatus,
+							domain: s.domain,
+							selectedByUser: s.selectedByUser,
+							unselectedDiscovery: s.unselectedDiscovery,
+						};
+					});
+					localStorage.setItem(SUBS_KEY, JSON.stringify(converted));
+					return converted;
+				}
+			}
+		} catch {
+			/* ignore */
+		}
+
 		return structuredClone(seed);
 	}
 
@@ -582,11 +616,86 @@ const description = 'See every subscription draining your account and cancel wha
 			return;
 		}
 
-		const displayedRows = userPlan === 'free' ? rows.slice(0, 10) : rows;
-		if (gateWrap) gateWrap.hidden = !(userPlan === 'free' && rows.length > 10);
-		const gateTitle = document.getElementById('dash-gate-title');
-		if (gateTitle && userPlan === 'free' && rows.length > 10) {
-			gateTitle.textContent = `Upgrade to Pro to see all ${rows.length} subscriptions`;
+		const FREE_TIER_LIMIT = 5;
+		const isFreePlan = userPlan === 'free';
+		const hasExplicitDiscoveries = rows.some((s) => s.unselectedDiscovery || s.selectedByUser === false);
+
+		let displayedRows: Subscription[];
+		let hiddenRows: Subscription[];
+
+		if (isFreePlan) {
+			if (hasExplicitDiscoveries) {
+				displayedRows = rows.filter((s) => s.selectedByUser !== false && !s.unselectedDiscovery).slice(0, FREE_TIER_LIMIT);
+				if (displayedRows.length === 0) {
+					displayedRows = rows.slice(0, FREE_TIER_LIMIT);
+				}
+				const displayedIds = new Set(displayedRows.map((s) => s.id));
+				hiddenRows = rows.filter((s) => !displayedIds.has(s.id));
+			} else {
+				displayedRows = rows.slice(0, FREE_TIER_LIMIT);
+				hiddenRows = rows.slice(FREE_TIER_LIMIT);
+			}
+		} else {
+			displayedRows = rows;
+			hiddenRows = [];
+		}
+
+		const hasHidden = isFreePlan && hiddenRows.length > 0;
+
+		if (gateWrap) gateWrap.hidden = !hasHidden;
+
+		if (hasHidden) {
+			const hiddenMonthly = Math.round(hiddenRows.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
+			const hiddenAnnual = Math.round(hiddenMonthly * 12);
+			const surpriseCount = hiddenRows.filter((s) => s.unselectedDiscovery || s.selectedByUser === false).length;
+
+			const gateTitle = document.getElementById('dash-gate-title');
+			if (gateTitle) {
+				if (surpriseCount > 0) {
+					gateTitle.textContent = `🚨 Unlock ${hiddenRows.length} Hidden Subscriptions (${money(hiddenMonthly)}/mo)`;
+				} else {
+					gateTitle.textContent = `Unlock Remaining ${hiddenRows.length} Subscriptions (${money(hiddenMonthly)}/mo)`;
+				}
+			}
+
+			const gateDesc = document.getElementById('dash-gate-desc');
+			if (gateDesc) {
+				if (surpriseCount > 0) {
+					gateDesc.innerHTML = `Our inbox scan discovered <strong style="color:#ff4444;">${surpriseCount} unselected recurring charges</strong> totaling <strong style="color:#ff4444;">${money(hiddenMonthly)}/mo (${money(hiddenAnnual)}/yr)</strong> that you did not select. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to reveal full details, access 1-click cancellations, and stop forgotten renewals.`;
+				} else {
+					gateDesc.innerHTML = `Your scan identified <strong>${hiddenRows.length} more active subscriptions</strong> quietly charging <strong style="color:#ff4444;">${money(hiddenMonthly)}/month</strong> (${money(hiddenAnnual)}/year). Free plan only includes your top 5 services. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to unlock all ${rows.length} subscriptions, 1-click cancellations, and automated renewal radar alerts.`;
+				}
+			}
+
+			const gateUpgradeBtn = document.getElementById('dash-upgrade-btn');
+			const btnText = gateUpgradeBtn?.querySelector('.btn-text');
+			if (btnText) {
+				btnText.textContent = `Upgrade to Pro ($9/mo) — Save ${money(hiddenAnnual)}/yr →`;
+			}
+
+			const blurEl = document.getElementById('dash-gate-blur');
+			if (blurEl) {
+				blurEl.innerHTML = hiddenRows.map((sub) => {
+					const icon = faviconUrl(sub.domain);
+					const isSurprise = sub.unselectedDiscovery || sub.selectedByUser === false;
+					const displayName = sub.name;
+
+					return `<div class="dash__gate-blur-row" role="button" tabindex="0" title="Locked on Free Plan — Upgrade to Pro to manage">
+						<div class="dash__svc">
+							<span class="dash__logo" data-initial="${initial(sub.name)}" style="${isSurprise ? 'filter:blur(4.5px);user-select:none;' : ''}">
+								${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}
+							</span>
+							<div>
+								<div class="dash__svc-name" style="${isSurprise ? 'filter:blur(6px);user-select:none;pointer-events:none;' : ''}">${escapeHtml(displayName)}</div>
+								<span class="dash__tag">${escapeHtml(sub.category)}${isSurprise ? ' · ⚠️ Unselected' : ''}</span>
+							</div>
+						</div>
+						<div class="dash__amount">${money(sub.monthly)}<div class="dash__annual" style="font-size:0.75rem;color:#888;">${money(sub.monthly * 12)}/yr</div></div>
+						<div class="dash__date">${formatDate(sub.nextBilling)}</div>
+						<div class="dash__actions"><span class="dash__gate-lock-pill" style="color:#00ff88;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.25);">🔒 Pro Only</span></div>
+					</div>`;
+				}).join('');
+			}
 		}
 
 		listEl.innerHTML = displayedRows.map((sub) => {
@@ -761,6 +870,11 @@ const description = 'See every subscription draining your account and cancel wha
 		} catch {
 			window.location.href = '/pricing';
 		}
+	});
+
+	// Clicking anywhere on locked rows triggers the Pro upgrade
+	document.getElementById('dash-gate-blur')?.addEventListener('click', () => {
+		document.getElementById('dash-upgrade-btn')?.click();
 	});
 
 	document.querySelectorAll<HTMLButtonElement>('[data-connect]').forEach((btn) => {

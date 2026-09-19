@@ -438,8 +438,10 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 		const totalAnnual = Math.round(totalMonthly * 12);
 
 		// Store user's authentic selections
-		localStorage.setItem('cancelkit-scan-subs', JSON.stringify(items));
-		localStorage.setItem('cancelkit-scanned-count', String(items.length));
+		const markedItems = items.map((s) => ({ ...s, selectedByUser: true }));
+		localStorage.setItem('cancelkit-user-selected-subs', JSON.stringify(markedItems));
+		localStorage.setItem('cancelkit-scan-subs', JSON.stringify(markedItems));
+		localStorage.setItem('cancelkit-scanned-count', String(markedItems.length));
 		localStorage.setItem('cancelkit-monthly-total', String(totalMonthly));
 		localStorage.setItem('cancelkit-annual-total', String(totalAnnual));
 		localStorage.setItem('cancelkit-dashboard-provider', 'Smart Audit');

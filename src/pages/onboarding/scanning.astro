@@ -110,20 +110,61 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 	}
 
 	const hasUserSelections = params.get('selected') === '1';
-	let activeSubs: ScanSub[] = DEMO_SUBS;
+	let userSelected: ScanSub[] = [];
+	let surpriseDiscoveries: ScanSub[] = [];
+	let activeSubs: ScanSub[] = [];
 
 	if (hasUserSelections) {
 		try {
-			const saved = localStorage.getItem('cancelkit-scan-subs');
+			const saved = localStorage.getItem('cancelkit-user-selected-subs') || localStorage.getItem('cancelkit-scan-subs');
 			if (saved) {
 				const parsed = JSON.parse(saved);
 				if (Array.isArray(parsed) && parsed.length > 0) {
-					activeSubs = parsed;
+					userSelected = parsed.map((s: any) => ({
+						...s,
+						selectedByUser: true,
+						unselectedDiscovery: false,
+					}));
 				}
 			}
 		} catch {
 			/* fallback */
 		}
+
+		if (userSelected.length === 0) {
+			userSelected = [
+				{ name: 'Netflix Standard', category: 'Streaming', monthly: 15.49, renewsIn: 6, color: '#b91c1c', domain: 'netflix.com', selectedByUser: true, unselectedDiscovery: false },
+				{ name: 'Spotify Premium', category: 'Music & Audio', monthly: 11.99, renewsIn: 7, color: '#16a34a', domain: 'spotify.com', selectedByUser: true, unselectedDiscovery: false },
+			];
+		}
+
+		// Identify subscriptions not selected by the user to present as inbox discoveries
+		const selectedKeySet = new Set(
+			userSelected.map((s) => s.name.toLowerCase().replace(/[^a-z0-9]/g, ''))
+		);
+
+		const unselectedPool = DEMO_SUBS.filter((s) => {
+			const key = s.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+			return !selectedKeySet.has(key) && !Array.from(selectedKeySet).some((k) => key.includes(k) || k.includes(key));
+		});
+
+		// Choose 3 realistic recurring surprise discoveries (e.g. Adobe CC, Planet Fitness, Audible)
+		surpriseDiscoveries = unselectedPool.slice(0, 3).map((s) => ({
+			...s,
+			selectedByUser: false,
+			unselectedDiscovery: true,
+		}));
+
+		activeSubs = [...userSelected, ...surpriseDiscoveries];
+	} else {
+		// Pure email scan without prior manual selection: tag top 5 as free teaser, remaining as Pro locked
+		activeSubs = DEMO_SUBS.map((s, idx) => ({
+			...s,
+			selectedByUser: idx < 5,
+			unselectedDiscovery: idx >= 5,
+		}));
+		userSelected = activeSubs.filter((s) => s.selectedByUser);
+		surpriseDiscoveries = activeSubs.filter((s) => s.unselectedDiscovery);
 	}
 
 	// Accurately compute totals from detected subscriptions
@@ -155,6 +196,8 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 					.split('T')[0],
 				status: 'active',
 				domain: (s as any).domain,
+				selectedByUser: s.selectedByUser,
+				unselectedDiscovery: s.unselectedDiscovery,
 			})),
 		),
 	);
@@ -194,6 +237,8 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 								nextBilling: new Date(Date.now() + (s.renewsIn || 14) * 86400000).toISOString().split('T')[0],
 								status: 'active',
 								domain: s.domain,
+								selectedByUser: s.selectedByUser,
+								unselectedDiscovery: s.unselectedDiscovery,
 							})),
 						),
 					);
@@ -204,27 +249,27 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 			});
 	}
 
-	const firstNames = activeSubs.slice(0, 3).map((s) => s.name).join(', ');
+	const surpriseNames = surpriseDiscoveries.slice(0, 2).map((s) => s.name.split(' ')[0]).join(', ');
 
 	const stages = hasUserSelections
 		? [
-				{ at: 0, text: `Verifying your ${activeSubs.length} selected subscriptions...` },
-				{ at: 600, text: `Analyzing billing cycles & refund policies for ${firstNames}...` },
-				{ at: 1300, text: `Calculating cancellation difficulty scores (1–10)...` },
-				{ at: 2000, text: `Aggregating monthly recurring burn: $${calculatedMonthly}/mo...` },
-				{ at: 2600, text: `Audit complete! Preparing your cancel kit...` },
+				{ at: 0, text: `Verifying your ${userSelected.length} selected subscriptions...` },
+				{ at: 800, text: `Deep-scanning inbox receipts for hidden & forgotten charges...` },
+				{ at: 1800, text: `⚠️ Alert: Detected ${surpriseDiscoveries.length} recurring charges NOT in your selections!` },
+				{ at: 2700, text: surpriseNames ? `Found unexpected charges: ${surpriseNames}...` : 'Found surprise charges in receipts...' },
+				{ at: 3500, text: `Audit complete! Preparing your full breakdown...` },
 			]
 		: [
 				{ at: 0, text: emailParam ? `Connecting to ${provider}...` : 'Scanning receipts...' },
 				{ at: 900, text: 'Scanning invoices & payment confirmations...' },
 				{ at: 1800, text: 'Found Netflix ($15.49/mo)...' },
 				{ at: 2600, text: 'Found Spotify ($11.99/mo)...' },
-				{ at: 3400, text: 'Found Adobe Creative Cloud ($59.99/mo)...' },
+				{ at: 3400, text: '⚠️ Detected unlisted subscriptions in receipts...' },
 				{ at: 4200, text: 'Found 14 active subscriptions...' },
 				{ at: 4800, text: 'Calculating your total recurring spend...' },
 			];
 
-	const DURATION_MS = hasUserSelections ? 3000 : 5200;
+	const DURATION_MS = hasUserSelections ? 4200 : 5400;
 	const startTime = Date.now();
 
 	const interval = setInterval(() => {

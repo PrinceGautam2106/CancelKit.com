@@ -28,3 +28,7 @@ pnpm-debug.log*
 # IDEs
 .idea/
 .vscode/
+
+# Deployment & runtime caches
+.wrangler/
+.vercel/

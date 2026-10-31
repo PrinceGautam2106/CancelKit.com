@@ -5,6 +5,11 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import cloudflare from '@astrojs/cloudflare';
 
+import { SERVICE_ALIASES } from './src/data/services';
+
+const aliasSlugs = Object.keys(SERVICE_ALIASES);
+const aliasRegex = new RegExp(`\\/cancel\\/(${aliasSlugs.join('|')})\\/?$`);
+
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
@@ -25,6 +30,7 @@ export default defineConfig({
 				!page.includes('/404') &&
 				!page.includes('/500') &&
 				!page.includes('/start') &&
+				!aliasRegex.test(page) &&
 				!/\/(es|fr|de|pt|ja|ko|it)\/cancel\//.test(page),
 
 			// Assign priority + changefreq based on page type
@@ -100,6 +106,12 @@ export default defineConfig({
 	],
 	vite: {
 		plugins: [tailwindcss()],
+		optimizeDeps: {
+			exclude: ['stripe'],
+		},
+		ssr: {
+			external: ['stripe'],
+		},
 	},
 	site: 'https://cancelkits.com',
 	output: 'static',

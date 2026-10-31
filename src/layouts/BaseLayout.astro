@@ -32,7 +32,7 @@ const {
 	twitterDescription,
 	lang = 'en',
 	keywords = 'cancel subscriptions, subscription cancellation, stop recurring charges, cancel subscriptions online, subscription tracker, find forgotten subscriptions, cancel all subscriptions, subscription manager, cancel membership online',
-	robots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+	robots: customRobots,
 	canonicalPath,
 	schemas = [],
 	noIndex = false,
@@ -55,7 +55,19 @@ const resolvedOgTitle = ogTitle ?? title;
 const resolvedOgDescription = ogDescription ?? description;
 const resolvedTwitterTitle = twitterTitle ?? resolvedOgTitle;
 const resolvedTwitterDescription = twitterDescription ?? resolvedOgDescription;
-const robotsContent = noIndex ? 'noindex, nofollow' : robots;
+
+const isNonEnglish = lang !== 'en' || /^\/(es|fr|de|pt|ja|ko|it)(\/|$)/.test(rawPath);
+const defaultRobots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+
+// Temporarily place "noindex, follow" on all non-English pages (/es/, /fr/, /de/, /pt/, /ja/, /ko/, /it/)
+// so Googlebot spends 100% of crawl budget on core English playbooks instead of translated variants.
+const robotsContent = customRobots
+	? customRobots
+	: isNonEnglish
+		? 'noindex, follow'
+		: noIndex
+			? 'noindex, nofollow'
+			: defaultRobots;
 
 const ogLocaleMap: Record<string, string> = {
 	en: 'en_US',
@@ -146,14 +158,28 @@ const homeHreflang = [
 <!doctype html>
 <html lang={lang}>
 	<head>
-		<!-- Google tag (gtag.js) -->
-		<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-9DZNTBTWC7"></script>
+		<!-- Google Analytics — loaded only after cookie consent (GDPR) -->
 		<script is:inline>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-
-			gtag('config', 'G-9DZNTBTWC7');
+			(function() {
+				var CONSENT_KEY = 'cancelkit-cookie-consent';
+				function loadGA() {
+					if (document.querySelector('script[src*="googletagmanager"]')) return;
+					var s = document.createElement('script');
+					s.async = true;
+					s.src = 'https://www.googletagmanager.com/gtag/js?id=G-9DZNTBTWC7';
+					document.head.appendChild(s);
+					window.dataLayer = window.dataLayer || [];
+					function gtag(){dataLayer.push(arguments);}
+					window.gtag = gtag;
+					gtag('js', new Date());
+					gtag('config', 'G-9DZNTBTWC7');
+				}
+				try {
+					if (localStorage.getItem(CONSENT_KEY) === 'accepted') loadGA();
+				} catch(e) {}
+				// Listen for consent granted from CookieBanner
+				document.addEventListener('cancelkit:consent', loadGA);
+			})();
 		</script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -1,4 +1,5 @@
 ---
+export const prerender = true;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -669,6 +670,12 @@ Calculate yours free: https://cancelkits.com/calculator`;
 			} catch {
 				// clipboard fallback
 			}
+		});
+
+		// Smooth scroll for mobile summary button
+		document.getElementById('mobile-view-summary-btn')?.addEventListener('click', (e) => {
+			e.preventDefault();
+			document.getElementById('live-results-panel')?.scrollIntoView({ behavior: 'smooth' });
 		});
 
 		// Initial calculation run

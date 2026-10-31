@@ -1438,6 +1438,30 @@ export const services: Service[] = [
 		metaDescription: 'Cancel FT.com subscription online with tips for discount offers Or cancel with CancelKits.',
 		relatedSlugs: ['wsj', 'bloomberg', 'nyt', 'washington-post'],
 	},
+	{
+		slug: 'chatgpt-plus',
+		name: 'ChatGPT Plus',
+		category: 'Software & Cloud',
+		monthlyPrice: 20.00,
+		cancelDifficulty: 'easy',
+		cancelDifficultyScore: 2,
+		difficultyNotes: 'Easy 2-click cancellation via billing portal',
+		cancelMethod: 'online',
+		steps: [
+			'Log in to chatgpt.com on your web browser',
+			'Click your profile icon at the bottom-left corner and open Settings',
+			'Under Account / Subscription, click Manage My Subscription',
+			'You will be redirected to the Stripe billing portal — select Cancel Plan',
+			'Confirm cancellation — you keep full GPT-4/Plus access until the billing period ends',
+		],
+		timeToCancel: '2 minutes',
+		willTheyOfferDiscount: false,
+		saveWithCancelKits: true,
+		metaTitle: 'How to Cancel ChatGPT Plus in 2026 (Step-by-Step) | CancelKits',
+		metaDescription:
+			'Step-by-step instructions to cancel your ChatGPT Plus ($20/mo) OpenAI subscription on web or mobile before the next billing cycle.',
+		relatedSlugs: ['notion', 'canva-pro', 'adobe', 'microsoft-365'],
+	},
 ] as Service[];
 
 const alternativesByCategory: Record<ServiceCategory, Alternative[]> = {
@@ -1568,4 +1592,80 @@ export function getDifficultyTier(score: number): DifficultyTier {
 	if (score >= 8) return 'nightmare';
 	if (score >= 5) return 'hard';
 	return 'easy';
+}
+
+export const SERVICE_ALIASES: Record<string, string> = {
+	'planet': 'planet-fitness',
+	'planet-fitness-black-card': 'planet-fitness',
+	'canva': 'canva-pro',
+	'disney': 'disney-plus',
+	'nord': 'nordvpn',
+	'paramount': 'paramount-plus',
+	'samsclub': 'sam-club',
+	'sam-s-club': 'sam-club',
+	'sam-s-club-plus': 'sam-club',
+	'sam-club-plus': 'sam-club',
+	'adobe-cc': 'adobe',
+	'adobe-creative-cloud': 'adobe',
+	'linkedin': 'linkedin-premium',
+	'doordash': 'door-dash',
+	'dashpass': 'door-dash',
+	'chatgpt': 'chatgpt-plus',
+	'openai': 'chatgpt-plus',
+	'hulu-no-ads': 'hulu',
+	'netflix-standard': 'netflix',
+	'spotify-premium': 'spotify',
+	'the-new-york-times': 'nyt',
+	'new-york-times': 'nyt',
+	'audible-premium': 'audible',
+	'dropbox-plus': 'dropbox',
+	'max': 'hbo-max',
+	'hbo': 'hbo-max',
+	'amazon': 'amazon-prime',
+	'prime': 'amazon-prime',
+	'youtube': 'youtube-premium',
+	'apple-music-subscription': 'apple-music',
+	'office-365': 'microsoft-365',
+	'office365': 'microsoft-365',
+	'ms-365': 'microsoft-365',
+	'express-vpn': 'expressvpn',
+};
+
+export function resolveServiceSlug(raw: string, fallbackName?: string): string | null {
+	if (!raw && !fallbackName) return null;
+	const clean = (raw || '').toLowerCase().trim().replace(/^custom-/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+	
+	if (clean) {
+		const direct = services.find((s) => s.slug === clean);
+		if (direct) return direct.slug;
+		if (SERVICE_ALIASES[clean]) {
+			const target = SERVICE_ALIASES[clean];
+			if (services.some((s) => s.slug === target)) return target;
+		}
+	}
+
+	if (fallbackName) {
+		const cleanName = fallbackName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+		const directByName = services.find((s) => s.slug === cleanName);
+		if (directByName) return directByName.slug;
+		if (SERVICE_ALIASES[cleanName]) {
+			const target = SERVICE_ALIASES[cleanName];
+			if (services.some((s) => s.slug === target)) return target;
+		}
+		for (const s of services) {
+			if (cleanName.includes(s.slug) || s.slug.includes(cleanName)) {
+				return s.slug;
+			}
+		}
+	}
+
+	if (clean) {
+		for (const s of services) {
+			if (clean.includes(s.slug) || s.slug.includes(clean)) {
+				return s.slug;
+			}
+		}
+	}
+
+	return null;
 }

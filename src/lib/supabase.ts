@@ -4,14 +4,18 @@ import { createClient } from '@supabase/supabase-js';
 export const SUPABASE_URL =
 	import.meta.env.PUBLIC_SUPABASE_URL ||
 	import.meta.env.SUPABASE_URL ||
-	(typeof process !== 'undefined' ? process.env?.SUPABASE_URL : '') ||
-	'https://your-project-id.supabase.co';
+	(typeof process !== 'undefined' ? process.env?.SUPABASE_URL : '');
 
 export const SUPABASE_ANON_KEY =
 	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ||
 	import.meta.env.SUPABASE_ANON_KEY ||
-	(typeof process !== 'undefined' ? process.env?.SUPABASE_ANON_KEY : '') ||
-	'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_key_replace_with_real_supabase_anon_key';
+	(typeof process !== 'undefined' ? process.env?.SUPABASE_ANON_KEY : '');
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+	throw new Error(
+		'Missing Supabase environment variables. Set PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in your .env file.'
+	);
+}
 
 // Supabase client instance
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

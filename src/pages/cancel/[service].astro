@@ -1,4 +1,5 @@
 ---
+export const prerender = true;
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -10,15 +11,29 @@ import {
 	formatPrice,
 	getRelatedServices,
 	services,
+	SERVICE_ALIASES,
 	type CancelDifficulty,
 	type Service,
 } from '../../data/services';
 
 export function getStaticPaths() {
-	return services.map((service) => ({
+	const directPaths = services.map((service) => ({
 		params: { service: service.slug },
 		props: { service },
 	}));
+
+	const aliasPaths = Object.entries(SERVICE_ALIASES)
+		.map(([aliasSlug, targetSlug]) => {
+			const targetService = services.find((s) => s.slug === targetSlug);
+			if (!targetService) return null;
+			return {
+				params: { service: aliasSlug },
+				props: { service: targetService },
+			};
+		})
+		.filter((p): p is { params: { service: string }; props: { service: Service } } => p !== null);
+
+	return [...directPaths, ...aliasPaths];
 }
 
 interface Props {
@@ -75,9 +90,60 @@ const difficultyClass: Record<CancelDifficulty, string> = {
 	hard: 'is-hard',
 	nightmare: 'is-nightmare',
 };
+
+const freeToolRecommendations: Record<string, { title: string; desc: string; linkText: string; url: string }> = {
+	'planet-fitness': {
+		title: 'Cutting gym costs? Plan your home workouts and nutrition for free',
+		desc: 'You do not need an expensive recurring membership to stay on track. Calculate your daily baseline calorie burn and macronutrient targets with the free Mifflin-St Jeor calculators on',
+		linkText: 'CalaiFitness TDEE & Calorie Calculator',
+		url: 'https://calaifitness.com/calculator/tdee/',
+	},
+	'la-fitness': {
+		title: 'Switching to free home fitness?',
+		desc: 'Ditching the gym dues? Track your basal metabolism and estimate daily caloric expenditure without monthly fees using the',
+		linkText: 'CalaiFitness Daily Calorie & TDEE Calculator',
+		url: 'https://calaifitness.com/calculator/tdee/',
+	},
+	'orange-theory': {
+		title: 'Tracking heart rate zones without an OTF membership?',
+		desc: 'Calculate your exact Zone 2 fat-burning heart rate, target cardio zones, and VO2 max training intensity for free with the',
+		linkText: 'CalaiFitness Target Heart Rate & Zone 2 Calculator',
+		url: 'https://calaifitness.com/calculator/target-heart-rate/',
+	},
+	'peloton': {
+		title: 'Taking your cardio outdoors or to a standard spin bike?',
+		desc: 'Calculate your target cardio training zones and optimal fat-burn heart rate without the $44/month subscription using the',
+		linkText: 'CalaiFitness Target Heart Rate & Zone 2 Tool',
+		url: 'https://calaifitness.com/calculator/target-heart-rate/',
+	},
+	'gym-membership': {
+		title: 'Exercising on a budget?',
+		desc: 'Calculate your daily energy expenditure, body fat percentage, and macronutrient requirements completely free using',
+		linkText: 'CalaiFitness Free Health & Fitness Calculators',
+		url: 'https://calaifitness.com/',
+	},
+	'headspace': {
+		title: 'Looking for better sleep habits without a subscription?',
+		desc: 'Calculate your natural 90-minute REM sleep cycles, optimal bedtime, and recovery sleep debt for free with the',
+		linkText: 'CalaiFitness Sleep Cycle & Sleep Debt Calculator',
+		url: 'https://calaifitness.com/calculator/sleep/',
+	},
+	'calm': {
+		title: 'Optimizing your sleep schedule for free?',
+		desc: 'Wake up refreshed by aligning with natural sleep cycles. Calculate your exact bedtime and track accumulated sleep loss using the',
+		linkText: 'CalaiFitness Sleep & Sleep Debt Calculator',
+		url: 'https://calaifitness.com/calculator/sleep/',
+	},
+};
+
+const freeToolRecommendation = freeToolRecommendations[service.slug];
 ---
 
-<BaseLayout title={service.metaTitle} description={service.metaDescription}>
+<BaseLayout
+	title={service.metaTitle}
+	description={service.metaDescription}
+	canonicalPath={`/cancel/${service.slug}/`}
+>
 	<Nav />
 	<main class="guide">
 		<article class="guide__article">
@@ -183,6 +249,26 @@ const difficultyClass: Record<CancelDifficulty, string> = {
 					</div>
 				</div>
 			</section>
+
+			{freeToolRecommendation && (
+				<section class="guide__free-tool-box" aria-label="Free Tools Recommendation">
+					<div class="guide__free-tool-icon" aria-hidden="true">💡</div>
+					<div class="guide__free-tool-content">
+						<h3>{freeToolRecommendation.title}</h3>
+						<p>
+							{freeToolRecommendation.desc}{' '}
+							<a
+								href={freeToolRecommendation.url}
+								target="_blank"
+								rel="noopener"
+								class="guide__free-tool-link"
+							>
+								{freeToolRecommendation.linkText} →
+							</a>
+						</p>
+					</div>
+				</section>
+			)}
 
 			<!-- Copy-Paste Formal Cancellation Notice -->
 			<section class="guide__script-section">
@@ -1125,6 +1211,51 @@ Thank you,
 
 	.guide__blog-list .arrow {
 		color: var(--color-accent);
+	}
+
+	/* Free Tool Recommendation Box (Contextual Fitness / Health Tools) */
+	.guide__free-tool-box {
+		margin-top: 3.5rem;
+		padding: 1.75rem 2rem;
+		border-radius: var(--radius-lg);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		background: rgba(0, 255, 136, 0.03);
+		display: flex;
+		gap: 1.25rem;
+		align-items: flex-start;
+	}
+
+	.guide__free-tool-icon {
+		font-size: 1.75rem;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.guide__free-tool-content h3 {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 600;
+		color: #fff;
+	}
+
+	.guide__free-tool-content p {
+		margin: 0;
+		color: #d0d0d0;
+		font-size: 0.925rem;
+		line-height: 1.6;
+	}
+
+	.guide__free-tool-link {
+		color: var(--color-accent);
+		font-weight: 600;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		transition: opacity 0.2s;
+	}
+
+	.guide__free-tool-link:hover {
+		opacity: 0.85;
 	}
 
 	.hidden {

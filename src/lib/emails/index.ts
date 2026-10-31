@@ -56,4 +56,10 @@ export {
 	type LiveSubscriptionAlertData,
 } from './live-subscription-alert';
 
+export {
+	familyInviteSubject,
+	familyInviteHtml,
+	type FamilyInviteEmailData,
+} from './family-invite';
+
 export { emailLayout, styles, SITE } from './layout';

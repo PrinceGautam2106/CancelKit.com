@@ -43,6 +43,8 @@
 		} catch {
 			/* ignore */
 		}
+		// Notify BaseLayout to load Google Analytics
+		document.dispatchEvent(new Event('cancelkit:consent'));
 		if (banner) {
 			banner.style.opacity = '0';
 			banner.style.transform = 'translateY(16px)';

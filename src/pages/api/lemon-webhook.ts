@@ -84,20 +84,22 @@ export const POST: APIRoute = async ({ request }) => {
 					customData.plan ||
 					getPlanFromVariantOrPriceId(attributes.variant_id || attributes.variant_name);
 
-				// Update user in Supabase
+				// Upsert user in Supabase
 				if (userId) {
 					try {
 						await supabase
 							.from('users')
-							.update({
+							.upsert({
+								id: userId,
+								email: email || undefined,
 								plan,
+								subscription_status: 'active',
 								stripe_customer_id: customerId, // Kept compatible with existing DB columns
 								stripe_subscription_id: subscriptionId,
 								updated_at: new Date().toISOString(),
-							})
-							.eq('id', userId);
+							}, { onConflict: 'id' });
 					} catch (dbErr) {
-						console.warn('[Lemon Webhook] Failed to update user record:', dbErr);
+						console.warn('[Lemon Webhook] Failed to upsert user record:', dbErr);
 					}
 				}
 

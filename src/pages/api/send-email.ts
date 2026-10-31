@@ -212,6 +212,35 @@ export const POST: APIRoute = async ({ request }) => {
 		// Logging failure should not block the response
 	}
 
+	// ── Notify Admin on New User Signup ──
+	if (template === 'welcome' && !sendError) {
+		const adminEmail =
+			import.meta.env.ADMIN_EMAIL ??
+			(typeof process !== 'undefined' ? process.env?.ADMIN_EMAIL : undefined) ??
+			import.meta.env.ADMIN_NOTIFICATION_EMAIL ??
+			(typeof process !== 'undefined' ? process.env?.ADMIN_NOTIFICATION_EMAIL : undefined);
+
+		if (adminEmail && adminEmail !== to) {
+			resend.emails.send({
+				from: EMAIL_DEFAULTS.from,
+				to: adminEmail,
+				subject: `🔔 New User Signed Up on CancelKits: ${to}`,
+				html: `
+					<div style="font-family:sans-serif;padding:20px;color:#333;">
+						<h2>New Account Created! 🎉</h2>
+						<p>A new user has just registered on CancelKits.</p>
+						<ul>
+							<li><strong>Email:</strong> ${to}</li>
+							<li><strong>Date:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'UTC' })} UTC</li>
+						</ul>
+					</div>
+				`,
+			}).catch((adminErr) => {
+				console.warn('[Admin Notify] Could not send admin notification:', adminErr);
+			});
+		}
+	}
+
 	if (sendError) {
 		return new Response(
 			JSON.stringify({ error: sendError }),

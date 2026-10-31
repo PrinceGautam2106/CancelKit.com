@@ -58,7 +58,7 @@ export function getPlanFromVariantOrPriceId(id?: string | number | null): 'free'
 	) {
 		return 'pro';
 	}
-	return 'pro';
+	return 'free';
 }
 
 /**

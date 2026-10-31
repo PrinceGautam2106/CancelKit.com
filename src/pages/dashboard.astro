@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PlanBadge from '../components/PlanBadge.astro';
 import SavingsCounter from '../components/SavingsCounter.astro';
@@ -13,6 +14,55 @@ const description = 'See every subscription draining your account and cancel wha
 ---
 
 <BaseLayout {title} {description} noIndex>
+	<!-- High-speed layout stabilizer: prevents skeleton flash, empty connect flash, or gate flicker -->
+	<script is:inline>
+		(function () {
+			try {
+				var params = new URLSearchParams(window.location.search);
+				var hasPaymentReturn = params.get('payment') === 'success' || params.get('upgraded') === 'true';
+				var urlPlan = params.get('plan');
+				var pendingPlan = localStorage.getItem('cancelkit-pending-checkout-plan');
+				var targetPlan = (urlPlan === 'pro' || urlPlan === 'family') ? urlPlan : ((pendingPlan === 'pro' || pendingPlan === 'family') ? pendingPlan : null);
+
+				if (hasPaymentReturn) {
+					localStorage.setItem('cancelkit-dashboard-connected', '1');
+					if (targetPlan) {
+						sessionStorage.setItem('cancelkit-optimistic-plan', targetPlan);
+					}
+				}
+
+				var connVal = localStorage.getItem('cancelkit-dashboard-connected');
+				var isConnected = hasPaymentReturn || params.get('connected') === '1' || params.get('empty') === '1' || connVal === '1' || connVal === 'true';
+
+				if (isConnected) {
+					document.documentElement.classList.add('dash-fast-ready');
+				}
+
+				var activePlan = targetPlan || sessionStorage.getItem('cancelkit-optimistic-plan');
+				if (!activePlan) {
+					try {
+						var authRaw = localStorage.getItem('cancelkit-auth-token');
+						if (authRaw) {
+							var auth = JSON.parse(authRaw);
+							var uid = auth && auth.user ? auth.user.id : null;
+							if (uid) {
+								var cached = localStorage.getItem('cancelkit-user-plan_' + uid);
+								if (cached === 'pro' || cached === 'family') activePlan = cached;
+							}
+						}
+					} catch (e) {}
+				}
+
+				if (activePlan === 'pro' || activePlan === 'family') {
+					document.documentElement.classList.add('dash-plan-unlocked');
+					if (activePlan === 'family') {
+						document.documentElement.classList.add('dash-plan-family');
+					}
+				}
+			} catch (err) {}
+		})();
+	</script>
+
 	<div class="dash" data-dashboard data-connected="false" data-loading="true">
 		<!-- LOADING SKELETON -->
 		<section class="dash__loading" data-loading-state aria-busy="true">
@@ -49,12 +99,25 @@ const description = 'See every subscription draining your account and cancel wha
 					<span class="dash__status-dot" aria-hidden="true"></span>
 					<span data-connected-label>Connected: Gmail</span>
 				</div>
+				<div class="dash__user-email-row" style="margin: -0.25rem 0 0.5rem; font-size: 0.75rem; color: #777; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+					<span id="dash-user-email"></span>
+				</div>
 				<div class="dash__plan-row">
 					<span class="dash__plan-label">Plan</span>
 					<div id="dash-plan-badge-wrap">
 						<PlanBadge plan="free" />
 					</div>
 				</div>
+
+				<!-- PRIORITY CANCEL SUPPORT (UNLOCKED ON PRO / FAMILY) -->
+				<div class="dash__vip-support" id="dash-vip-support-row" style="margin: 0.75rem 0 0.5rem; padding: 0.65rem; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 8px;" hidden>
+					<div style="font-size: 0.75rem; font-weight: 600; color: #00ff88; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.35rem;">
+						<span>⚡</span> Priority Concierge
+					</div>
+					<p style="margin: 0 0 0.35rem; font-size: 0.7rem; color: #aaa; line-height: 1.3;">1-on-1 agent cancellation assistance included in your plan.</p>
+					<a href="mailto:support@cancelkits.com?subject=Priority%20Cancel%20Request" style="display: inline-block; font-size: 0.72rem; color: #00ff88; text-decoration: underline; font-weight: 500;">Email Concierge →</a>
+				</div>
+
 				<button type="button" class="dash__signout" id="dash-signout-btn">Sign out</button>
 			</aside>
 
@@ -81,6 +144,19 @@ const description = 'See every subscription draining your account and cancel wha
 							<button type="button" class="dash__btn-sm dash__btn--ghost" data-reset-subs title="Clear demo items and start with 0">Reset to $0</button>
 						</div>
 					</div>
+
+					<!-- SHARED FAMILY HOUSEHOLD TOGGLE (ACTIVE ON FAMILY PLAN) -->
+					<div class="dash__family-toggle-row" id="dash-family-toggle-row" style="margin: 0.75rem 0; display: flex; align-items: center; justify-content: space-between; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 0.5rem 0.85rem;" hidden>
+						<div style="display: flex; align-items: center; gap: 0.5rem;">
+							<span style="font-size: 1rem;">👨‍👩‍👧‍👦</span>
+							<span style="font-size: 0.85rem; font-weight: 600; color: #c084fc;">Shared Family Plan:</span>
+						</div>
+						<div style="display: flex; gap: 0.35rem;">
+							<button type="button" id="tab-scope-personal" class="is-active" style="background: rgba(255,255,255,0.12); border: 0; color: #fff; padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 500;">My Subscriptions</button>
+							<button type="button" id="tab-scope-household" style="background: transparent; border: 0; color: #aaa; padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Household Pool (Shared)</button>
+						</div>
+					</div>
+
 					<div class="dash__controls-row">
 						<div class="dash__filters" role="tablist" aria-label="Filter subscriptions">
 							<button type="button" class="is-active" role="tab" aria-selected="true" data-filter="all">All</button>
@@ -260,14 +336,14 @@ const description = 'See every subscription draining your account and cancel wha
 				</div>
 
 				<div class="viral-actions">
-					<a id="viral-twitter-btn" href="#" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--x">
+					<a id="viral-twitter-btn" href="https://twitter.com/intent/tweet?text=I%20just%20saved%20money%20cancelling%20unwanted%20subscriptions%20with%20CancelKits!%20https://cancelkits.com" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--x">
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
 						</svg>
 						<span>Tweet savings</span>
 					</a>
 
-					<a id="viral-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--wa">
+					<a id="viral-whatsapp-btn" href="https://api.whatsapp.com/send?text=I%20just%20saved%20money%20cancelling%20unwanted%20subscriptions%20with%20CancelKits!%20https://cancelkits.com" target="_blank" rel="noopener noreferrer" class="viral-share-btn viral-share-btn--wa">
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24"/>
 						</svg>
@@ -285,8 +361,76 @@ const description = 'See every subscription draining your account and cancel wha
 
 <script>
 	import { supabase, setAuthCookies, clearAuthCookies } from '../lib/supabase';
+	import { resolveServiceSlug } from '../data/services';
 
-	// Client-side authentication guard
+	const USER_PLAN_KEY = 'cancelkit-user-plan';
+	const STORAGE_KEY = 'cancelkit-dashboard-connected';
+	const PROVIDER_KEY = 'cancelkit-dashboard-provider';
+	const SUBS_KEY = 'cancelkit-dashboard-subs';
+
+	const dashUrlParams = new URLSearchParams(window.location.search);
+	const isPaymentReturn = dashUrlParams.get('payment') === 'success' || dashUrlParams.get('upgraded') === 'true';
+	const urlPlanParam = dashUrlParams.get('plan') as 'pro' | 'family' | null;
+	const pendingPlan = localStorage.getItem('cancelkit-pending-checkout-plan') as 'pro' | 'family' | null;
+
+	// Determine initial plan optimistically from frame 1: zero buffering, zero gate flicker
+	let userPlan: 'free' | 'pro' | 'family' = 'free';
+
+	if (isPaymentReturn) {
+		userPlan = (urlPlanParam === 'pro' || urlPlanParam === 'family') ? urlPlanParam : (pendingPlan || 'pro');
+		localStorage.setItem(STORAGE_KEY, '1');
+		sessionStorage.setItem('cancelkit-optimistic-plan', userPlan);
+		localStorage.removeItem('cancelkit-pending-checkout-plan');
+	} else {
+		const optimistic = sessionStorage.getItem('cancelkit-optimistic-plan') as 'free' | 'pro' | 'family' | null;
+		if (optimistic === 'pro' || optimistic === 'family') {
+			userPlan = optimistic;
+		} else {
+			try {
+				const authRaw = localStorage.getItem('cancelkit-auth-token');
+				if (authRaw) {
+					const auth = JSON.parse(authRaw);
+					const uid = auth?.user?.id;
+					if (uid) {
+						const cached = localStorage.getItem(`${USER_PLAN_KEY}_${uid}`) as 'free' | 'pro' | 'family' | null;
+						if (cached === 'pro' || cached === 'family') userPlan = cached;
+					}
+				}
+			} catch {}
+		}
+	}
+
+	function updatePlanBadgeUi() {
+		const planBadgeWrap = document.getElementById('dash-plan-badge-wrap');
+		if (planBadgeWrap) {
+			const badge = planBadgeWrap.querySelector('.plan-badge') as HTMLElement;
+			if (badge) {
+				badge.className = `plan-badge plan-badge--${userPlan}`;
+				badge.textContent = userPlan === 'pro' ? 'Pro ✓' : userPlan === 'family' ? 'Family' : 'Free plan';
+			}
+		}
+	}
+
+	function updateUpgradeBannerUi() {
+		const upgradeBanner = document.getElementById('dash-upgrade-banner');
+		if (upgradeBanner) {
+			if (isPaymentReturn || userPlan !== 'free') {
+				const strong = upgradeBanner.querySelector('strong');
+				if (strong) strong.textContent = userPlan === 'family' ? 'Welcome to CancelKits Family!' : 'Welcome to CancelKits Pro!';
+				const desc = upgradeBanner.querySelector('p');
+				if (desc) desc.textContent = userPlan === 'family'
+					? 'All subscriptions unlocked, family household sharing active (up to 5 members).'
+					: 'All subscriptions unlocked. Instant 1-click cancellation and renewal radar active.';
+				upgradeBanner.hidden = !isPaymentReturn;
+			}
+		}
+	}
+
+	// Apply immediate UI state
+	updatePlanBadgeUi();
+	updateUpgradeBannerUi();
+
+	// Client-side authentication guard with silent gateway synchronization
 	async function checkAuth() {
 		try {
 			const { data: { session }, error } = await supabase.auth.getSession();
@@ -296,22 +440,101 @@ const description = 'See every subscription draining your account and cancel wha
 			}
 			setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
 
-			// Synchronize live plan from Supabase users profile
-			try {
-				const { data: profile } = await supabase
-					.from('users')
-					.select('plan')
-					.eq('id', session.user.id)
-					.maybeSingle();
+			// Display authenticated user email in sidebar
+			const dashEmailEl = document.getElementById('dash-user-email');
+			if (dashEmailEl && session.user.email) {
+				dashEmailEl.textContent = session.user.email;
+				dashEmailEl.title = `Signed in as ${session.user.email}`;
+			}
 
-				if (profile?.plan && profile.plan !== userPlan) {
-					userPlan = profile.plan as any;
-					localStorage.setItem(USER_PLAN_KEY, userPlan);
+			// Remove legacy unscoped key so it never leaks across accounts
+			localStorage.removeItem(USER_PLAN_KEY);
+
+			const userScopedKey = `${USER_PLAN_KEY}_${session.user.id}`;
+			
+			// Optimistically pin current active plan to user-scoped storage
+			if (userPlan !== 'free') {
+				localStorage.setItem(userScopedKey, userPlan);
+			}
+
+			// Synchronize live plan from Supabase and direct Lemon Squeezy Gateway quietly in the background
+			try {
+				let verifiedPlan: 'free' | 'pro' | 'family' = userPlan;
+
+				// 1. Check Supabase users table (if configured)
+				try {
+					const { data: profile } = await supabase
+						.from('users')
+						.select('plan, subscription_status')
+						.eq('id', session.user.id)
+						.maybeSingle();
+
+					if (profile?.plan === 'pro' || profile?.plan === 'family') {
+						verifiedPlan = profile.plan;
+					}
+				} catch {}
+
+				// 2. Synchronous Payment Gateway Verification:
+				// If verifiedPlan is 'free' OR user just completed payment (url contains upgraded=true or payment=success),
+				// call /api/subscription/sync to query Lemon Squeezy live API directly.
+				if (verifiedPlan === 'free' || isPaymentReturn) {
+					try {
+						const syncRes = await fetch('/api/subscription/sync', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								userId: session.user.id,
+								email: session.user.email,
+							}),
+						});
+						if (syncRes.ok) {
+							const syncData = await syncRes.json();
+							if (syncData?.active && (syncData.plan === 'pro' || syncData.plan === 'family')) {
+								verifiedPlan = syncData.plan;
+							}
+						}
+					} catch (syncErr) {
+						console.warn('[Dashboard] Gateway sync check error:', syncErr);
+					}
+				}
+
+				// 3. If still not directly paid, check if this user is an active member of a Family household
+				if (verifiedPlan === 'free') {
+					try {
+						const fRes = await fetch(`/api/family?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || '')}`);
+						const fData = await fRes.json();
+						if (fData?.isMember || fData?.isOwner) {
+							verifiedPlan = 'family';
+						}
+					} catch {}
+				}
+
+				// Update user-scoped cache
+				localStorage.setItem(userScopedKey, verifiedPlan);
+				if (verifiedPlan === 'pro' || verifiedPlan === 'family') {
+					sessionStorage.setItem('cancelkit-optimistic-plan', verifiedPlan);
+				} else {
+					sessionStorage.removeItem('cancelkit-optimistic-plan');
+				}
+
+				// Only re-render if the verified plan actually differs from our optimistic state
+				if (verifiedPlan !== userPlan) {
+					userPlan = verifiedPlan;
 					updatePlanBadgeUi();
+					updateUpgradeBannerUi();
+					const familyToggle = document.getElementById('dash-family-toggle-row');
+					if (familyToggle) familyToggle.hidden = userPlan !== 'family';
 					render();
 				}
-			} catch {
-				// Non-fatal if users table is not yet populated
+
+				// Clean up query parameters smoothly without reloading
+				if (isPaymentReturn) {
+					setTimeout(() => {
+						window.history.replaceState({}, document.title, window.location.pathname);
+					}, 1200);
+				}
+			} catch (dbErr) {
+				console.warn('[Dashboard] Live plan check exception:', dbErr);
 			}
 		} catch {
 			window.location.href = '/signin';
@@ -322,6 +545,15 @@ const description = 'See every subscription draining your account and cancel wha
 	// Signout handler
 	document.getElementById('dash-signout-btn')?.addEventListener('click', async () => {
 		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (session?.user?.id) {
+				localStorage.removeItem(`${USER_PLAN_KEY}_${session.user.id}`);
+			}
+			localStorage.removeItem(USER_PLAN_KEY);
+			localStorage.removeItem('cancelkit-scan-subs');
+			localStorage.removeItem('cancelkit-dashboard-connected');
+			localStorage.removeItem('cancelkit-dashboard-provider');
+			localStorage.removeItem('cancelkit-provider-token');
 			await supabase.auth.signOut();
 			clearAuthCookies();
 			window.location.href = '/signin';
@@ -346,25 +578,21 @@ const description = 'See every subscription draining your account and cancel wha
 		unselectedDiscovery?: boolean;
 	}
 
-	const STORAGE_KEY = 'cancelkit-dashboard-connected';
-	const PROVIDER_KEY = 'cancelkit-dashboard-provider';
-	const SUBS_KEY = 'cancelkit-dashboard-subs';
-
 	const seed: Subscription[] = [
 		{ id: 'netflix', name: 'Netflix', category: 'streaming', monthly: 15.49, nextBilling: '2026-09-18', status: 'active', domain: 'netflix.com' },
 		{ id: 'spotify', name: 'Spotify', category: 'streaming', monthly: 11.99, nextBilling: '2026-09-12', status: 'active', domain: 'spotify.com' },
 		{ id: 'adobe', name: 'Adobe Creative Cloud', category: 'software', monthly: 59.99, nextBilling: '2026-09-22', status: 'active', domain: 'adobe.com' },
 		{ id: 'hulu', name: 'Hulu', category: 'streaming', monthly: 17.99, nextBilling: '2026-09-09', status: 'cancelled', domain: 'hulu.com' },
 		{ id: 'nyt', name: 'The New York Times', category: 'news', monthly: 17.0, nextBilling: '2026-10-01', status: 'active', domain: 'nytimes.com' },
-		{ id: 'planet', name: 'Planet Fitness', category: 'fitness', monthly: 22.99, nextBilling: '2026-09-15', status: 'active', domain: 'planetfitness.com' },
-		{ id: 'canva', name: 'Canva Pro', category: 'software', monthly: 14.99, nextBilling: '2026-09-28', status: 'trial', domain: 'canva.com' },
-		{ id: 'disney', name: 'Disney+', category: 'streaming', monthly: 15.99, nextBilling: '2026-09-20', status: 'cancelled', domain: 'disneyplus.com' },
+		{ id: 'planet-fitness', name: 'Planet Fitness', category: 'fitness', monthly: 22.99, nextBilling: '2026-09-15', status: 'active', domain: 'planetfitness.com' },
+		{ id: 'canva-pro', name: 'Canva Pro', category: 'software', monthly: 14.99, nextBilling: '2026-09-28', status: 'trial', domain: 'canva.com' },
+		{ id: 'disney-plus', name: 'Disney+', category: 'streaming', monthly: 15.99, nextBilling: '2026-09-20', status: 'cancelled', domain: 'disneyplus.com' },
 		{ id: 'dropbox', name: 'Dropbox', category: 'software', monthly: 11.99, nextBilling: '2026-09-25', status: 'active', domain: 'dropbox.com' },
 		{ id: 'audible', name: 'Audible', category: 'news', monthly: 14.95, nextBilling: '2026-09-14', status: 'active', domain: 'audible.com' },
-		{ id: 'nord', name: 'NordVPN', category: 'software', monthly: 12.99, nextBilling: '2026-10-05', status: 'trial', domain: 'nordvpn.com' },
-		{ id: 'linkedin', name: 'LinkedIn Premium', category: 'software', monthly: 29.99, nextBilling: '2026-09-30', status: 'active', domain: 'linkedin.com' },
-		{ id: 'paramount', name: 'Paramount+', category: 'streaming', monthly: 11.99, nextBilling: '2026-10-02', status: 'active', domain: 'paramountplus.com' },
-		{ id: 'samsclub', name: 'Sam\'s Club Plus', category: 'software', monthly: 9.17, nextBilling: '2026-10-14', status: 'active', domain: 'samsclub.com' },
+		{ id: 'nordvpn', name: 'NordVPN', category: 'software', monthly: 12.99, nextBilling: '2026-10-05', status: 'trial', domain: 'nordvpn.com' },
+		{ id: 'linkedin-premium', name: 'LinkedIn Premium', category: 'software', monthly: 29.99, nextBilling: '2026-09-30', status: 'active', domain: 'linkedin.com' },
+		{ id: 'paramount-plus', name: 'Paramount+', category: 'streaming', monthly: 11.99, nextBilling: '2026-10-02', status: 'active', domain: 'paramountplus.com' },
+		{ id: 'sam-club', name: 'Sam\'s Club Plus', category: 'software', monthly: 9.17, nextBilling: '2026-10-14', status: 'active', domain: 'samsclub.com' },
 	];
 
 	const root = document.querySelector<HTMLElement>('[data-dashboard]');
@@ -390,31 +618,6 @@ const description = 'See every subscription draining your account and cancel wha
 	let filter: 'all' | SubStatus = 'all';
 	let sort: 'amount' | 'renewal' | 'category' = 'amount';
 	let subs: Subscription[] = loadSubs();
-
-	const USER_PLAN_KEY = 'cancelkit-user-plan';
-	let userPlan: 'free' | 'pro' | 'family' = 'free';
-
-	const dashUrlParams = new URLSearchParams(window.location.search);
-	if (dashUrlParams.get('upgraded') === 'true') {
-		userPlan = 'pro';
-		localStorage.setItem(USER_PLAN_KEY, 'pro');
-		const upgradeBanner = document.getElementById('dash-upgrade-banner');
-		if (upgradeBanner) upgradeBanner.hidden = false;
-	} else {
-		userPlan = (localStorage.getItem(USER_PLAN_KEY) as any) || 'free';
-	}
-
-	function updatePlanBadgeUi() {
-		const planBadgeWrap = document.getElementById('dash-plan-badge-wrap');
-		if (planBadgeWrap) {
-			const badge = planBadgeWrap.querySelector('.plan-badge') as HTMLElement;
-			if (badge) {
-				badge.className = `plan-badge plan-badge--${userPlan}`;
-				badge.textContent = userPlan === 'pro' ? 'Pro ✓' : userPlan === 'family' ? 'Family' : 'Free plan';
-			}
-		}
-	}
-	updatePlanBadgeUi();
 
 	document.getElementById('dash-upgrade-close')?.addEventListener('click', () => {
 		const banner = document.getElementById('dash-upgrade-banner');
@@ -497,7 +700,7 @@ const description = 'See every subscription draining your account and cancel wha
 
 	function isConnected() {
 		const params = new URLSearchParams(window.location.search);
-		if (params.get('connected') === '1' || params.get('empty') === '1') return true;
+		if (isPaymentReturn || params.get('connected') === '1' || params.get('empty') === '1') return true;
 		const val = localStorage.getItem(STORAGE_KEY);
 		return val === '1' || val === 'true';
 	}
@@ -532,8 +735,23 @@ const description = 'See every subscription draining your account and cancel wha
 		}
 	}
 
+	let householdScope: 'personal' | 'household' = 'personal';
+
+	const householdExtraSubs: Subscription[] = [
+		{ id: 'family-disney', name: 'Disney+ (Household)', category: 'streaming', monthly: 13.99, nextBilling: '2026-10-04', status: 'active', domain: 'disneyplus.com' },
+		{ id: 'family-spotify', name: 'Spotify Duo (Partner)', category: 'streaming', monthly: 16.99, nextBilling: '2026-10-12', status: 'active', domain: 'spotify.com' },
+		{ id: 'family-canva', name: 'Canva Pro (Shared)', category: 'software', monthly: 14.99, nextBilling: '2026-09-29', status: 'active', domain: 'canva.com' },
+	];
+
+	function getActivePool(): Subscription[] {
+		if (userPlan === 'family' && householdScope === 'household') {
+			return [...subs, ...householdExtraSubs];
+		}
+		return subs;
+	}
+
 	function visibleSubs() {
-		let rows = [...subs];
+		let rows = [...getActivePool()];
 		if (filter !== 'all') rows = rows.filter((s) => s.status === filter);
 
 		rows.sort((a, b) => {
@@ -545,8 +763,9 @@ const description = 'See every subscription draining your account and cancel wha
 	}
 
 	function totals() {
-		const before = subs.reduce((sum, sub) => sum + sub.monthly, 0);
-		const after = subs.filter((sub) => sub.status !== 'cancelled').reduce((sum, sub) => sum + sub.monthly, 0);
+		const pool = getActivePool();
+		const before = pool.reduce((sum, sub) => sum + sub.monthly, 0);
+		const after = pool.filter((sub) => sub.status !== 'cancelled').reduce((sum, sub) => sum + sub.monthly, 0);
 		const saved = before - after;
 		return { before, after, saved, yearly: saved * 12 };
 	}
@@ -616,7 +835,7 @@ const description = 'See every subscription draining your account and cancel wha
 			return;
 		}
 
-		const FREE_TIER_LIMIT = 5;
+		const FREE_TIER_LIMIT = 10;
 		const isFreePlan = userPlan === 'free';
 		const hasExplicitDiscoveries = rows.some((s) => s.unselectedDiscovery || s.selectedByUser === false);
 
@@ -701,16 +920,25 @@ const description = 'See every subscription draining your account and cancel wha
 		listEl.innerHTML = displayedRows.map((sub) => {
 			const cancelled = sub.status === 'cancelled';
 			const icon = faviconUrl(sub.domain);
-			const cleanSlug = sub.id.replace(/^custom-/, '').toLowerCase();
-			const hasGuide = !sub.id.startsWith('custom-');
-			const guideLink = hasGuide ? `<a href="/cancel/${escapeHtml(cleanSlug)}" target="_blank" class="dash__guide-link" rel="noopener">Guide ↗</a>` : '';
+			const guideSlug = !sub.id.startsWith('custom-') ? resolveServiceSlug(sub.id, sub.name) : null;
+			const guideLink = guideSlug ? `<a href="/cancel/${escapeHtml(guideSlug)}" target="_blank" class="dash__guide-link" rel="noopener">Guide ↗</a>` : '';
 			const action = cancelled
 				? `<div class="dash__saved-action-group"><span class="dash__saved-badge">Saved ${money(sub.monthly)}</span><button type="button" class="dash__restore-btn" data-restore="${escapeHtml(sub.id)}" title="Undo cancellation">↺ Restore</button></div>`
 				: `<div class="dash__action-cell">${guideLink}<button type="button" class="dash__cancel" data-cancel="${escapeHtml(sub.id)}">Cancel</button></div>`;
+			// Renewal Radar Alert: If renewing within 7 days and user is Pro/Family, flag it
+			const billingDate = new Date(`${sub.nextBilling}T00:00:00`);
+			const diffDays = Math.ceil((billingDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+			const isUpcomingRadar = !cancelled && diffDays >= 0 && diffDays <= 7;
+			const radarPill = isUpcomingRadar
+				? (userPlan !== 'free'
+					? `<span class="dash__radar-pill" style="display:inline-block; font-size:0.7rem; font-weight:600; color:#00ff88; background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.25); border-radius:4px; padding:0.1rem 0.35rem; margin-right:0.35rem;" title="Renewal Radar Alert: Auto-renews in ${diffDays} day${diffDays === 1 ? '' : 's'}">⚡ In ${diffDays}d</span>`
+					: `<a href="/pricing" class="dash__radar-pill" style="display:inline-block; font-size:0.7rem; font-weight:600; color:#f59e0b; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:4px; padding:0.1rem 0.35rem; margin-right:0.35rem; text-decoration:none;" title="Renews in ${diffDays} day${diffDays === 1 ? '' : 's'}. Upgrade to Pro for 1-click cancel before billing!">⚠️ In ${diffDays}d</a>`)
+				: '';
+
 			return `<tr class="${cancelled ? 'is-cancelled-row' : ''}">
 				<td><div class="dash__svc"><span class="dash__logo" data-initial="${initial(sub.name)}">${icon ? `<img src="${icon}" alt="" width="20" height="20" loading="lazy" onerror="this.remove()" />` : ''}</span><div><div class="dash__svc-name ${cancelled ? 'is-cancelled' : ''}">${escapeHtml(sub.name)}</div><span class="dash__tag">${escapeHtml(sub.category)}</span></div></div></td>
 				<td><div class="dash__amount">${money(sub.monthly)}</div><div class="dash__annual">${money(sub.monthly * 12)}/yr</div></td>
-				<td class="dash__date">${formatDate(sub.nextBilling)}</td><td class="dash__actions">${action}</td>
+				<td class="dash__date">${radarPill}${formatDate(sub.nextBilling)}</td><td class="dash__actions">${action}</td>
 			</tr>`;
 		}).join('');
 
@@ -720,7 +948,46 @@ const description = 'See every subscription draining your account and cancel wha
 		renderStats();
 		renderList();
 		renderHistory();
+
+		const familyToggleRow = document.getElementById('dash-family-toggle-row');
+		if (familyToggleRow) {
+			familyToggleRow.hidden = userPlan !== 'family';
+		}
+
+		const vipSupportRow = document.getElementById('dash-vip-support-row');
+		if (vipSupportRow) {
+			vipSupportRow.hidden = userPlan === 'free';
+		}
 	}
+
+	const tabPersonal = document.getElementById('tab-scope-personal');
+	const tabHousehold = document.getElementById('tab-scope-household');
+
+	tabPersonal?.addEventListener('click', () => {
+		householdScope = 'personal';
+		tabPersonal.classList.add('is-active');
+		tabPersonal.style.background = 'rgba(255,255,255,0.12)';
+		tabPersonal.style.color = '#fff';
+		if (tabHousehold) {
+			tabHousehold.classList.remove('is-active');
+			tabHousehold.style.background = 'transparent';
+			tabHousehold.style.color = '#aaa';
+		}
+		render();
+	});
+
+	tabHousehold?.addEventListener('click', () => {
+		householdScope = 'household';
+		tabHousehold.classList.add('is-active');
+		tabHousehold.style.background = 'rgba(168,85,247,0.25)';
+		tabHousehold.style.color = '#fff';
+		if (tabPersonal) {
+			tabPersonal.classList.remove('is-active');
+			tabPersonal.style.background = 'transparent';
+			tabPersonal.style.color = '#aaa';
+		}
+		render();
+	});
 
 	async function cancelSub(id: string) {
 		const item = subs.find((s) => s.id === id);
@@ -850,6 +1117,9 @@ const description = 'See every subscription draining your account and cancel wha
 		if (btnSpinner) btnSpinner.hidden = false;
 
 		try {
+			localStorage.setItem('cancelkit-pending-checkout-plan', 'pro');
+			localStorage.setItem(STORAGE_KEY, '1');
+
 			const { data: { session } } = await supabase.auth.getSession();
 			const res = await fetch('/api/create-checkout', {
 				method: 'POST',
@@ -916,8 +1186,21 @@ const description = 'See every subscription draining your account and cancel wha
 	});
 
 	document.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((link) => {
-		link.addEventListener('click', () => {
-			document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('is-active', el === link));
+		link.addEventListener('click', (e) => {
+			const href = link.getAttribute('href');
+			if (href?.startsWith('#')) {
+				e.preventDefault();
+				const targetId = href.slice(1);
+				const target = document.getElementById(targetId);
+				if (target) {
+					target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}
+				document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('is-active', el === link));
+			} else if (href === '/dashboard') {
+				e.preventDefault();
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+				document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('is-active', el === link));
+			}
 		});
 	});
 
@@ -1093,15 +1376,44 @@ const description = 'See every subscription draining your account and cancel wha
 		margin-top: 1.5rem;
 	}
 
+	/* Instant Fast-Ready Rendering for returning subscribers and checkout redirects */
+	html.dash-fast-ready [data-loading-state] {
+		display: none !important;
+	}
+
+	html.dash-fast-ready [data-app-shell] {
+		display: grid !important;
+	}
+
+	html.dash-fast-ready [data-empty-state] {
+		display: none !important;
+	}
+
+	/* Prevent Free Plan gate blur and lock pills from flickering when Pro or Family */
+	html.dash-plan-unlocked #dash-gate-wrap {
+		display: none !important;
+	}
+
+	html.dash-plan-family #dash-family-toggle-row {
+		display: flex !important;
+	}
+
+	html.dash-plan-unlocked #dash-vip-support-row {
+		display: block !important;
+	}
+
 	/* Shell */
 	.dash__shell {
 		display: grid;
 		grid-template-columns: 240px minmax(0, 1fr) 320px;
 		min-height: 100svh;
+		opacity: 1;
+		transition: opacity 0.15s ease-out;
 	}
 
 	.dash__shell[hidden],
-	.dash__empty[hidden] {
+	.dash__empty[hidden],
+	.dash__loading[hidden] {
 		display: none !important;
 	}
 
@@ -1483,6 +1795,18 @@ const description = 'See every subscription draining your account and cancel wha
 		background: linear-gradient(90deg, rgba(0, 255, 136, 0.12) 0%, rgba(0, 255, 136, 0.04) 100%);
 		border: 1px solid rgba(0, 255, 136, 0.35);
 		margin-bottom: 1.5rem;
+		animation: bannerFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	@keyframes bannerFade {
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.dash__upgrade-text {

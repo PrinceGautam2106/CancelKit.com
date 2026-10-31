@@ -1,4 +1,5 @@
 ---
+export const prerender = true;
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -22,7 +23,7 @@ const faqs = [
 	},
 	{
 		q: 'What payment methods do you accept?',
-		a: 'Cards via Stripe: Visa, Mastercard, Amex, and most debit cards. Annual plans are billed once per year; monthly plans renew each month until you cancel.',
+		a: 'We accept all major cards via our payment partner: Visa, Mastercard, Amex, and most debit cards. Annual plans are billed once per year; monthly plans renew each month until you cancel.',
 	},
 ];
 
@@ -294,21 +295,21 @@ const tiers = [
 
 	import { supabase } from '../lib/supabase';
 
-	const STRIPE_PRICES = {
+	const CHECKOUT_PLAN_KEYS = {
 		pro: {
-			monthly: 'price_pro_monthly_9',
-			yearly: 'price_pro_yearly_79',
+			monthly: 'pro_monthly',
+			yearly: 'pro_yearly',
 		},
 		family: {
-			monthly: 'price_family_monthly_19',
-			yearly: 'price_family_yearly_159',
+			monthly: 'family_monthly',
+			yearly: 'family_yearly',
 		},
 	};
 
 	document.querySelectorAll<HTMLButtonElement>('[data-checkout-btn]').forEach((btn) => {
 		btn.addEventListener('click', async () => {
 			const tier = (btn.dataset.tier || 'pro') as 'pro' | 'family';
-			const priceId = STRIPE_PRICES[tier]?.[billing] || STRIPE_PRICES.pro[billing];
+			const priceId = CHECKOUT_PLAN_KEYS[tier]?.[billing] || CHECKOUT_PLAN_KEYS.pro[billing];
 
 			btn.disabled = true;
 			const btnText = btn.querySelector('.btn-text') as HTMLElement;
@@ -319,18 +320,30 @@ const tiers = [
 
 			try {
 				const { data: { session } } = await supabase.auth.getSession();
+				if (!session?.user) {
+					// User is not signed in: redirect to signup so payment is attached to their account
+					window.location.href = `/signup?next=/pricing&tier=${tier}`;
+					return;
+				}
+
 				const res = await fetch('/api/create-checkout', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
 						priceId,
-						userId: session?.user?.id || '',
-						email: session?.user?.email || '',
+						tier,
+						billing,
+						userId: session.user.id,
+						email: session.user.email,
 					}),
 				});
 
 				const data = await res.json();
 				if (data?.url) {
+					try {
+						localStorage.setItem('cancelkit-pending-checkout-plan', tier);
+						localStorage.setItem('cancelkit-dashboard-connected', '1');
+					} catch {}
 					window.location.href = data.url;
 				} else {
 					alert(data?.error || 'Unable to open checkout. Please try again.');

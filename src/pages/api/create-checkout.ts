@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
 				custom,
 			},
 			productOptions: {
-				redirectUrl: `${siteUrl}/dashboard?upgraded=true`,
+				redirectUrl: `${siteUrl}/dashboard?payment=success&plan=${plan}&upgraded=true`,
 				receiptButtonText: 'Return to CancelKits Dashboard',
 				receiptLinkUrl: `${siteUrl}/dashboard`,
 			},

@@ -17,14 +17,12 @@
     "@astrojs/cloudflare": "^14.3.2",
     "@astrojs/mdx": "^8.0.1",
     "@astrojs/sitemap": "^3.7.4",
-    "@astrojs/vercel": "^11.0.10",
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
-    "@stripe/stripe-js": "^9.16.0",
     "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.2",
     "resend": "^6.28.0",
-    "stripe": "^22.6.2",
+    "stripe": "^23.0.1",
     "tailwindcss": "^4.3.3"
   },
   "allowScripts": {

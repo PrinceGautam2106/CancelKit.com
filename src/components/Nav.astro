@@ -20,7 +20,12 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		</a>
 
 		<div class="nav__links">
-			{navigation.map((item) => <a class="nav__link" href={item.href}>{item.label}</a>)}
+			{navigation.map((item) => (
+				<a class:list={['nav__link', item.href === '/cancel' && 'nav__link--guides']} href={item.href}>
+					<span>{item.label}</span>
+					{item.href === '/cancel' && <span class="nav__pill-badge">50+</span>}
+				</a>
+			))}
 		</div>
 
 		<div class="nav__actions">
@@ -34,17 +39,46 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 			<a class="nav__cta" id="nav-cta-link" href="/start">Start free</a>
 		</div>
 
-		<button class="nav__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle aria-label="Toggle navigation menu">
-			<svg data-menu-icon-open width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-			<svg class="hidden" data-menu-icon-close width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-		</button>
+		<div class="nav__mobile-right">
+			<a class="nav__mobile-guides-pill" href="/cancel" aria-label="Cancel Guides (50+ available)">
+				<svg class="nav__mobile-guides-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+				<span>Guides</span>
+				<span class="nav__mobile-badge">50+</span>
+			</a>
+
+			<button class="nav__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle aria-label="Toggle navigation menu">
+				<svg data-menu-icon-open width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+				<svg class="hidden" data-menu-icon-close width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+			</button>
+		</div>
 	</nav>
 </header>
 
 <div id="mobile-menu" class="mobile-menu" data-mobile-menu hidden>
 	<nav class="mobile-menu__nav" aria-label="Mobile navigation">
+		<div class="mobile-menu__featured">
+			<a href="/cancel" class="mobile-menu__featured-card">
+				<div class="mobile-menu__featured-head">
+					<span class="mobile-menu__featured-tag">FREE DIRECTORY</span>
+					<span class="mobile-menu__featured-badge">50+ Playbooks</span>
+				</div>
+				<div class="mobile-menu__featured-title">
+					<span>Cancel Any Subscription</span>
+					<span class="mobile-menu__featured-arrow">→</span>
+				</div>
+				<p class="mobile-menu__featured-desc">
+					Step-by-step walkthroughs for Netflix, Adobe, Spotify, Planet Fitness & 50+ more.
+				</p>
+			</a>
+		</div>
+
 		<div class="mobile-menu__links">
-			{navigation.map((item) => <a class="mobile-menu__link" href={item.href}>{item.label}</a>)}
+			{navigation.map((item) => (
+				<a class:list={['mobile-menu__link', item.href === '/cancel' && 'mobile-menu__link--guides']} href={item.href}>
+					<span>{item.label}</span>
+					{item.href === '/cancel' && <span class="mobile-menu__guides-pill">50+</span>}
+				</a>
+			))}
 		</div>
 
 		<div class="mobile-menu__lang-row">
@@ -95,6 +129,24 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		link.addEventListener('click', () => setMenuState(false));
 	});
 
+	document.querySelectorAll<HTMLAnchorElement>('a[href*="#"]').forEach((link) => {
+		link.addEventListener('click', (e) => {
+			const href = link.getAttribute('href');
+			if (!href) return;
+			try {
+				const url = new URL(href, window.location.href);
+				if (url.pathname === window.location.pathname && url.hash) {
+					const target = document.querySelector(url.hash);
+					if (target) {
+						e.preventDefault();
+						target.scrollIntoView({ behavior: 'smooth' });
+						setMenuState(false);
+					}
+				}
+			} catch {}
+		});
+	});
+
 	document.addEventListener('keydown', (event) => {
 		if (event.key === 'Escape') setMenuState(false);
 	});
@@ -114,18 +166,42 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		});
 	});
 
+	// Show a language suggestion banner instead of auto-redirecting (better for SEO + UX)
 	if (window.location.pathname === '/' && !localStorage.getItem('cancelkit-language')) {
 		const detected = navigator.language.slice(0, 2);
-		if (['es', 'fr', 'de', 'pt', 'ja', 'ko', 'it'].includes(detected)) goToLanguage(detected);
+		const langNames: Record<string, string> = {
+			es: 'Español', fr: 'Français', de: 'Deutsch',
+			pt: 'Português', ja: '日本語', ko: '한국어', it: 'Italiano',
+		};
+		if (detected in langNames) {
+			const banner = document.createElement('div');
+			banner.className = 'lang-suggest-banner';
+			banner.innerHTML = `
+				<p>🌐 This site is available in <a href="/${detected}/">${langNames[detected]}</a></p>
+				<button type="button" aria-label="Dismiss" class="lang-suggest-close">✕</button>
+			`;
+			document.body.prepend(banner);
+			banner.querySelector('.lang-suggest-close')?.addEventListener('click', () => {
+				banner.remove();
+				localStorage.setItem('cancelkit-language', 'en');
+			});
+			banner.querySelector('a')?.addEventListener('click', () => {
+				localStorage.setItem('cancelkit-language', detected);
+			});
+		}
 	}
 
 	import { supabase } from '../lib/supabase';
 
 	async function checkUserNav() {
 		try {
+			// Clear legacy unscoped key so it never leaks between accounts
+			localStorage.removeItem('cancelkit-user-plan');
+
 			const { data: { session } } = await supabase.auth.getSession();
 			if (session) {
-				const plan = (localStorage.getItem('cancelkit-user-plan') || 'free') as 'free' | 'pro' | 'family';
+				const userKey = `cancelkit-user-plan_${session.user.id}`;
+				let plan = (localStorage.getItem(userKey) || 'free') as 'free' | 'pro' | 'family';
 				const navPlan = document.getElementById('nav-plan-badge');
 				const mobilePlan = document.getElementById('mobile-plan-badge');
 				const signinLink = document.getElementById('nav-signin-link');
@@ -133,21 +209,73 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 				const ctaLink = document.getElementById('nav-cta-link');
 				const mobileCtaLink = document.getElementById('mobile-cta-link');
 
-				if (navPlan) {
-					navPlan.hidden = false;
-					const badge = navPlan.querySelector('.plan-badge') as HTMLElement;
-					if (badge) {
-						badge.className = `plan-badge plan-badge--${plan}`;
-						badge.textContent = plan === 'pro' ? 'Pro ✓' : plan === 'family' ? 'Family' : 'Free plan';
+				const updateNavBadge = (p: string) => {
+					[navPlan, mobilePlan].forEach((el) => {
+						if (el) {
+							el.hidden = false;
+							const badge = el.querySelector('.plan-badge') as HTMLElement;
+							if (badge) {
+								badge.className = `plan-badge plan-badge--${p}`;
+								badge.textContent = p === 'pro' ? 'Pro ✓' : p === 'family' ? 'Family' : 'Free plan';
+							}
+						}
+					});
+				};
+
+				updateNavBadge(plan);
+
+				// Authoritative check from Supabase users table
+				try {
+					const { data: profile } = await supabase
+						.from('users')
+						.select('plan')
+						.eq('id', session.user.id)
+						.maybeSingle();
+
+					let verifiedPlan = (profile?.plan as any) || 'free';
+
+					// If free, synchronously verify against Lemon Squeezy Gateway
+					if (verifiedPlan === 'free') {
+						try {
+							const syncRes = await fetch('/api/subscription/sync', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									userId: session.user.id,
+									email: session.user.email,
+								}),
+							});
+							if (syncRes.ok) {
+								const syncData = await syncRes.json();
+								if (syncData?.active && (syncData.plan === 'pro' || syncData.plan === 'family')) {
+									verifiedPlan = syncData.plan;
+								}
+							}
+						} catch {
+							/* non-fatal */
+						}
 					}
-				}
-				if (mobilePlan) {
-					mobilePlan.hidden = false;
-					const badge = mobilePlan.querySelector('.plan-badge') as HTMLElement;
-					if (badge) {
-						badge.className = `plan-badge plan-badge--${plan}`;
-						badge.textContent = plan === 'pro' ? 'Pro ✓' : plan === 'family' ? 'Family' : 'Free plan';
+
+					if (verifiedPlan === 'free') {
+						try {
+							const fRes = await fetch(`/api/family?userId=${session.user.id}&email=${encodeURIComponent(session.user.email || '')}`);
+							const fData = await fRes.json();
+							if (fData?.isMember || fData?.isOwner) {
+								verifiedPlan = 'family';
+							}
+						} catch {
+							/* ignore */
+						}
 					}
+
+					if (verifiedPlan !== plan) {
+						localStorage.setItem(userKey, verifiedPlan);
+						updateNavBadge(verifiedPlan);
+					} else {
+						localStorage.setItem(userKey, verifiedPlan);
+					}
+				} catch {
+					/* ignore */
 				}
 
 				if (signinLink) {
@@ -246,12 +374,85 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		font-size: 0.875rem;
 		font-weight: 450;
 		text-decoration: none;
-		transition: color 0.2s, background 0.2s;
+		transition: color 0.2s, background 0.2s, border-color 0.2s;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
 	}
 
 	.nav__link:hover {
 		color: #fff;
 		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.nav__link--guides {
+		color: #fff;
+		font-weight: 550;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.nav__link--guides:hover {
+		background: rgba(0, 255, 136, 0.06);
+		border-color: rgba(0, 255, 136, 0.25);
+		color: var(--color-accent);
+	}
+
+	.nav__pill-badge {
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		padding: 0.08rem 0.38rem;
+		border-radius: var(--radius-pill);
+		letter-spacing: 0.02em;
+		line-height: 1.2;
+	}
+
+	.nav__mobile-right {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.nav__mobile-guides-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.35rem 0.65rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: #fff;
+		font-size: 0.78rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+		height: 34px;
+	}
+
+	.nav__mobile-guides-pill:active {
+		transform: scale(0.97);
+		background: rgba(0, 255, 136, 0.18);
+	}
+
+	.nav__mobile-guides-icon {
+		color: var(--color-accent);
+		flex-shrink: 0;
+	}
+
+	.nav__mobile-badge {
+		font-family: var(--font-mono);
+		font-size: 0.62rem;
+		font-weight: 700;
+		color: #000;
+		background: var(--color-accent);
+		padding: 0.05rem 0.3rem;
+		border-radius: var(--radius-pill);
+		line-height: 1.2;
 	}
 
 	.nav__actions {
@@ -351,7 +552,78 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		display: flex;
 		flex-direction: column;
 		min-height: 100%;
-		gap: 1.5rem;
+		gap: 1.25rem;
+	}
+
+	.mobile-menu__featured {
+		margin-bottom: 0.25rem;
+	}
+
+	.mobile-menu__featured-card {
+		display: block;
+		padding: 1.1rem;
+		border-radius: var(--radius-card);
+		background: linear-gradient(135deg, rgba(0, 255, 136, 0.09) 0%, rgba(15, 15, 15, 0.95) 100%);
+		border: 1px solid rgba(0, 255, 136, 0.28);
+		text-decoration: none;
+		transition: border-color 0.2s, transform 0.15s;
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.05);
+	}
+
+	.mobile-menu__featured-card:active {
+		border-color: var(--color-accent);
+		transform: scale(0.99);
+	}
+
+	.mobile-menu__featured-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.45rem;
+	}
+
+	.mobile-menu__featured-tag {
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		color: var(--color-accent);
+		text-transform: uppercase;
+	}
+
+	.mobile-menu__featured-badge {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		color: #000;
+		background: var(--color-accent);
+		padding: 0.12rem 0.45rem;
+		border-radius: var(--radius-pill);
+		line-height: 1.2;
+	}
+
+	.mobile-menu__featured-title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: #fff;
+		font-family: var(--font-display);
+		font-size: 1.2rem;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+	}
+
+	.mobile-menu__featured-arrow {
+		color: var(--color-accent);
+		font-size: 1.3rem;
+		line-height: 1;
+	}
+
+	.mobile-menu__featured-desc {
+		margin: 0.35rem 0 0;
+		font-size: 0.82rem;
+		line-height: 1.45;
+		color: var(--color-muted);
 	}
 
 	.mobile-menu__links {
@@ -362,16 +634,32 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 
 	.mobile-menu__link {
 		font-family: var(--font-display);
-		font-size: 1.5rem;
+		font-size: 1.35rem;
 		font-weight: 500;
 		letter-spacing: -0.02em;
 		color: #fff;
 		text-decoration: none;
-		padding: 0.75rem 0.5rem;
+		padding: 0.65rem 0.5rem;
 		border-radius: var(--radius-sm);
 		transition: background 0.15s, color 0.15s;
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
+	}
+
+	.mobile-menu__link--guides {
+		color: #fff;
+	}
+
+	.mobile-menu__guides-pill {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		padding: 0.15rem 0.5rem;
+		border-radius: var(--radius-pill);
 	}
 
 	.mobile-menu__link:hover,
@@ -468,11 +756,56 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		.nav__links { display: flex; }
 		.nav__actions { display: flex; }
 		.nav__burger { display: none; }
+		.nav__mobile-right { display: none !important; }
 		.mobile-menu { display: none !important; }
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.mobile-menu { animation: none; }
 		.nav__cta { transition: none; }
+	}
+
+	/* Language suggestion banner */
+	.lang-suggest-banner {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 55;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 0.65rem 1.25rem;
+		background: var(--color-surface-elevated);
+		border-top: 1px solid var(--color-border);
+		font-size: 0.875rem;
+		color: var(--color-muted);
+		animation: menu-in 0.3s ease;
+	}
+
+	.lang-suggest-banner p {
+		margin: 0;
+	}
+
+	.lang-suggest-banner a {
+		color: var(--color-accent);
+		font-weight: 600;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.lang-suggest-close {
+		background: none;
+		border: 0;
+		color: var(--color-muted);
+		font-size: 1rem;
+		cursor: pointer;
+		padding: 0.25rem;
+		line-height: 1;
+	}
+
+	.lang-suggest-close:hover {
+		color: #fff;
 	}
 </style>

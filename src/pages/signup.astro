@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -121,6 +122,13 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 		passwordInput?.classList.remove('has-error');
 	}
 
+	const searchParams = new URLSearchParams(window.location.search);
+	const emailParam = searchParams.get('email');
+	const familyToken = searchParams.get('family_token');
+	if (emailParam && emailInput) {
+		emailInput.value = emailParam;
+	}
+
 	function setLoading(loading: boolean) {
 		if (!signupBtn) return;
 		signupBtn.disabled = loading;
@@ -130,6 +138,8 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 		if (spinner) spinner.hidden = !loading;
 	}
 
+	const defaultNext = familyToken ? '/dashboard' : (searchParams.get('next') || '/onboarding');
+
 	// OAuth: Google (Primary CTA)
 	googleBtn?.addEventListener('click', async () => {
 		clearErrors();
@@ -137,7 +147,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider: 'google',
 				options: {
-					redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+					redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(defaultNext)}`,
 				},
 			});
 			if (error) {
@@ -218,10 +228,45 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 				return;
 			}
 
-			// If immediate session is created, redirect to /onboarding
+			// If immediate session is created, handle family token or redirect
 			if (data.session) {
 				setAuthCookies(data.session.access_token, data.session.refresh_token, data.session.expires_in);
-				window.location.href = '/onboarding';
+
+				// Fire welcome & admin notification in background
+				fetch('/api/send-email', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						template: 'welcome',
+						to: email,
+						data: {
+							email,
+							userId: data.session.user.id,
+						},
+					}),
+				}).catch(() => {});
+
+				if (familyToken) {
+					try {
+						await fetch('/api/family', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								action: 'join',
+								token: familyToken,
+								userId: data.session.user.id,
+								userEmail: email,
+							}),
+						});
+					} catch (joinErr) {
+						console.warn('Family join error on signup:', joinErr);
+					}
+					window.location.href = '/dashboard';
+					return;
+				}
+
+				const nextParam = searchParams.get('next') || '/onboarding';
+				window.location.href = nextParam;
 				return;
 			}
 

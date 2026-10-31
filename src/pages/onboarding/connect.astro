@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const title = 'Select Your Subscriptions — CancelKits';
@@ -26,7 +27,7 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 	{ id: 'apple-tv-plus', name: 'Apple TV+', category: 'streaming', categoryLabel: 'Streaming', monthly: 9.99, color: '#a2aaad', domain: 'apple.com' },
 
 	// Software & Cloud
-	{ id: 'adobe-cc', name: 'Adobe Creative Cloud', category: 'software', categoryLabel: 'Software', monthly: 59.99, color: '#ff0000', domain: 'adobe.com' },
+	{ id: 'adobe', name: 'Adobe Creative Cloud', category: 'software', categoryLabel: 'Software', monthly: 59.99, color: '#ff0000', domain: 'adobe.com' },
 	{ id: 'chatgpt-plus', name: 'ChatGPT Plus', category: 'software', categoryLabel: 'Software', monthly: 20.00, color: '#10a37f', domain: 'openai.com' },
 	{ id: 'icloud', name: 'iCloud Storage', category: 'software', categoryLabel: 'Cloud', monthly: 2.99, color: '#3b82f6', domain: 'apple.com' },
 	{ id: 'google-one', name: 'Google One', category: 'software', categoryLabel: 'Cloud', monthly: 9.99, color: '#ea4335', domain: 'google.com' },
@@ -48,7 +49,7 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 
 	// Delivery, News & Other
 	{ id: 'uber-one', name: 'Uber One', category: 'other', categoryLabel: 'Delivery', monthly: 9.99, color: '#000000', domain: 'uber.com' },
-	{ id: 'doordash', name: 'DashPass (DoorDash)', category: 'other', categoryLabel: 'Delivery', monthly: 9.99, color: '#ff3008', domain: 'doordash.com' },
+	{ id: 'door-dash', name: 'DashPass (DoorDash)', category: 'other', categoryLabel: 'Delivery', monthly: 9.99, color: '#ff3008', domain: 'doordash.com' },
 	{ id: 'nyt', name: 'The New York Times', category: 'other', categoryLabel: 'News', monthly: 17.00, color: '#121212', domain: 'nytimes.com' },
 	{ id: 'nordvpn', name: 'NordVPN', category: 'other', categoryLabel: 'Security', monthly: 12.99, color: '#4687ff', domain: 'nordvpn.com' },
 ];
@@ -461,8 +462,14 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 			)
 		);
 
+		const planParam = searchParams.get('plan') || searchParams.get('tier');
+		const pendingPlan = localStorage.getItem('cancelkit-pending-checkout-plan');
+		const optimisticPlan = sessionStorage.getItem('cancelkit-optimistic-plan');
+		const effectivePlan = (planParam === 'pro' || planParam === 'family') ? planParam : ((pendingPlan === 'pro' || pendingPlan === 'family') ? pendingPlan : ((optimisticPlan === 'pro' || optimisticPlan === 'family') ? optimisticPlan : 'free'));
+
 		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
-		window.location.href = `/onboarding/scanning?selected=1${emailQuery}`;
+		const planQuery = effectivePlan !== 'free' ? `&plan=${effectivePlan}` : '';
+		window.location.href = `/onboarding/scanning?selected=1${emailQuery}${planQuery}`;
 	});
 
 	// OAuth Fallback Accordion
@@ -492,6 +499,13 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 
 		if (emailHint) emailHint.hidden = true;
 		localStorage.setItem('cancelkit-user-email', val);
+
+		// If a different user session is currently active, cleanly sign it out
+		supabase.auth.getSession().then(async ({ data: { session } }) => {
+			if (session?.user?.email && session.user.email.toLowerCase() !== val.toLowerCase()) {
+				await supabase.auth.signOut();
+			}
+		});
 
 		if (emailPill && emailDisplay) {
 			emailPill.hidden = false;

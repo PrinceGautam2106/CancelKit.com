@@ -19,6 +19,10 @@ export const cancelGuideBlogLinks = [
 		title: 'How to cancel subscriptions on iPhone & iPad',
 	},
 	{
+		slug: 'how-to-cancel-subscriptions-on-android',
+		title: 'How to cancel subscriptions on Android & Google Play',
+	},
+	{
 		slug: 'how-to-stop-recurring-payments-on-credit-card',
 		title: 'How to stop recurring payments on credit cards',
 	},

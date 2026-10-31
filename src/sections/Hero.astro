@@ -1,7 +1,29 @@
 ---
 import type { Translation } from '../i18n/translations';
 
-const subscriptions = ['Netflix', 'Spotify', 'Adobe', 'Hulu', 'Disney+', 'Planet Fitness', 'NYT', 'Audible', 'Canva', 'NordVPN'];
+const popularGuides = [
+	{ name: 'Netflix', slug: 'netflix' },
+	{ name: 'Spotify', slug: 'spotify' },
+	{ name: 'Adobe', slug: 'adobe' },
+	{ name: 'Planet Fitness', slug: 'planet-fitness' },
+	{ name: 'Disney+', slug: 'disney-plus' },
+	{ name: 'Prime', slug: 'amazon-prime' },
+	{ name: 'ChatGPT', slug: 'chatgpt-plus' },
+	{ name: 'Hulu', slug: 'hulu' },
+];
+
+const subscriptions = [
+	{ name: 'Netflix', slug: 'netflix' },
+	{ name: 'Spotify', slug: 'spotify' },
+	{ name: 'Adobe', slug: 'adobe' },
+	{ name: 'Hulu', slug: 'hulu' },
+	{ name: 'Disney+', slug: 'disney-plus' },
+	{ name: 'Planet Fitness', slug: 'planet-fitness' },
+	{ name: 'NYT', slug: 'nyt' },
+	{ name: 'Audible', slug: 'audible' },
+	{ name: 'Canva', slug: 'canva-pro' },
+	{ name: 'NordVPN', slug: 'nordvpn' },
+];
 interface Props { t?: Translation; }
 const { t } = Astro.props;
 ---
@@ -38,17 +60,48 @@ const { t } = Astro.props;
 			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card required · Free subscription audit in 30 seconds'}</p>
 		</form>
 
-		<div class="hero__proof fade-in-up stagger-2" aria-label="CancelKits product highlights">
+		<!-- Direct Cancel Guides Quick Access Strip -->
+		<div class="hero__guides-strip fade-in-up stagger-2" role="region" aria-label="Direct cancel guides">
+			<div class="hero__guides-bar">
+				<div class="hero__guides-lead">
+					<span class="hero__guides-badge">FREE PLAYBOOKS</span>
+					<span class="hero__guides-text">Cancel a specific subscription directly:</span>
+				</div>
+				<a href="/cancel" class="hero__guides-cta">
+					<span>Browse all 50+ guides</span>
+					<span class="hero__guides-arrow" aria-hidden="true">→</span>
+				</a>
+			</div>
+
+			<div class="hero__chips-wrap" aria-label="Popular cancellation guides">
+				<div class="hero__chips-list">
+					{popularGuides.map((item) => (
+						<a href={`/cancel/${item.slug}`} class="hero__chip">
+							{item.name}
+						</a>
+					))}
+					<a href="/cancel" class="hero__chip hero__chip--all">
+						<span>All 50+</span>
+						<span aria-hidden="true">→</span>
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="hero__proof fade-in-up stagger-3" aria-label="CancelKits product highlights">
 			<div class="hero__stat-row hero__stat-row--solo">
 				<div class="hero__stat">
 					<strong>$219/mo</strong>
 					<span>{t?.hero_stat_wasted ?? 'avg. wasted on forgotten subscriptions'}</span>
 				</div>
 				<div class="hero__divider" aria-hidden="true"></div>
-				<div class="hero__stat">
-					<strong>50+</strong>
+				<a href="/cancel" class="hero__stat hero__stat--link" aria-label="Browse 50+ verified cancel guides">
+					<div class="hero__stat-val">
+						<strong>50+</strong>
+						<span class="hero__stat-arrow" aria-hidden="true">→</span>
+					</div>
 					<span>{t?.hero_stat_guides ?? 'verified cancel guides'}</span>
-				</div>
+				</a>
 				<div class="hero__divider" aria-hidden="true"></div>
 				<div class="hero__stat">
 					<strong>30 sec</strong>
@@ -61,10 +114,18 @@ const { t } = Astro.props;
 	<div class="hero__ticker fade-in-up stagger-3" aria-label="Services cancelled with CancelKits">
 		<div class="hero__ticker-track">
 			<div class="hero__ticker-group">
-				{subscriptions.map((s) => <span class="hero__ticker-pill">{s}</span>)}
+				{subscriptions.map((s) => (
+					<a href={`/cancel/${s.slug}`} class="hero__ticker-pill" title={`How to cancel ${s.name}`}>
+						{s.name}
+					</a>
+				))}
 			</div>
 			<div class="hero__ticker-group" aria-hidden="true">
-				{subscriptions.map((s) => <span class="hero__ticker-pill">{s}</span>)}
+				{subscriptions.map((s) => (
+					<a href={`/cancel/${s.slug}`} class="hero__ticker-pill" tabindex="-1">
+						{s.name}
+					</a>
+				))}
 			</div>
 		</div>
 	</div>
@@ -222,12 +283,140 @@ const { t } = Astro.props;
 		font-size: 0.78rem;
 	}
 
+	/* Direct Cancel Guides Quick Access Strip */
+	.hero__guides-strip {
+		margin: 1.5rem auto 0;
+		width: min(100%, 38rem);
+		padding: 0.85rem 1rem;
+		border-radius: var(--radius-card);
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid rgba(255, 255, 255, 0.07);
+		backdrop-filter: blur(12px);
+		text-align: left;
+		transition: border-color 0.2s, background 0.2s;
+	}
+
+	.hero__guides-strip:hover {
+		border-color: rgba(0, 255, 136, 0.22);
+		background: rgba(0, 255, 136, 0.02);
+	}
+
+	.hero__guides-bar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-bottom: 0.65rem;
+	}
+
+	.hero__guides-lead {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.hero__guides-badge {
+		font-family: var(--font-mono);
+		font-size: 0.62rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		padding: 0.1rem 0.4rem;
+		border-radius: var(--radius-pill);
+		text-transform: uppercase;
+		line-height: 1.2;
+	}
+
+	.hero__guides-text {
+		font-size: 0.82rem;
+		color: #e5e5e5;
+		font-weight: 500;
+	}
+
+	.hero__guides-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-decoration: none;
+		transition: transform 0.2s, opacity 0.2s;
+		white-space: nowrap;
+	}
+
+	.hero__guides-cta:hover {
+		opacity: 0.9;
+		transform: translateX(2px);
+	}
+
+	.hero__guides-arrow {
+		font-size: 0.95rem;
+		line-height: 1;
+		transition: transform 0.2s;
+	}
+
+	.hero__guides-cta:hover .hero__guides-arrow {
+		transform: translateX(2px);
+	}
+
+	.hero__chips-wrap {
+		width: 100%;
+	}
+
+	.hero__chips-list {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		flex-wrap: wrap;
+	}
+
+	.hero__chip {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.32rem 0.68rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: var(--color-surface);
+		color: var(--color-muted);
+		font-size: 0.78rem;
+		font-weight: 500;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.hero__chip:hover {
+		color: #fff;
+		border-color: rgba(0, 255, 136, 0.35);
+		background: rgba(0, 255, 136, 0.08);
+		transform: translateY(-1px);
+	}
+
+	.hero__chip--all {
+		color: var(--color-accent);
+		border-color: rgba(0, 255, 136, 0.25);
+		background: rgba(0, 255, 136, 0.06);
+		font-weight: 600;
+		gap: 0.2rem;
+	}
+
+	.hero__chip--all:hover {
+		background: rgba(0, 255, 136, 0.16);
+		border-color: var(--color-accent);
+		color: #fff;
+	}
+
 	.hero__proof {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 0.85rem;
-		margin: 2.5rem auto 0;
+		margin: 2.25rem auto 0;
 		max-width: 100%;
 		width: fit-content;
 	}
@@ -257,6 +446,39 @@ const { t } = Astro.props;
 		padding: 0 1rem;
 		text-align: center;
 		white-space: nowrap;
+	}
+
+	.hero__stat--link {
+		text-decoration: none;
+		cursor: pointer;
+		transition: background 0.2s, transform 0.2s;
+		border-radius: var(--radius-sm);
+	}
+
+	.hero__stat--link:hover {
+		background: rgba(0, 255, 136, 0.04);
+		transform: translateY(-1px);
+	}
+
+	.hero__stat--link:hover strong {
+		color: var(--color-accent);
+	}
+
+	.hero__stat-val {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.25rem;
+	}
+
+	.hero__stat-arrow {
+		color: var(--color-accent);
+		font-size: 0.85rem;
+		transition: transform 0.2s;
+	}
+
+	.hero__stat--link:hover .hero__stat-arrow {
+		transform: translateX(2px);
 	}
 
 	.hero__stat strong {
@@ -308,6 +530,17 @@ const { t } = Astro.props;
 		padding: 0.4rem 0.75rem;
 		font-size: 0.78rem;
 		white-space: nowrap;
+		text-decoration: none;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: inline-block;
+	}
+
+	.hero__ticker-pill:hover {
+		color: #fff;
+		border-color: rgba(0, 255, 136, 0.4);
+		background: rgba(0, 255, 136, 0.08);
+		transform: translateY(-1px);
 	}
 
 	@keyframes ticker-scroll {
@@ -333,9 +566,41 @@ const { t } = Astro.props;
 			width: 100%;
 		}
 
+		.hero__guides-strip {
+			width: 100%;
+			padding: 0.8rem 0.85rem;
+			margin-top: 1.25rem;
+		}
+
+		.hero__guides-bar {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.35rem;
+		}
+
+		.hero__chips-list {
+			overflow-x: auto;
+			flex-wrap: nowrap;
+			padding-bottom: 0.35rem;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: none;
+		}
+
+		.hero__chips-list::-webkit-scrollbar {
+			display: none;
+		}
+
+		.hero__chip {
+			padding: 0.4rem 0.75rem;
+			font-size: 0.8rem;
+			flex-shrink: 0;
+			min-height: 36px;
+		}
+
 		.hero__proof {
 			width: 100%;
 			max-width: 22rem;
+			margin-top: 1.75rem;
 		}
 
 		.hero__stat-row {

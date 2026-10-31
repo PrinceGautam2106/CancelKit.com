@@ -1,6 +1,11 @@
 ---
+export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { STRIPE_PRICES } from '../../lib/stripe';
+
+const stripeProMonthlyPriceId =
+	import.meta.env.STRIPE_PRO_MONTHLY_PRICE_ID ??
+	(typeof process !== 'undefined' ? process.env?.STRIPE_PRO_MONTHLY_PRICE_ID : undefined) ??
+	'price_pro_monthly_9';
 
 const title = 'Scan Results — CancelKits';
 const description = 'See every subscription draining your account and start cancelling.';
@@ -40,14 +45,28 @@ const FREE_TEASER = 5;
 						<span class="status-indicator-dot status-indicator-dot--green"></span>
 						<div>
 							<h2 id="known-card-title">Subscriptions You Selected</h2>
-							<p class="card-subtitle">Included in your free scan report</p>
+							<p class="card-subtitle" id="card-subtitle">Included in your free scan report</p>
 						</div>
 					</div>
-					<span class="teaser-tag">Free Tier</span>
+					<span class="teaser-tag" id="teaser-tag">Free Tier</span>
 				</div>
 
 				<!-- Visible Free / User Selected Subscriptions -->
 				<div class="sub-list" id="teaser-list"></div>
+
+				<!-- PRO / FAMILY UNLOCKED DASHBOARD LAUNCHER (ZERO SCARE TACTICS, ZERO PAYWALL) -->
+				<div class="pro-unlocked-section" id="pro-unlocked-section" hidden>
+					<div class="pro-unlocked-banner">
+						<span class="pro-unlocked-icon">🎉</span>
+						<div class="pro-unlocked-text">
+							<strong id="pro-unlocked-title">All Subscriptions Active & Unlocked</strong>
+							<p id="pro-unlocked-desc">1-click cancellations and renewal radar alerts are armed and ready in your dashboard.</p>
+						</div>
+					</div>
+					<a href="/dashboard?connected=1" class="btn-pro-launch" id="btn-pro-launch">
+						Open Dashboard & Manage Subscriptions →
+					</a>
+				</div>
 
 				<!-- PAYWALL OVERLAY: BLURRED SURPRISE CHARGES + PSYCHOLOGICAL CONVERSION PUSH -->
 				<div class="paywall-overlay" id="paywall-overlay" hidden>
@@ -88,7 +107,7 @@ const FREE_TEASER = 5;
 							type="button"
 							class="btn-upgrade-pro"
 							id="unlock-all-btn"
-							data-price-id={STRIPE_PRICES.pro.monthly}
+							data-price-id={stripeProMonthlyPriceId}
 						>
 							<span class="btn-text" id="btn-upgrade-text">🚨 Stop $1,175/yr In Hidden Charges Now ($9/mo) →</span>
 							<span class="btn-spinner" hidden></span>
@@ -105,7 +124,7 @@ const FREE_TEASER = 5;
 				</div>
 			</section>
 
-			<p class="free-fallback">
+			<p class="free-fallback" id="free-fallback">
 				<a href="/dashboard?connected=1" class="free-continue-link" id="free-continue-link">
 					Or risk upcoming renewal charges & continue free →
 				</a>
@@ -307,35 +326,73 @@ const FREE_TEASER = 5;
 	if (monthlyEl) monthlyEl.textContent = formatMoney(monthly);
 	if (annualEl) annualEl.textContent = `$${formatMoney(annual)}`;
 
-	// Separate verified/selected vs unselected surprise discoveries
-	const hasMarkedDiscoveries = subs.some((s) => s.unselectedDiscovery || s.selectedByUser === false);
+	// Detect user plan
+	const planParam = urlParams.get('plan') || urlParams.get('tier');
+	const pendingPlan = localStorage.getItem('cancelkit-pending-checkout-plan');
+	const optimisticPlan = sessionStorage.getItem('cancelkit-optimistic-plan');
+
+	let effectivePlan: 'free' | 'pro' | 'family' = 'free';
+	if (planParam === 'pro' || planParam === 'family') {
+		effectivePlan = planParam;
+	} else if (pendingPlan === 'pro' || pendingPlan === 'family') {
+		effectivePlan = pendingPlan;
+	} else if (optimisticPlan === 'pro' || optimisticPlan === 'family') {
+		effectivePlan = optimisticPlan;
+	} else {
+		try {
+			const authRaw = localStorage.getItem('cancelkit-auth-token');
+			if (authRaw) {
+				const auth = JSON.parse(authRaw);
+				const uid = auth?.user?.id;
+				if (uid) {
+					const cached = localStorage.getItem(`cancelkit-user-plan_${uid}`);
+					if (cached === 'pro' || cached === 'family') effectivePlan = cached;
+				}
+			}
+		} catch {}
+	}
+	const isProOrFamily = effectivePlan === 'pro' || effectivePlan === 'family';
 
 	let userKnownSubs: ScanSub[];
 	let hiddenSurpriseSubs: ScanSub[];
 
-	if (hasMarkedDiscoveries) {
-		userKnownSubs = subs.filter((s) => s.selectedByUser === true && !s.unselectedDiscovery);
-		hiddenSurpriseSubs = subs.filter((s) => s.unselectedDiscovery || s.selectedByUser === false);
+	if (isProOrFamily) {
+		// Pro & Family Plan subscribers: 100% REAL AND ACTUAL services only
+		// Zero artificial unselected rows, zero paywall
+		userKnownSubs = subs.filter((s) => !s.unselectedDiscovery);
+		if (userKnownSubs.length === 0) userKnownSubs = subs;
+		hiddenSurpriseSubs = [];
 	} else {
-		// Fallback for direct OAuth scans: top 5 free, remaining behind Pro
-		userKnownSubs = subs.slice(0, FREE_TEASER);
-		hiddenSurpriseSubs = subs.slice(FREE_TEASER);
+		// Free Plan users: separate selected vs unselected surprise discoveries
+		const hasMarkedDiscoveries = subs.some((s) => s.unselectedDiscovery || s.selectedByUser === false);
+		if (hasMarkedDiscoveries) {
+			userKnownSubs = subs.filter((s) => s.selectedByUser === true && !s.unselectedDiscovery);
+			hiddenSurpriseSubs = subs.filter((s) => s.unselectedDiscovery || s.selectedByUser === false);
+		} else {
+			userKnownSubs = subs.slice(0, FREE_TEASER);
+			hiddenSurpriseSubs = subs.slice(FREE_TEASER);
+		}
 	}
 
-	// Render Known Free Subscriptions List
+	// Re-calculate totals based on active visible subscriptions
+	const activeList = isProOrFamily ? userKnownSubs : subs;
+	const realMonthly = Math.round(activeList.reduce((s, x) => s + x.monthly, 0) * 100) / 100;
+	const realAnnual = Math.round(realMonthly * 12);
+
+	if (foundCountEl) foundCountEl.textContent = String(activeList.length);
+	if (monthlyEl) monthlyEl.textContent = formatMoney(realMonthly);
+	if (annualEl) annualEl.textContent = `$${formatMoney(realAnnual)}`;
+
+	// Render Known Subscriptions List
 	const teaserList = document.getElementById('teaser-list');
 	const knownTitle = document.getElementById('known-card-title');
+	const cardSubtitle = document.getElementById('card-subtitle');
+	const teaserTag = document.getElementById('teaser-tag');
 
-	if (userKnownSubs.length > 0 && teaserList) {
+	if (teaserList) {
 		teaserList.innerHTML = userKnownSubs.map((s) => rowHtml(s)).join('');
-		if (knownTitle) {
-			knownTitle.textContent = `Subscriptions You Selected (${userKnownSubs.length})`;
-		}
-	} else if (teaserList) {
-		teaserList.innerHTML = subs.slice(0, 2).map((s) => rowHtml(s)).join('');
 	}
 
-	// Render Blurred Surprise Discoveries & Psychological Paywall Gate
 	const paywall = document.getElementById('paywall-overlay');
 	const blurredList = document.getElementById('blurred-list');
 	const discoveryBarTitle = document.getElementById('discovery-bar-title');
@@ -344,60 +401,124 @@ const FREE_TEASER = 5;
 	const gateBurnAnnual = document.getElementById('gate-burn-annual');
 	const gateNextDays = document.getElementById('gate-next-days');
 	const btnUpgradeText = document.getElementById('btn-upgrade-text');
+	const freeFallback = document.getElementById('free-fallback');
+	const proSection = document.getElementById('pro-unlocked-section');
+	const proTitle = document.getElementById('pro-unlocked-title');
+	const proDesc = document.getElementById('pro-unlocked-desc');
+	const proBtn = document.getElementById('btn-pro-launch') as HTMLAnchorElement | null;
 
-	if (hiddenSurpriseSubs.length > 0 && paywall) {
-		paywall.hidden = false;
-
-		const surpriseMonthly = Math.round(hiddenSurpriseSubs.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
-		const surpriseAnnual = Math.round(surpriseMonthly * 12);
-		const earliestRenewal = Math.min(...hiddenSurpriseSubs.map((s) => s.renewsIn ?? 3));
-
-		if (discoveryBarTitle) {
-			discoveryBarTitle.textContent = `🚨 ${hiddenSurpriseSubs.length} Unselected Subscriptions Discovered In Receipts ($${formatMoney(surpriseMonthly)}/mo)`;
+	if (isProOrFamily) {
+		// PRO OR FAMILY: Unlocked presentation, no paywall, no scare banner
+		if (teaserTag) {
+			teaserTag.className = effectivePlan === 'family' ? 'teaser-tag teaser-tag--family' : 'teaser-tag teaser-tag--pro';
+			teaserTag.textContent = effectivePlan === 'family' ? 'Family Plan Active 👨‍👩‍👧‍👦' : 'Pro Plan Active ✓';
+		}
+		if (knownTitle) {
+			knownTitle.textContent = `Your Active Subscriptions (${userKnownSubs.length})`;
+		}
+		if (cardSubtitle) {
+			cardSubtitle.textContent = `All ${userKnownSubs.length} real subscriptions verified • 1-click cancellation active`;
+		}
+		if (paywall) {
+			paywall.hidden = true;
+		}
+		if (freeFallback) {
+			freeFallback.hidden = true;
+		}
+		if (proSection) {
+			proSection.hidden = false;
+			if (proTitle) proTitle.textContent = `Audit Complete — All ${userKnownSubs.length} Subscriptions Ready`;
+			if (proDesc) proDesc.textContent = effectivePlan === 'family'
+				? 'Your Family Plan is active. 1-click cancellations and household sharing are armed.'
+				: 'Your Pro Plan is active. 1-click cancellations and renewal radar alerts are armed.';
+			if (proBtn) {
+				proBtn.textContent = `Open ${effectivePlan === 'family' ? 'Family' : 'Pro'} Dashboard (${userKnownSubs.length} Subscriptions) →`;
+				proBtn.href = `/dashboard?connected=1&plan=${effectivePlan}`;
+			}
+		}
+	} else {
+		// FREE PLAN: psychological paywall gate & surprise discoveries
+		if (knownTitle) {
+			knownTitle.textContent = `Subscriptions You Selected (${userKnownSubs.length})`;
+		}
+		if (cardSubtitle) {
+			cardSubtitle.textContent = 'Included in your free scan report';
+		}
+		if (teaserTag) {
+			teaserTag.className = 'teaser-tag';
+			teaserTag.textContent = 'Free Tier';
+		}
+		if (proSection) {
+			proSection.hidden = true;
 		}
 
-		if (gateHeadline) {
-			gateHeadline.textContent = `Don't Miss These Charges — Stop $${formatMoney(surpriseAnnual)}/yr Before Your Card Is Debited`;
-		}
+		if (hiddenSurpriseSubs.length > 0 && paywall) {
+			paywall.hidden = false;
 
-		if (gateBurnMonthly) gateBurnMonthly.textContent = `$${formatMoney(surpriseMonthly)}/month`;
-		if (gateBurnAnnual) gateBurnAnnual.textContent = `$${formatMoney(surpriseAnnual)}/year`;
-		if (gateNextDays) gateNextDays.textContent = `${earliestRenewal} days`;
+			const surpriseMonthly = Math.round(hiddenSurpriseSubs.reduce((sum, s) => sum + s.monthly, 0) * 100) / 100;
+			const surpriseAnnual = Math.round(surpriseMonthly * 12);
+			const earliestRenewal = Math.min(...hiddenSurpriseSubs.map((s) => s.renewsIn ?? 3));
 
-		if (btnUpgradeText) {
-			btnUpgradeText.textContent = `🚨 Stop $${formatMoney(surpriseAnnual)}/yr In Hidden Charges Now ($9/mo) →`;
-		}
-
-		if (blurredList) {
-			// Render real surprise subscriptions into the blurred list
-			blurredList.innerHTML = hiddenSurpriseSubs.map((s) => blurredRowHtml(s)).join('');
+			if (discoveryBarTitle) {
+				discoveryBarTitle.textContent = `🚨 ${hiddenSurpriseSubs.length} Unselected Subscriptions Discovered In Receipts ($${formatMoney(surpriseMonthly)}/mo)`;
+			}
+			if (gateHeadline) {
+				gateHeadline.textContent = `Don't Miss These Charges — Stop $${formatMoney(surpriseAnnual)}/yr Before Your Card Is Debited`;
+			}
+			if (gateBurnMonthly) gateBurnMonthly.textContent = `$${formatMoney(surpriseMonthly)}/month`;
+			if (gateBurnAnnual) gateBurnAnnual.textContent = `$${formatMoney(surpriseAnnual)}/year`;
+			if (gateNextDays) gateNextDays.textContent = `${earliestRenewal} days`;
+			if (btnUpgradeText) {
+				btnUpgradeText.textContent = `🚨 Stop $${formatMoney(surpriseAnnual)}/yr In Hidden Charges Now ($9/mo) →`;
+			}
+			if (blurredList) {
+				blurredList.innerHTML = hiddenSurpriseSubs.map((s) => blurredRowHtml(s)).join('');
+			}
 		}
 	}
 
-	// Stripe Pro Checkout Trigger
+	// Configure free continue link based on auth status
+	const freeContinueLink = document.getElementById('free-continue-link') as HTMLAnchorElement | null;
+	supabase.auth.getSession().then(({ data: { session } }) => {
+		if (freeContinueLink && !session?.user) {
+			const emailQuery = userEmail ? `&email=${encodeURIComponent(userEmail)}` : '';
+			freeContinueLink.href = `/signup?next=/dashboard${emailQuery}`;
+		}
+	});
+
+	// Stripe / Lemon Squeezy Pro Checkout Trigger
 	const unlockBtn = document.getElementById('unlock-all-btn') as HTMLButtonElement | null;
 
 	const triggerUpgrade = async () => {
 		if (!unlockBtn || unlockBtn.disabled) return;
-		unlockBtn.disabled = true;
-		const btnText = unlockBtn.querySelector('.btn-text') as HTMLElement | null;
-		const btnSpinner = unlockBtn.querySelector('.btn-spinner') as HTMLElement | null;
-		if (btnText) btnText.textContent = 'Preparing checkout...';
-		if (btnSpinner) btnSpinner.hidden = false;
 
 		try {
 			const {
 				data: { session },
 			} = await supabase.auth.getSession();
-			const priceId = unlockBtn.dataset.priceId;
 
+			if (!session?.user) {
+				// User not signed in: redirect to signup so payment links to their account
+				const emailQuery = userEmail ? `&email=${encodeURIComponent(userEmail)}` : '';
+				window.location.href = `/signup?next=/pricing&tier=pro${emailQuery}`;
+				return;
+			}
+
+			unlockBtn.disabled = true;
+			const btnText = unlockBtn.querySelector('.btn-text') as HTMLElement | null;
+			const btnSpinner = unlockBtn.querySelector('.btn-spinner') as HTMLElement | null;
+			if (btnText) btnText.textContent = 'Preparing checkout...';
+			if (btnSpinner) btnSpinner.hidden = false;
+
+			const priceId = unlockBtn.dataset.priceId;
 			const response = await fetch('/api/create-checkout', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					priceId,
-					userId: session?.user?.id || '',
-					email: session?.user?.email || userEmail || '',
+					tier: 'pro',
+					userId: session.user.id,
+					email: session.user.email || userEmail || '',
 				}),
 			});
 
@@ -624,6 +745,76 @@ const FREE_TEASER = 5;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 		font-weight: 600;
+	}
+
+	.teaser-tag--pro {
+		background: rgba(0, 255, 136, 0.15) !important;
+		color: #00ff88 !important;
+		border-color: rgba(0, 255, 136, 0.4) !important;
+	}
+
+	.teaser-tag--family {
+		background: rgba(168, 85, 247, 0.15) !important;
+		color: #c084fc !important;
+		border-color: rgba(168, 85, 247, 0.4) !important;
+	}
+
+	/* Pro / Family Unlocked Launcher */
+	.pro-unlocked-section {
+		padding: 1.25rem 1.4rem 1.6rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+		display: grid;
+		gap: 1rem;
+	}
+
+	.pro-unlocked-banner {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+		padding: 0.9rem 1.15rem;
+		border-radius: var(--radius-card);
+		background: linear-gradient(90deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.03) 100%);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+	}
+
+	.pro-unlocked-icon {
+		font-size: 1.5rem;
+		flex-shrink: 0;
+	}
+
+	.pro-unlocked-text strong {
+		display: block;
+		font-size: 0.95rem;
+		color: #fff;
+		margin-bottom: 0.15rem;
+	}
+
+	.pro-unlocked-text p {
+		margin: 0;
+		font-size: 0.82rem;
+		color: var(--color-muted);
+	}
+
+	.btn-pro-launch {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		padding: 0.95rem 1.5rem;
+		border-radius: var(--radius-card);
+		background: var(--color-accent);
+		color: #000;
+		font-family: var(--font-display);
+		font-size: 1rem;
+		font-weight: 700;
+		text-decoration: none;
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25);
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.btn-pro-launch:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 6px 24px rgba(0, 255, 136, 0.35);
 	}
 
 	/* Visible Free Subscriptions */

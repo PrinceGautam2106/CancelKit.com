@@ -212,6 +212,19 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 							<span>Auto-scan with Outlook</span>
 						</button>
 					</div>
+
+					<div class="zero-permission-box">
+						<div class="zero-permission-badge">
+							<span>🔒 ZERO-PERMISSION ALTERNATIVE</span>
+						</div>
+						<div class="zero-permission-text">
+							<strong>Worried about email OAuth permissions?</strong>
+							<p>Drop your bank statement PDF into our client-side scanner. Everything is parsed entirely inside your browser via WebAssembly/pdf.js — zero data is uploaded to our servers.</p>
+						</div>
+						<a href="/statement-scanner" class="btn-zero-permission">
+							<span>Try Bank Statement PDF Scanner (Zero Upload) →</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -1144,6 +1157,51 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 	.btn-oauth:hover {
 		background: #181818;
 		border-color: #333;
+	}
+
+	.zero-permission-box {
+		margin-top: 1.25rem;
+		padding: 1rem;
+		background: rgba(0, 255, 136, 0.03);
+		border: 1px dashed rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-input);
+		text-align: left;
+	}
+
+	.zero-permission-badge {
+		font-size: 0.6875rem;
+		font-weight: 700;
+		color: #00ff88;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.4rem;
+	}
+
+	.zero-permission-text strong {
+		color: #fff;
+		font-size: 0.825rem;
+		display: block;
+		margin-bottom: 0.2rem;
+	}
+
+	.zero-permission-text p {
+		color: #888;
+		font-size: 0.75rem;
+		line-height: 1.45;
+		margin: 0 0 0.65rem;
+	}
+
+	.btn-zero-permission {
+		display: inline-block;
+		font-size: 0.775rem;
+		font-weight: 600;
+		color: #00ff88;
+		text-decoration: none;
+		transition: color 0.15s, text-decoration 0.15s;
+	}
+
+	.btn-zero-permission:hover {
+		color: #fff;
+		text-decoration: underline;
 	}
 
 	/* Responsive */

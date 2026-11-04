@@ -1,0 +1,1030 @@
+---
+export const prerender = true;
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const pageTitle = "Subscription Creep Calculator — 3-Year Compounded Cost at 7% (2026)";
+const pageDescription = "Calculate how much silent subscription creep really costs you. Compare your monthly subscription burn against 3-year, 5-year, and 10-year S&P 500 compounded growth at 7%.";
+
+const softwareSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'Subscription Creep & Compound Cost Calculator',
+	applicationCategory: 'FinanceApplication',
+	operatingSystem: 'Web',
+	url: 'https://cancelkits.com/subscription-creep-calculator',
+	description: 'Interactive compound interest calculator comparing subscription burn against 7% S&P 500 investment opportunity cost over 3, 5, and 10 years.',
+	offers: {
+		'@type': 'Offer',
+		price: '0',
+		priceCurrency: 'USD',
+	},
+};
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: [
+		{
+			'@type': 'Question',
+			name: 'What is subscription creep?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Subscription creep is the gradual accumulation of recurring monthly charges—streaming services, software apps, gym memberships, and meal kits—that go unnoticed because each individual charge ($10 to $20) appears small, while together compounding into thousands of dollars in lost wealth.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Why does this calculator use a 7% investment return?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: '7% is the historically accepted average annual return of the S&P 500 index after adjusting for inflation. It represents the true opportunity cost of cash lost to recurring subscriptions rather than invested in low-cost index funds.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'How much does the average person spend on subscription creep?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'According to consumer surveys, the average American estimates they spend $86 per month on subscriptions, but their actual monthly total is over $219—a miscalculation of more than $130 every month.',
+			},
+		},
+	],
+};
+---
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalPath="/subscription-creep-calculator/"
+	schemas={[softwareSchema, faqSchema]}
+>
+	<Nav />
+
+	<main class="creep-calc">
+		<!-- Hero Section -->
+		<header class="calc-hero">
+			<div class="calc-hero__badge">
+				<span class="badge-pulse"></span>
+				<span>Opportunity Cost Analysis • 2026 Edition</span>
+			</div>
+			<h1 class="calc-hero__title">
+				Subscription Creep Calculator
+			</h1>
+			<p class="calc-hero__subtitle">
+				See the true wealth penalty of auto-renewals: calculate the <strong>3-year compounded cost</strong> of your monthly subscriptions invested in the S&P 500 at 7% vs. drained by silent recurring charges.
+			</p>
+		</header>
+
+		<!-- Interactive Calculator Engine -->
+		<section class="calc-workspace">
+			<!-- Left: Controls & Toggles -->
+			<div class="calc-card calc-card--controls">
+				<div class="card-title-row">
+					<h2>Your Monthly Subscriptions</h2>
+					<span class="stat-badge" id="sub-count-badge">Custom Total</span>
+				</div>
+
+				<!-- Quick Presets -->
+				<div class="preset-buttons">
+					<button type="button" class="preset-btn" data-preset="65">$65 Starter</button>
+					<button type="button" class="preset-btn is-active" data-preset="150">$150 Typical</button>
+					<button type="button" class="preset-btn" data-preset="250">$250 Heavy User</button>
+					<button type="button" class="preset-btn" data-preset="400">$400 Power Family</button>
+				</div>
+
+				<!-- Main Slider Input -->
+				<div class="slider-control">
+					<div class="slider-header">
+						<label for="monthly-spend-input">Monthly Subscription Total</label>
+						<div class="currency-input-wrap">
+							<span class="currency-prefix">$</span>
+							<input
+								type="number"
+								id="monthly-spend-input"
+								class="currency-input"
+								value="150"
+								min="5"
+								max="2000"
+								step="5"
+							/>
+							<span class="currency-suffix">/mo</span>
+						</div>
+					</div>
+					<input
+						type="range"
+						id="monthly-spend-slider"
+						class="range-slider"
+						min="10"
+						max="1000"
+						step="5"
+						value="150"
+					/>
+					<div class="slider-ticks">
+						<span>$10</span>
+						<span>$250</span>
+						<span>$500</span>
+						<span>$750</span>
+						<span>$1,000</span>
+					</div>
+				</div>
+
+				<!-- Rate of Return Setting -->
+				<div class="rate-control">
+					<div class="rate-header">
+						<label for="return-rate-slider">Annual Investment Return (S&P 500 Benchmark)</label>
+						<strong id="rate-display">7.0%</strong>
+					</div>
+					<input
+						type="range"
+						id="return-rate-slider"
+						class="range-slider range-slider--rate"
+						min="4"
+						max="12"
+						step="0.5"
+						value="7"
+					/>
+					<span class="rate-caption">Historical S&P 500 inflation-adjusted return is ~7% annually</span>
+				</div>
+
+				<!-- Creep Checklist Accordion -->
+				<div class="category-breakdown">
+					<div class="breakdown-header">
+						<h3>Or Check Off Your Active Services:</h3>
+					</div>
+					<div class="chips-grid">
+						<button type="button" class="chip is-selected" data-price="15.49" data-name="Netflix">Netflix ($15.49)</button>
+						<button type="button" class="chip is-selected" data-price="10.99" data-name="Spotify">Spotify ($10.99)</button>
+						<button type="button" class="chip is-selected" data-price="15.99" data-name="Max">Max / HBO ($15.99)</button>
+						<button type="button" class="chip is-selected" data-price="14.99" data-name="Prime">Amazon Prime ($14.99)</button>
+						<button type="button" class="chip is-selected" data-price="20.00" data-name="ChatGPT">ChatGPT Plus ($20.00)</button>
+						<button type="button" class="chip is-selected" data-price="24.99" data-name="Gym">Planet Fitness ($24.99)</button>
+						<button type="button" class="chip is-selected" data-price="9.99" data-name="DashPass">DashPass ($9.99)</button>
+						<button type="button" class="chip is-selected" data-price="9.99" data-name="iCloud">Google One / iCloud ($9.99)</button>
+						<button type="button" class="chip is-selected" data-price="13.99" data-name="Disney">Disney+ ($13.99)</button>
+						<button type="button" class="chip is-selected" data-price="12.99" data-name="Peloton">Peloton App ($12.99)</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right: Compounded Cost Results -->
+			<div class="calc-card calc-card--results">
+				<!-- Timeframe Selector Tabs -->
+				<div class="timeframe-tabs" role="tablist">
+					<button type="button" class="tab-btn is-active" data-years="3" role="tab" aria-selected="true">
+						3-Year Impact <span class="tab-highlight">Focus</span>
+					</button>
+					<button type="button" class="tab-btn" data-years="5" role="tab" aria-selected="false">
+						5-Year Impact
+					</button>
+					<button type="button" class="tab-btn" data-years="10" role="tab" aria-selected="false">
+						10-Year Horizon
+					</button>
+					<button type="button" class="tab-btn" data-years="20" role="tab" aria-selected="false">
+						20-Year Nest Egg
+					</button>
+				</div>
+
+				<!-- Main Headline Result -->
+				<div class="main-result-box">
+					<span class="result-label" id="result-years-label">3-Year Compounded Lost Wealth (at 7%)</span>
+					<div class="result-val text-accent" id="result-compound-val">$6,005</div>
+					<div class="result-subtitle">
+						That's <strong id="result-cash-val">$5,400</strong> burned in cash plus <strong id="result-gain-val">+$605</strong> in lost compounding gains.
+					</div>
+				</div>
+
+				<!-- Comparison Visual Progress Bars -->
+				<div class="comparison-bars">
+					<div class="bar-group">
+						<div class="bar-label-row">
+							<span>Direct Cash Drained to Services</span>
+							<strong id="bar-cash-text">$5,400</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill bar-fill--cash" id="bar-cash-fill" style="width: 85%;"></div>
+						</div>
+					</div>
+
+					<div class="bar-group">
+						<div class="bar-label-row">
+							<span>Wealth if Invested in S&P 500 at 7%</span>
+							<strong class="text-accent" id="bar-compound-text">$6,005</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill bar-fill--compound" id="bar-compound-fill" style="width: 100%;"></div>
+						</div>
+					</div>
+				</div>
+
+				<!-- What You Could Have Bought Instead -->
+				<div class="opportunity-cost-box">
+					<h3>Real-World Opportunity Cost:</h3>
+					<div class="opportunity-items" id="opp-items">
+						<div class="opp-item">
+							<span class="opp-icon">🏖️</span>
+							<div class="opp-text">
+								<strong id="opp-vacation">2 Roundtrip International Vacations</strong>
+								<span>Paid in full with cash instead of recurring billing</span>
+							</div>
+						</div>
+						<div class="opp-item">
+							<span class="opp-icon">🛡️</span>
+							<div class="opp-text">
+								<strong id="opp-emergency">3-Month Emergency Safety Cushion</strong>
+								<span>Liquid emergency savings sitting in high-yield cash</span>
+							</div>
+						</div>
+						<div class="opp-item">
+							<span class="opp-icon">📈</span>
+							<div class="opp-text">
+								<strong id="opp-invest">Compounded Retirement Boost</strong>
+								<span>Direct head-start into your Roth IRA or index fund portfolio</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Action CTA -->
+				<div class="results-cta">
+					<a href="/start" class="btn-cta">
+						<span>Stop Your Subscription Creep in 30 Seconds</span>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+					<span class="cta-micro">Free automated email scan • No credit card required</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Information Gain Explainer Section -->
+		<section class="creep-explainer">
+			<div class="explainer-grid">
+				<div class="explainer-card">
+					<div class="card-icon">📉</div>
+					<h3>The "Just $9.99" Optical Illusion</h3>
+					<p>
+						Subscription companies deliberately price below cognitive thresholds ($4.99, $9.99, $14.99). Your brain evaluates each as negligible pocket change, blinding you to the collective $2,000+ annual burn rate.
+					</p>
+				</div>
+				<div class="explainer-card">
+					<div class="card-icon">⚡</div>
+					<h3>The Power of Compounded Opportunity</h3>
+					<p>
+						$150/month invested in a broad market index (7% real return) compounds into <strong>$6,000+ in 3 years</strong>, <strong>$10,750+ in 5 years</strong>, and over <strong>$26,000 in 10 years</strong>. You aren't just paying monthly fees—you're sacrificing your future freedom.
+					</p>
+				</div>
+				<div class="explainer-card">
+					<div class="card-icon">🎯</div>
+					<h3>The 30-Day Subscription Audit Rule</h3>
+					<p>
+						Audit subscriptions twice per year. If you haven't opened an app or watched a streaming channel in the past 14 days, cancel it immediately. You can always restart it in 30 seconds if you truly miss it.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- FAQ -->
+		<section class="calc-faq">
+			<h2>Frequently Asked Questions About Subscription Creep</h2>
+			<div class="faq-list">
+				<details class="faq-item">
+					<summary>How is the compound return calculated?</summary>
+					<p>We use standard future value of an annuity formula compounding monthly: FV = PMT × [((1 + r/12)^(12×t) - 1) / (r/12)], where PMT is your monthly spend, r is the annual rate (7%), and t is the number of years. This models investing your subscription savings on the 1st of every month.</p>
+				</details>
+				<details class="faq-item">
+					<summary>How does CancelKits help eliminate subscription creep?</summary>
+					<p>CancelKits securely analyzes receipt headers in your inbox to surface every recurring charge—even forgotten ones that haven't emailed you in months. With one click, we help you cancel unwanted subscriptions directly without sitting through retention mazes.</p>
+				</details>
+			</div>
+		</section>
+	</main>
+
+	<Footer />
+</BaseLayout>
+
+<script>
+	function initCreepCalculator() {
+		const spendInput = document.getElementById('monthly-spend-input') as HTMLInputElement;
+		const spendSlider = document.getElementById('monthly-spend-slider') as HTMLInputElement;
+		const rateSlider = document.getElementById('return-rate-slider') as HTMLInputElement;
+		const rateDisplay = document.getElementById('rate-display')!;
+		const subCountBadge = document.getElementById('sub-count-badge')!;
+
+		const tabButtons = document.querySelectorAll<HTMLButtonElement>('.timeframe-tabs .tab-btn');
+		const presetButtons = document.querySelectorAll<HTMLButtonElement>('.preset-btn');
+		const chips = document.querySelectorAll<HTMLButtonElement>('.chip');
+
+		// Results DOM
+		const resultYearsLabel = document.getElementById('result-years-label')!;
+		const resultCompoundVal = document.getElementById('result-compound-val')!;
+		const resultCashVal = document.getElementById('result-cash-val')!;
+		const resultGainVal = document.getElementById('result-gain-val')!;
+		const barCashText = document.getElementById('bar-cash-text')!;
+		const barCompoundText = document.getElementById('bar-compound-text')!;
+		const barCashFill = document.getElementById('bar-cash-fill') as HTMLElement;
+		const barCompoundFill = document.getElementById('bar-compound-fill') as HTMLElement;
+		const oppVacation = document.getElementById('opp-vacation')!;
+		const oppEmergency = document.getElementById('opp-emergency')!;
+		const oppInvest = document.getElementById('opp-invest')!;
+
+		let currentYears = 3;
+		let currentSpend = 150;
+		let currentRate = 0.07;
+
+		function formatUSD(num: number): string {
+			return '$' + Math.round(num).toLocaleString('en-US');
+		}
+
+		function calculate() {
+			const months = currentYears * 12;
+			const totalCash = currentSpend * months;
+
+			const monthlyRate = currentRate / 12;
+			const compoundFV = currentSpend * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+			const lostGain = compoundFV - totalCash;
+
+			// Update Text
+			resultYearsLabel.textContent = `${currentYears}-Year Compounded Lost Wealth (at ${(currentRate * 100).toFixed(1)}%)`;
+			resultCompoundVal.textContent = formatUSD(compoundFV);
+			resultCashVal.textContent = formatUSD(totalCash);
+			resultGainVal.textContent = '+' + formatUSD(lostGain);
+
+			barCashText.textContent = formatUSD(totalCash);
+			barCompoundText.textContent = formatUSD(compoundFV);
+
+			// Bar Widths
+			const maxVal = compoundFV;
+			const cashPercent = Math.min(100, Math.round((totalCash / maxVal) * 100));
+			barCashFill.style.width = `${cashPercent}%`;
+			barCompoundFill.style.width = `100%`;
+
+			// Opportunity Cost Equivalence
+			if (currentYears === 3) {
+				oppVacation.textContent = `${Math.max(1, Math.round(compoundFV / 2500))} International Vacations`;
+				oppEmergency.textContent = `${Math.max(1, Math.round(compoundFV / 1800))}-Month Emergency Safety Cushion`;
+				oppInvest.textContent = `A ${formatUSD(compoundFV)} Tax-Free Roth IRA Growth Start`;
+			} else if (currentYears === 5) {
+				oppVacation.textContent = `A Solid Down Payment on a Reliable Vehicle (${formatUSD(compoundFV)})`;
+				oppEmergency.textContent = `6+ Months of Full Living Expenses Covered`;
+				oppInvest.textContent = `${formatUSD(compoundFV)} Growing Inside an S&P 500 Index Fund`;
+			} else if (currentYears === 10) {
+				oppVacation.textContent = `Full Tuition or Home Down Payment (${formatUSD(compoundFV)})`;
+				oppEmergency.textContent = `1+ Full Year of Financial Independence Living Expenses`;
+				oppInvest.textContent = `${formatUSD(compoundFV)} Compounded Nest Egg Toward Early Retirement`;
+			} else {
+				oppVacation.textContent = `Major Luxury Asset or Life Milestone Fully Funded (${formatUSD(compoundFV)})`;
+				oppEmergency.textContent = `Multiple Years of Total Financial Freedom`;
+				oppInvest.textContent = `${formatUSD(compoundFV)} Massive Retirement Multiplier (Compound Interest King)`;
+			}
+		}
+
+		// Sync Spend input & slider
+		function setSpend(val: number, source?: string) {
+			currentSpend = Math.max(5, val);
+			if (source !== 'input') spendInput.value = currentSpend.toString();
+			if (source !== 'slider') spendSlider.value = currentSpend.toString();
+			calculate();
+		}
+
+		spendInput.addEventListener('input', () => {
+			setSpend(parseFloat(spendInput.value) || 0, 'input');
+			presetButtons.forEach((b) => b.classList.remove('is-active'));
+			subCountBadge.textContent = 'Custom Total';
+		});
+
+		spendSlider.addEventListener('input', () => {
+			setSpend(parseFloat(spendSlider.value), 'slider');
+			presetButtons.forEach((b) => b.classList.remove('is-active'));
+			subCountBadge.textContent = 'Custom Total';
+		});
+
+		// Rate slider
+		rateSlider.addEventListener('input', () => {
+			const r = parseFloat(rateSlider.value);
+			currentRate = r / 100;
+			rateDisplay.textContent = `${r.toFixed(1)}%`;
+			calculate();
+		});
+
+		// Preset buttons
+		presetButtons.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				presetButtons.forEach((b) => b.classList.remove('is-active'));
+				btn.classList.add('is-active');
+				const p = parseFloat(btn.dataset.preset || '150');
+				setSpend(p);
+				subCountBadge.textContent = `${btn.textContent?.split(' ')[0]} Preset`;
+			});
+		});
+
+		// Timeframe tabs
+		tabButtons.forEach((tab) => {
+			tab.addEventListener('click', () => {
+				tabButtons.forEach((t) => {
+					t.classList.remove('is-active');
+					t.setAttribute('aria-selected', 'false');
+				});
+				tab.classList.add('is-active');
+				tab.setAttribute('aria-selected', 'true');
+				currentYears = parseInt(tab.dataset.years || '3', 10);
+				calculate();
+			});
+		});
+
+		// Chip Toggles
+		chips.forEach((chip) => {
+			chip.addEventListener('click', () => {
+				chip.classList.toggle('is-selected');
+				let sum = 0;
+				let activeCount = 0;
+				chips.forEach((c) => {
+					if (c.classList.contains('is-selected')) {
+						sum += parseFloat(c.dataset.price || '0');
+						activeCount++;
+					}
+				});
+				setSpend(Math.round(sum));
+				presetButtons.forEach((b) => b.classList.remove('is-active'));
+				subCountBadge.textContent = `${activeCount} Subscriptions Selected`;
+			});
+		});
+
+		calculate();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initCreepCalculator);
+	} else {
+		initCreepCalculator();
+	}
+</script>
+
+<style>
+	.creep-calc {
+		background: #050505;
+		color: #fff;
+		min-height: 100vh;
+		padding: 5rem 1.25rem 6rem;
+		max-width: 82rem;
+		margin: 0 auto;
+	}
+
+	.calc-hero {
+		text-align: center;
+		max-width: 48rem;
+		margin: 0 auto 3.5rem;
+	}
+
+	.calc-hero__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--color-accent);
+		margin-bottom: 1.25rem;
+	}
+
+	.badge-pulse {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 10px var(--color-accent);
+	}
+
+	.calc-hero__title {
+		font-family: var(--font-display);
+		font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+		font-weight: 700;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+		margin-bottom: 1rem;
+	}
+
+	.calc-hero__subtitle {
+		font-size: 1.08rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	/* Workspace Grid */
+	.calc-workspace {
+		display: grid;
+		grid-template-columns: 1fr 1.1fr;
+		gap: 2.5rem;
+		align-items: start;
+	}
+
+	@media (max-width: 64rem) {
+		.calc-workspace {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Cards */
+	.calc-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 2.25rem;
+	}
+
+	.card-title-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+	}
+
+	.card-title-row h2 {
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		margin: 0;
+	}
+
+	.stat-badge {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		padding: 0.25rem 0.65rem;
+		background: rgba(255, 255, 255, 0.08);
+		border-radius: var(--radius-pill);
+		color: var(--color-muted);
+	}
+
+	/* Presets */
+	.preset-buttons {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 0.5rem;
+		margin-bottom: 1.75rem;
+	}
+
+	@media (max-width: 38rem) {
+		.preset-buttons {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.preset-btn {
+		appearance: none;
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-sm);
+		color: #ccc;
+		font-size: 0.8rem;
+		font-weight: 600;
+		padding: 0.55rem 0.5rem;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.preset-btn:hover {
+		background: #1c1c1c;
+		border-color: rgba(255, 255, 255, 0.25);
+		color: #fff;
+	}
+
+	.preset-btn.is-active {
+		background: rgba(0, 255, 136, 0.12);
+		border-color: var(--color-accent);
+		color: var(--color-accent);
+	}
+
+	/* Sliders */
+	.slider-control {
+		margin-bottom: 1.75rem;
+	}
+
+	.slider-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.75rem;
+	}
+
+	.slider-header label {
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #ddd;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.currency-input-wrap {
+		display: inline-flex;
+		align-items: center;
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: var(--radius-sm);
+		padding: 0.25rem 0.6rem;
+	}
+
+	.currency-prefix, .currency-suffix {
+		font-size: 0.9rem;
+		color: var(--color-faint);
+		font-weight: 600;
+	}
+
+	.currency-input {
+		background: transparent;
+		border: none;
+		color: #fff;
+		font-family: var(--font-mono);
+		font-size: 1.15rem;
+		font-weight: 700;
+		width: 4rem;
+		text-align: right;
+		outline: none;
+	}
+
+	.range-slider {
+		width: 100%;
+		height: 6px;
+		border-radius: 3px;
+		background: #222;
+		appearance: none;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.range-slider::-webkit-slider-thumb {
+		appearance: none;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		cursor: pointer;
+		box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+		transition: transform 0.15s;
+	}
+
+	.range-slider::-webkit-slider-thumb:hover {
+		transform: scale(1.15);
+	}
+
+	.slider-ticks {
+		display: flex;
+		justify-content: space-between;
+		font-size: 0.72rem;
+		color: var(--color-faint);
+		margin-top: 0.4rem;
+		font-family: var(--font-mono);
+	}
+
+	/* Rate Slider */
+	.rate-control {
+		padding: 1.15rem;
+		background: #121212;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: var(--radius-card);
+		margin-bottom: 2rem;
+	}
+
+	.rate-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.65rem;
+		font-size: 0.85rem;
+	}
+
+	.rate-header strong {
+		font-family: var(--font-mono);
+		color: var(--color-accent);
+	}
+
+	.rate-caption {
+		display: block;
+		font-size: 0.75rem;
+		color: var(--color-faint);
+		margin-top: 0.45rem;
+	}
+
+	/* Chips Grid */
+	.category-breakdown h3 {
+		font-size: 0.88rem;
+		font-weight: 600;
+		color: #bbb;
+		margin-bottom: 0.75rem;
+	}
+
+	.chips-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.chip {
+		appearance: none;
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-pill);
+		padding: 0.4rem 0.75rem;
+		color: #888;
+		font-size: 0.78rem;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.chip.is-selected {
+		background: rgba(0, 255, 136, 0.12);
+		border-color: rgba(0, 255, 136, 0.4);
+		color: #fff;
+	}
+
+	/* Results Column */
+	.calc-card--results {
+		position: sticky;
+		top: 6rem;
+		background: linear-gradient(180deg, #101010 0%, #0c0c0c 100%);
+	}
+
+	/* Tabs */
+	.timeframe-tabs {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.4rem;
+		background: #050505;
+		padding: 0.35rem;
+		border-radius: var(--radius-pill);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		margin-bottom: 2rem;
+	}
+
+	.tab-btn {
+		appearance: none;
+		background: transparent;
+		border: none;
+		border-radius: var(--radius-pill);
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		font-weight: 600;
+		padding: 0.55rem 0.5rem;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.35rem;
+		transition: all 0.2s;
+	}
+
+	.tab-btn.is-active {
+		background: #1c1c1c;
+		color: #fff;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+	}
+
+	.tab-highlight {
+		font-size: 0.65rem;
+		background: rgba(0, 255, 136, 0.2);
+		color: var(--color-accent);
+		padding: 0.1rem 0.4rem;
+		border-radius: var(--radius-pill);
+		font-family: var(--font-mono);
+	}
+
+	/* Main Result Box */
+	.main-result-box {
+		text-align: center;
+		padding: 2rem 1.5rem;
+		background: #050505;
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		border-radius: var(--radius-card);
+		margin-bottom: 2rem;
+		box-shadow: 0 4px 30px rgba(0, 255, 136, 0.04);
+	}
+
+	.result-label {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-muted);
+		margin-bottom: 0.65rem;
+	}
+
+	.result-val {
+		font-family: var(--font-display);
+		font-size: clamp(2.5rem, 5vw, 4.25rem);
+		font-weight: 800;
+		line-height: 1;
+		letter-spacing: -0.05em;
+		margin-bottom: 0.75rem;
+	}
+
+	.result-subtitle {
+		font-size: 0.95rem;
+		color: var(--color-muted);
+	}
+
+	.result-subtitle strong {
+		color: #fff;
+	}
+
+	/* Comparison Bars */
+	.comparison-bars {
+		display: grid;
+		gap: 1.25rem;
+		margin-bottom: 2rem;
+	}
+
+	.bar-label-row {
+		display: flex;
+		justify-content: space-between;
+		font-size: 0.85rem;
+		margin-bottom: 0.4rem;
+	}
+
+	.bar-track {
+		height: 8px;
+		border-radius: 4px;
+		background: #1c1c1c;
+		overflow: hidden;
+	}
+
+	.bar-fill {
+		height: 100%;
+		border-radius: 4px;
+		transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.bar-fill--cash {
+		background: #ff5555;
+	}
+
+	.bar-fill--compound {
+		background: var(--color-accent);
+	}
+
+	/* Opportunity Items */
+	.opportunity-cost-box {
+		padding: 1.5rem;
+		background: #080808;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		margin-bottom: 2rem;
+	}
+
+	.opportunity-cost-box h3 {
+		font-size: 0.82rem;
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-faint);
+		margin-bottom: 1rem;
+	}
+
+	.opportunity-items {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.opp-item {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.opp-icon {
+		font-size: 1.5rem;
+	}
+
+	.opp-text {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.opp-text strong {
+		font-size: 0.92rem;
+		color: #fff;
+	}
+
+	.opp-text span {
+		font-size: 0.78rem;
+		color: var(--color-muted);
+	}
+
+	/* CTA */
+	.results-cta {
+		text-align: center;
+	}
+
+	.btn-cta {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 1rem 1.5rem;
+		background: var(--color-accent);
+		color: #000;
+		border-radius: var(--radius-pill);
+		font-weight: 700;
+		font-size: 0.95rem;
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.btn-cta:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 24px rgba(0, 255, 136, 0.35);
+	}
+
+	.cta-micro {
+		display: block;
+		font-size: 0.75rem;
+		color: var(--color-faint);
+		margin-top: 0.6rem;
+	}
+
+	/* Explainer Section */
+	.creep-explainer {
+		margin-top: 5rem;
+		border-top: 1px solid var(--color-border);
+		padding-top: 4rem;
+	}
+
+	.explainer-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	@media (max-width: 54rem) {
+		.explainer-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.explainer-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.85rem;
+	}
+
+	.card-icon {
+		font-size: 1.75rem;
+		margin-bottom: 0.85rem;
+	}
+
+	.explainer-card h3 {
+		font-family: var(--font-display);
+		font-size: 1.18rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.explainer-card p {
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.6;
+	}
+
+	/* FAQ */
+	.calc-faq {
+		margin-top: 4.5rem;
+		max-width: 50rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.calc-faq h2 {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+
+	.faq-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.faq-item {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.25rem 1.5rem;
+	}
+
+	.faq-item summary {
+		font-weight: 600;
+		font-size: 1rem;
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.faq-item p {
+		margin-top: 0.75rem;
+		color: var(--color-muted);
+		line-height: 1.6;
+		font-size: 0.92rem;
+	}
+</style>

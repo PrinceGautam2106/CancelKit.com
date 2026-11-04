@@ -31,7 +31,7 @@ export default defineConfig({
 				!page.includes('/500') &&
 				!page.includes('/start') &&
 				!aliasRegex.test(page) &&
-				!/\/(es|fr|de|pt|ja|ko|it)\/cancel\//.test(page),
+				!/\/(es|fr|de|pt|ja|ko|it)(\/|$)/.test(page),
 
 			// Assign priority + changefreq based on page type
 			// Google says it "mostly ignores" these, but Bing, Yandex, and
@@ -69,9 +69,15 @@ export default defineConfig({
 					return { ...item, changefreq: 'monthly', priority: 0.85 };
 				}
 
-				// ── Calculator & cancel-difficulty (interactive tools) ──
-				if (url.includes('/calculator') || url.includes('/cancel-difficulty')) {
-					return { ...item, changefreq: 'monthly', priority: 0.7 };
+				// ── Interactive Tools (Calculator, Creep Analysis, Certified Gym Letter, Statement Scanner) ──
+				if (
+					url.includes('/calculator') ||
+					url.includes('/cancel-difficulty') ||
+					url.includes('/gym-cancellation-letter') ||
+					url.includes('/subscription-creep-calculator') ||
+					url.includes('/statement-scanner')
+				) {
+					return { ...item, changefreq: 'weekly', priority: 0.85 };
 				}
 
 				// ── i18n homepages ──
@@ -87,6 +93,11 @@ export default defineConfig({
 				// ── About page ──
 				if (url.includes('/about')) {
 					return { ...item, changefreq: 'monthly', priority: 0.5 };
+				}
+
+				// ── Security & compliance ──
+				if (url.includes('/security')) {
+					return { ...item, changefreq: 'monthly', priority: 0.7 };
 				}
 
 				// ── Legal & compliance (rarely change) ──
@@ -116,5 +127,5 @@ export default defineConfig({
 	site: 'https://cancelkits.com',
 	output: 'static',
 	adapter: cloudflare(),
-	trailingSlash: 'ignore',
+	trailingSlash: 'always',
 });

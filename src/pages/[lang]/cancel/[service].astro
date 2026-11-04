@@ -90,14 +90,14 @@ const guide = {
 	description={description}
 	keywords={keywords}
 	canonicalPath={`/${lang}/cancel/netflix/`}
-	noIndex
+	robots="noindex, follow"
 >
 	<Nav />
 	<main class="guide">
 		<h1>{title}</h1>
 		<p>
 			CancelKits makes subscription cancellation simple.
-			<a href="/cancel/netflix">See the full English guide</a> for the complete 2026 playbook.
+			<a href="/cancel/netflix/">See the full English guide</a> for the complete 2026 playbook.
 		</p>
 		<ol>
 			{guide.map((step) => <li>{step}</li>)}

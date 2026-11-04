@@ -85,7 +85,7 @@ function formatDate(date: Date) {
 			<nav class="post__breadcrumb" aria-label="Breadcrumb">
 				<a href="/">Home</a>
 				<span aria-hidden="true">/</span>
-				<a href="/blog">Blog</a>
+				<a href="/blog/">Blog</a>
 				<span aria-hidden="true">/</span>
 				<span class="post__breadcrumb-cat">{blogCategoryLabel[category]}</span>
 			</nav>
@@ -167,7 +167,7 @@ function formatDate(date: Date) {
 					<h2 id="related-heading" class="post__related-title">Continue reading</h2>
 					<div class="post__related-grid">
 						{relatedPosts.map((rel) => (
-							<a href={`/blog/${rel.id}`} class="post__related-card">
+							<a href={`/blog/${rel.id}/`} class="post__related-card">
 								<span class="post__related-cat">{blogCategoryLabel[rel.data.category as BlogCategory]}</span>
 								<h3>{rel.data.title}</h3>
 								<p>{rel.data.description}</p>

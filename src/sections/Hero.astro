@@ -58,6 +58,12 @@ const { t } = Astro.props;
 				<button class="hero__button" type="submit">{t?.cta_button ?? 'Find my subscriptions →'}</button>
 			</div>
 			<p class="hero__reassurance">{t?.reassurance ?? 'No credit card required · Free subscription audit in 30 seconds'}</p>
+
+			<div class="hero__zero-permission">
+				<span class="zero-badge">ZERO-PERMISSION</span>
+				<span>Don't want to connect your inbox?</span>
+				<a href="/statement-scanner/" class="hero__zero-link">Drop your bank statement PDF (100% in-browser, no upload) →</a>
+			</div>
 		</form>
 
 		<!-- Direct Cancel Guides Quick Access Strip -->
@@ -67,7 +73,7 @@ const { t } = Astro.props;
 					<span class="hero__guides-badge">FREE PLAYBOOKS</span>
 					<span class="hero__guides-text">Cancel a specific subscription directly:</span>
 				</div>
-				<a href="/cancel" class="hero__guides-cta">
+				<a href="/cancel/" class="hero__guides-cta">
 					<span>Browse all 50+ guides</span>
 					<span class="hero__guides-arrow" aria-hidden="true">→</span>
 				</a>
@@ -76,11 +82,11 @@ const { t } = Astro.props;
 			<div class="hero__chips-wrap" aria-label="Popular cancellation guides">
 				<div class="hero__chips-list">
 					{popularGuides.map((item) => (
-						<a href={`/cancel/${item.slug}`} class="hero__chip">
+						<a href={`/cancel/${item.slug}/`} class="hero__chip">
 							{item.name}
 						</a>
 					))}
-					<a href="/cancel" class="hero__chip hero__chip--all">
+					<a href="/cancel/" class="hero__chip hero__chip--all">
 						<span>All 50+</span>
 						<span aria-hidden="true">→</span>
 					</a>
@@ -95,7 +101,7 @@ const { t } = Astro.props;
 					<span>{t?.hero_stat_wasted ?? 'avg. wasted on forgotten subscriptions'}</span>
 				</div>
 				<div class="hero__divider" aria-hidden="true"></div>
-				<a href="/cancel" class="hero__stat hero__stat--link" aria-label="Browse 50+ verified cancel guides">
+				<a href="/cancel/" class="hero__stat hero__stat--link" aria-label="Browse 50+ verified cancel guides">
 					<div class="hero__stat-val">
 						<strong>50+</strong>
 						<span class="hero__stat-arrow" aria-hidden="true">→</span>
@@ -115,14 +121,14 @@ const { t } = Astro.props;
 		<div class="hero__ticker-track">
 			<div class="hero__ticker-group">
 				{subscriptions.map((s) => (
-					<a href={`/cancel/${s.slug}`} class="hero__ticker-pill" title={`How to cancel ${s.name}`}>
+					<a href={`/cancel/${s.slug}/`} class="hero__ticker-pill" title={`How to cancel ${s.name}`}>
 						{s.name}
 					</a>
 				))}
 			</div>
 			<div class="hero__ticker-group" aria-hidden="true">
 				{subscriptions.map((s) => (
-					<a href={`/cancel/${s.slug}`} class="hero__ticker-pill" tabindex="-1">
+					<a href={`/cancel/${s.slug}/`} class="hero__ticker-pill" tabindex="-1">
 						{s.name}
 					</a>
 				))}
@@ -281,6 +287,43 @@ const { t } = Astro.props;
 		margin: 0.75rem 0 0;
 		color: var(--color-faint);
 		font-size: 0.78rem;
+	}
+
+	.hero__zero-permission {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 0.45rem 0.65rem;
+		margin-top: 1rem;
+		padding: 0.45rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.04);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		font-size: 0.76rem;
+		color: #a3a3a3;
+	}
+
+	.zero-badge {
+		font-size: 0.65rem;
+		font-weight: 700;
+		color: #00ff88;
+		background: rgba(0, 255, 136, 0.12);
+		padding: 0.15rem 0.45rem;
+		border-radius: 4px;
+		letter-spacing: 0.04em;
+	}
+
+	.hero__zero-link {
+		color: #00ff88;
+		font-weight: 600;
+		text-decoration: none;
+		transition: color 0.15s, text-decoration 0.15s;
+	}
+
+	.hero__zero-link:hover {
+		color: #ffffff;
+		text-decoration: underline;
 	}
 
 	/* Direct Cancel Guides Quick Access Strip */

@@ -39,7 +39,7 @@ const itemListSchema = {
 };
 ---
 
-<BaseLayout {title} {description}>
+<BaseLayout {title} {description} schemas={[itemListSchema]}>
 	<Nav />
 	<main class="hub">
 		<header class="hub__header">
@@ -54,7 +54,7 @@ const itemListSchema = {
 			</p>
 
 			<div class="hub__ranking-banner">
-				<a href="/cancel-difficulty" class="hub__ranking-link">
+				<a href="/cancel-difficulty/" class="hub__ranking-link">
 					<span class="ranking-badge">🔥 Hall of Shame</span>
 					<span>Which subscriptions are hardest to cancel? See 2026 Rankings &rarr;</span>
 				</a>
@@ -84,7 +84,7 @@ const itemListSchema = {
 						const svc = services.find((s) => s.slug === slug);
 						if (!svc) return null;
 						return (
-							<a href={`/cancel/${svc.slug}`} class="hub__popular-pill">
+							<a href={`/cancel/${svc.slug}/`} class="hub__popular-pill">
 								{svc.name}
 							</a>
 						);
@@ -120,7 +120,7 @@ const itemListSchema = {
 									data-category={service.category.toLowerCase()}
 									data-difficulty={service.cancelDifficulty}
 								>
-									<a href={`/cancel/${service.slug}`} class="hub__card">
+									<a href={`/cancel/${service.slug}/`} class="hub__card">
 										<div class="hub__card-top">
 											<span class="hub__name">{service.name}</span>
 											<span class:list={['hub__diff', difficultyClass[service.cancelDifficulty]]}>

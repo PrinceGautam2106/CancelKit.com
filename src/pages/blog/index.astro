@@ -13,7 +13,7 @@ const allPosts = (await getCollection('blog')).sort(
 const featuredPost = allPosts[0];
 const remainingPosts = allPosts.slice(1);
 
-const title = 'CancelKits Blog — Stop Recurring Charges, Cancel Subscriptions & Save Money';
+const title = 'CancelKits Blog — Cancel Subscriptions & Stop Recurring Charges';
 const description =
 	'Actionable guides to cancel subscriptions, block stubborn recurring payments, spot free trial traps, and claw back money from surprise charges.';
 
@@ -102,7 +102,7 @@ const blogSchema = {
 					</div>
 					<div class="featured-card__content">
 						<h2 class="featured-card__title">
-							<a href={`/blog/${featuredPost.id}`}>{featuredPost.data.title}</a>
+							<a href={`/blog/${featuredPost.id}/`}>{featuredPost.data.title}</a>
 						</h2>
 						<p class="featured-card__desc">{featuredPost.data.description}</p>
 						<div class="featured-card__footer">
@@ -115,7 +115,7 @@ const blogSchema = {
 								<span class="dot" aria-hidden="true">·</span>
 								<span class="verified">✓ Fact Checked</span>
 							</div>
-							<a class="featured-card__cta" href={`/blog/${featuredPost.id}`}>
+							<a class="featured-card__cta" href={`/blog/${featuredPost.id}/`}>
 								Read Full Guide <span aria-hidden="true">→</span>
 							</a>
 						</div>
@@ -137,7 +137,7 @@ const blogSchema = {
 							data-keywords={(post.data.keywords || []).join(' ').toLowerCase()}
 							class={`fade-in-up stagger-${Math.min((idx % 4) + 1, 4)}`}
 						>
-							<a href={`/blog/${post.id}`} class="blog-card">
+							<a href={`/blog/${post.id}/`} class="blog-card">
 								<div class="blog-card__header">
 									<span class="blog-card__category">{blogCategoryLabel[post.data.category as BlogCategory]}</span>
 									<span class="blog-card__time">⏱ {post.data.readTime}</span>

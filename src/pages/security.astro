@@ -1,0 +1,708 @@
+---
+export const prerender = true;
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const pageTitle = "Security & OAuth Scoping Architecture — CancelKits";
+const pageDescription = "CancelKits security architecture: strict read-only receipt scopes, AES-256-GCM encryption at rest, and instant 1-click self-service data revocation.";
+
+const securityFaqs = [
+	{
+		q: "Do you sell or monetize my receipt data to advertisers or hedge funds?",
+		a: "No, never. Unlike legacy subscription trackers (such as Rocket Money or free budgeting apps) that monetize through credit card affiliate offers or aggregate consumer spending data, CancelKits operates on a direct fee model (Purge Passes and Pay-Per-Cancel Concierge). We never sell, license, or share your data with advertisers, data brokers, or financial institutions.",
+	},
+	{
+		q: "Can CancelKits send emails or modify my inbox?",
+		a: "No. It is technically impossible. CancelKits strictly requests read-only permissions (gmail.readonly on Google, Mail.Read on Microsoft). We do not request, nor have access to, compose, send, delete, or contact management scopes. Google's and Microsoft's OAuth architecture cryptographically prohibits us from performing any action beyond reading messages matching subscription receipt queries.",
+	},
+	{
+		q: "Can I use CancelKits without granting any email permissions?",
+		a: "Yes. We offer zero-permission alternatives. You can audit subscriptions using our interactive Subscription Calculator (/calculator) or drag-and-drop a monthly bank statement into our Client-Side Statement Scanner (/statement-scanner), which parses PDFs entirely inside your browser memory using WebAssembly/pdf.js with zero server uploads.",
+	},
+	{
+		q: "What happens when I click 'Revoke & Delete All My Data'?",
+		a: "All stored records are hard-deleted immediately. Your OAuth refresh tokens are cryptographically revoked with Google or Microsoft's API, your user profile and detected subscriptions are wiped from our database, and your browser session and cookies are cleared. We retain zero archival records.",
+	},
+	{
+		q: "How can I independently verify that access has been revoked?",
+		a: "You can view and revoke third-party app permissions directly in your identity provider at any time: visit Google Account Security (myaccount.google.com/permissions) or Microsoft Privacy Dashboard (account.microsoft.com/privacy).",
+	},
+];
+
+const securityFaqSchema = {
+	"@context": "https://schema.org",
+	"@type": "FAQPage",
+	"mainEntity": securityFaqs.map((faq) => ({
+		"@type": "Question",
+		"name": faq.q,
+		"acceptedAnswer": { "@type": "Answer", "text": faq.a },
+	})),
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+	<slot name="head" slot="head">
+		<script type="application/ld+json" set:html={JSON.stringify(securityFaqSchema)} />
+	</slot>
+
+	<Nav />
+
+	<main class="security-page">
+		<!-- Hero -->
+		<header class="security-hero">
+			<div class="security-container">
+				<div class="security-badge">
+					<span class="badge-dot"></span>
+					<span>Open & Verifiable Security Architecture</span>
+				</div>
+				<h1>Security & OAuth Scoping Demystified</h1>
+				<p class="security-lead">
+					We believe in radical transparency. Here is the exact breakdown of the permissions we request, our cryptographic storage standards, and how you can verify or revoke access in one click.
+				</p>
+			</div>
+		</header>
+
+		<div class="security-container">
+			<!-- Quick Specs Strip -->
+			<section class="specs-grid" aria-label="Key security specifications">
+				<div class="spec-card">
+					<span class="spec-label">OAuth Scoping</span>
+					<strong class="spec-val text-accent">Read-Only Strict</strong>
+					<p class="spec-sub">No compose, send, or delete access</p>
+				</div>
+				<div class="spec-card">
+					<span class="spec-label">Token Encryption</span>
+					<strong class="spec-val">AES-256-GCM</strong>
+					<p class="spec-sub">Encrypted at rest with rotating keys</p>
+				</div>
+				<div class="spec-card">
+					<span class="spec-label">Transport Security</span>
+					<strong class="spec-val">TLS 1.3 Strict</strong>
+					<p class="spec-sub">End-to-end encrypted transit</p>
+				</div>
+				<div class="spec-card">
+					<span class="spec-label">Data Retention</span>
+					<strong class="spec-val text-danger">1-Click Purge</strong>
+					<p class="spec-sub">Instant zero-trace GDPR deletion</p>
+				</div>
+			</section>
+
+			<!-- 1. OAuth Scoping Section -->
+			<section id="scoping" class="security-section">
+				<div class="section-tag">01 / PERMISSION MATRIX</div>
+				<h2>Exact OAuth Scopes Explained</h2>
+				<p class="section-desc">
+					When you choose automatic scanning, CancelKits interacts with Google or Microsoft's OAuth 2.0 API. We ask for the minimum viable scope required to detect subscription billing receipts:
+				</p>
+
+				<div class="scope-comparison-table">
+					<div class="scope-col scope-col--can">
+						<div class="scope-col__header">
+							<span class="scope-badge scope-badge--green">✓ WHAT WE ACCESS</span>
+							<h3>Receipt Metadata Strictly</h3>
+						</div>
+						<ul class="scope-list">
+							<li>
+								<strong>Verified Merchant Senders:</strong> Messages from known billing domains (e.g. <code>*@netflix.com</code>, <code>billing@*</code>, <code>receipts@*</code>).
+							</li>
+							<li>
+								<strong>Transaction Numbers & Dates:</strong> Recurring billing amounts ($15.49/mo) and next renewal dates to build your cancellation radar.
+							</li>
+							<li>
+								<strong>Service Names:</strong> To match your accounts with our step-by-step cancellation playbooks.
+							</li>
+						</ul>
+					</div>
+
+					<div class="scope-col scope-col--cannot">
+						<div class="scope-col__header">
+							<span class="scope-badge scope-badge--red">✕ WHAT WE CANNOT ACCESS</span>
+							<h3>Cryptographically Blocked</h3>
+						</div>
+						<ul class="scope-list">
+							<li>
+								<strong>Personal Correspondence:</strong> We never read personal emails, family messages, medical records, or work communications.
+							</li>
+							<li>
+								<strong>Send / Delete Powers:</strong> Zero send, compose, draft, or delete permissions. We cannot send an email on your behalf.
+							</li>
+							<li>
+								<strong>Passwords & Credentials:</strong> We never see or ask for your Google/Microsoft account passwords or banking logins.
+							</li>
+							<li>
+								<strong>Account Contacts:</strong> We cannot read, export, or access your address book or contact lists.
+							</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<!-- 2. Cryptographic Architecture -->
+			<section id="encryption" class="security-section">
+				<div class="section-tag">02 / CRYPTOGRAPHIC SAFEGUARDS</div>
+				<h2>How Your Data is Stored and Encrypted</h2>
+				<div class="crypto-cards-grid">
+					<div class="crypto-card">
+						<div class="crypto-icon">🔐</div>
+						<h3>AES-256-GCM Envelope Encryption</h3>
+						<p>
+							All OAuth refresh tokens are encrypted at rest using AES-256 in Galois/Counter Mode (GCM), providing authenticated encryption with integrity verification. Encryption keys are stored separately in isolated hardware security modules (HSMs).
+						</p>
+					</div>
+
+					<div class="crypto-card">
+						<div class="crypto-icon">⚡</div>
+						<h3>Ephemeral Parsing (No Inbox Hoarding)</h3>
+						<p>
+							Our scanner performs ephemeral memory-only extraction. We do not store raw email bodies or attachments on our database servers. Once subscription items are parsed, the raw message payload is immediately discarded.
+						</p>
+					</div>
+
+					<div class="crypto-card">
+						<div class="crypto-icon">🛡️</div>
+						<h3>Zero Plain-Text Token Logs</h3>
+						<p>
+							Application telemetry and server logs strictly redact all authorization headers, session cookies, and authentication payloads. Our engineering team has zero access to plain-text credentials.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- 3. 1-Click Revocation & Deletion -->
+			<section id="deletion" class="security-section">
+				<div class="section-tag">03 / RADICAL USER CONTROL</div>
+				<h2>1-Click "Revoke & Delete All My Data"</h2>
+				<p class="section-desc">
+					You have full control over your data at all times. You can terminate your account and wipe all records instantly without contacting support:
+				</p>
+
+				<div class="purge-action-box">
+					<div class="purge-info">
+						<span class="purge-badge">SELF-SERVICE GDPR & CCPA PURGE</span>
+						<h3>Instant Data Revocation in Account Settings</h3>
+						<p>
+							Clicking "Revoke OAuth & Delete All My Data" triggers an immediate API revocation with your identity provider, purges all stored subscription records, and destroys your authentication session.
+						</p>
+						<div class="external-links-row">
+							<span>Independent verification portals:</span>
+							<a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">Google Account Permissions ↗</a>
+							<span class="dot">•</span>
+							<a href="https://account.microsoft.com/privacy" target="_blank" rel="noopener noreferrer">Microsoft Privacy Dashboard ↗</a>
+						</div>
+					</div>
+
+					<div class="purge-cta">
+						<a href="/account#danger" class="btn-purge-action">
+							<span>Go to Account Danger Zone →</span>
+						</a>
+						<span class="purge-tip">Zero questions asked · Instant deletion</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- 4. Zero-Permission Alternative -->
+			<section id="zero-permission" class="security-section">
+				<div class="section-tag">04 / ZERO-PERMISSION PATH</div>
+				<h2>Prefer Not to Connect an Inbox at All?</h2>
+				<p class="section-desc">
+					If you are uncomfortable connecting an inbox on an unfamiliar domain, you don't have to. We built client-side tools that require zero permissions:
+				</p>
+
+				<div class="zero-tools-row">
+					<div class="zero-tool-card">
+						<div class="zero-tool-icon">📄</div>
+						<div class="zero-tool-body">
+							<h3>Client-Side Bank Statement PDF Scanner</h3>
+							<p>Drag and drop a bank or credit card PDF. The file is processed 100% in browser memory via WebAssembly/pdf.js — zero data is ever uploaded to our servers.</p>
+							<a href="/statement-scanner/" class="zero-tool-link">Open Statement Scanner →</a>
+						</div>
+					</div>
+
+					<div class="zero-tool-card">
+						<div class="zero-tool-icon">🧮</div>
+						<div class="zero-tool-body">
+							<h3>Interactive Subscription Calculator</h3>
+							<p>Toggle common subscription apps and calculate your 3, 5, and 10-year recurring bleed against 7% S&P 500 index returns. 100% anonymous, zero login.</p>
+							<a href="/subscription-creep-calculator/" class="zero-tool-link">Open Creep Calculator →</a>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- 5. Security FAQ -->
+			<section class="security-section" aria-labelledby="sec-faq-heading">
+				<div class="section-tag">05 / SECURITY FAQ</div>
+				<h2 id="sec-faq-heading">Frequently Asked Questions</h2>
+				<div class="security-faq-list">
+					{securityFaqs.map((faq) => (
+						<details class="sec-faq-item">
+							<summary>{faq.q}</summary>
+							<p>{faq.a}</p>
+						</details>
+					))}
+				</div>
+			</section>
+		</div>
+	</main>
+
+	<Footer />
+</BaseLayout>
+
+<style>
+	.security-page {
+		background: #050505;
+		color: #e5e5e5;
+		min-height: 100vh;
+		padding-bottom: 5rem;
+	}
+
+	.security-container {
+		width: min(100% - 2.5rem, 64rem);
+		margin: 0 auto;
+	}
+
+	/* Hero */
+	.security-hero {
+		padding: 4rem 0 2.5rem;
+		text-align: center;
+		border-bottom: 1px solid #141414;
+	}
+
+	.security-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--color-accent);
+		margin-bottom: 1.25rem;
+		font-weight: 600;
+	}
+
+	.badge-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 10px var(--color-accent);
+	}
+
+	.security-hero h1 {
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 4.5vw, 3.25rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		color: #fff;
+		margin: 0 auto 1rem;
+		max-width: 18ch;
+		line-height: 1.1;
+	}
+
+	.security-lead {
+		font-size: clamp(1rem, 2vw, 1.15rem);
+		color: #999;
+		max-width: 48ch;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
+
+	/* Specs Grid */
+	.specs-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 0.85rem;
+		margin: 2.5rem 0 3.5rem;
+	}
+
+	.spec-card {
+		padding: 1.25rem;
+		border: 1px solid #1a1a1a;
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.spec-label {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		color: #777;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin-bottom: 0.35rem;
+	}
+
+	.spec-val {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #fff;
+		margin-bottom: 0.2rem;
+	}
+
+	.text-accent { color: #00ff88; }
+	.text-danger { color: #ff5555; }
+
+	.spec-sub {
+		margin: 0;
+		font-size: 0.75rem;
+		color: #888;
+	}
+
+	/* Sections */
+	.security-section {
+		padding: 3rem 0;
+		border-top: 1px solid #141414;
+	}
+
+	.section-tag {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--color-accent);
+		margin-bottom: 0.5rem;
+	}
+
+	.security-section h2 {
+		font-family: var(--font-display);
+		font-size: clamp(1.5rem, 3vw, 2rem);
+		font-weight: 600;
+		letter-spacing: -0.03em;
+		color: #fff;
+		margin: 0 0 0.75rem;
+	}
+
+	.section-desc {
+		font-size: 0.95rem;
+		color: #999;
+		max-width: 54ch;
+		margin: 0 0 2rem;
+		line-height: 1.6;
+	}
+
+	/* Scope Comparison Table */
+	.scope-comparison-table {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.25rem;
+	}
+
+	.scope-col {
+		padding: 1.5rem;
+		border-radius: var(--radius-card);
+		border: 1px solid #1a1a1a;
+		background: #0a0a0a;
+	}
+
+	.scope-col--can {
+		border-color: rgba(0, 255, 136, 0.25);
+		background: rgba(0, 255, 136, 0.02);
+	}
+
+	.scope-col--cannot {
+		border-color: rgba(255, 68, 68, 0.25);
+		background: rgba(255, 68, 68, 0.02);
+	}
+
+	.scope-col__header {
+		margin-bottom: 1.25rem;
+	}
+
+	.scope-badge {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		display: inline-block;
+		margin-bottom: 0.5rem;
+	}
+
+	.scope-badge--green {
+		color: #00ff88;
+		background: rgba(0, 255, 136, 0.12);
+	}
+
+	.scope-badge--red {
+		color: #ff5555;
+		background: rgba(255, 68, 68, 0.12);
+	}
+
+	.scope-col__header h3 {
+		margin: 0;
+		font-size: 1.15rem;
+		color: #fff;
+	}
+
+	.scope-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.scope-list li {
+		font-size: 0.85rem;
+		color: #bbb;
+		line-height: 1.55;
+	}
+
+	.scope-list strong {
+		color: #fff;
+		display: block;
+		margin-bottom: 0.15rem;
+	}
+
+	.scope-list code {
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		background: #181818;
+		color: #00ff88;
+		padding: 0.15rem 0.35rem;
+		border-radius: 4px;
+	}
+
+	/* Crypto Cards */
+	.crypto-cards-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+	}
+
+	.crypto-card {
+		padding: 1.5rem;
+		border: 1px solid #1a1a1a;
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+	}
+
+	.crypto-icon {
+		font-size: 1.75rem;
+		margin-bottom: 0.85rem;
+	}
+
+	.crypto-card h3 {
+		margin: 0 0 0.5rem;
+		font-size: 1rem;
+		color: #fff;
+	}
+
+	.crypto-card p {
+		margin: 0;
+		font-size: 0.825rem;
+		color: #888;
+		line-height: 1.55;
+	}
+
+	/* Purge Box */
+	.purge-action-box {
+		padding: 1.75rem;
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		border-radius: var(--radius-card);
+		background: rgba(255, 68, 68, 0.03);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2rem;
+	}
+
+	.purge-badge {
+		font-family: var(--font-mono);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		color: #ff5555;
+		background: rgba(255, 68, 68, 0.12);
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		display: inline-block;
+		margin-bottom: 0.4rem;
+	}
+
+	.purge-info h3 {
+		margin: 0 0 0.4rem;
+		font-size: 1.15rem;
+		color: #fff;
+	}
+
+	.purge-info p {
+		margin: 0 0 0.85rem;
+		font-size: 0.85rem;
+		color: #aaa;
+		line-height: 1.5;
+		max-width: 48ch;
+	}
+
+	.external-links-row {
+		font-size: 0.78rem;
+		color: #777;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+	}
+
+	.external-links-row a {
+		color: #aaa;
+		text-decoration: underline;
+		transition: color 0.15s;
+	}
+
+	.external-links-row a:hover {
+		color: #fff;
+	}
+
+	.purge-cta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.45rem;
+		flex-shrink: 0;
+	}
+
+	.btn-purge-action {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.75rem 1.25rem;
+		background: #ff4444;
+		color: #fff;
+		border-radius: var(--radius-input);
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-decoration: none;
+		white-space: nowrap;
+		transition: opacity 0.15s;
+	}
+
+	.btn-purge-action:hover {
+		opacity: 0.9;
+	}
+
+	.purge-tip {
+		font-size: 0.72rem;
+		color: #777;
+	}
+
+	/* Zero Tools Row */
+	.zero-tools-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.25rem;
+	}
+
+	.zero-tool-card {
+		padding: 1.5rem;
+		border: 1px solid #1a1a1a;
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+	}
+
+	.zero-tool-icon {
+		font-size: 1.75rem;
+		line-height: 1;
+		flex-shrink: 0;
+	}
+
+	.zero-tool-body h3 {
+		margin: 0 0 0.35rem;
+		font-size: 1rem;
+		color: #fff;
+	}
+
+	.zero-tool-body p {
+		margin: 0 0 0.85rem;
+		font-size: 0.825rem;
+		color: #888;
+		line-height: 1.5;
+	}
+
+	.zero-tool-link {
+		font-size: 0.825rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-decoration: none;
+	}
+
+	.zero-tool-link:hover {
+		text-decoration: underline;
+	}
+
+	/* FAQ */
+	.security-faq-list {
+		display: grid;
+		gap: 0.65rem;
+		max-width: 48rem;
+	}
+
+	.sec-faq-item {
+		border: 1px solid #1a1a1a;
+		border-radius: var(--radius-card);
+		background: #0a0a0a;
+		padding: 1rem 1.25rem;
+	}
+
+	.sec-faq-item summary {
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 0.95rem;
+		color: #fff;
+		list-style: none;
+	}
+
+	.sec-faq-item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.sec-faq-item[open] summary {
+		margin-bottom: 0.65rem;
+	}
+
+	.sec-faq-item p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: #999;
+		line-height: 1.6;
+	}
+
+	@media (max-width: 900px) {
+		.specs-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.crypto-cards-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.scope-comparison-table {
+			grid-template-columns: 1fr;
+		}
+
+		.purge-action-box {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.purge-cta {
+			align-items: stretch;
+		}
+
+		.btn-purge-action {
+			justify-content: center;
+		}
+
+		.zero-tools-row {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

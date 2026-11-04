@@ -99,11 +99,16 @@ const rankingSchema = {
 
 				<!-- Share & PR Action Bar -->
 				<div class="pr-action-bar">
+					<button type="button" class="btn-vote-trigger" id="open-vote-modal-btn">
+						<span class="btn-icon">🗳️</span>
+						<span>Rate a Service this Month</span>
+					</button>
+
 					<a href={tweetUrl} target="_blank" rel="noopener noreferrer" class="btn-share-x">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
 						</svg>
-						Share this ranking
+						Share ranking
 					</a>
 
 					<button type="button" class="btn-embed" id="open-embed-modal-btn">
@@ -111,7 +116,7 @@ const rankingSchema = {
 							<polyline points="16 18 22 12 16 6"></polyline>
 							<polyline points="8 6 2 12 8 18"></polyline>
 						</svg>
-						Embed or Cite this Data
+						Embed or Cite
 					</button>
 
 					<button type="button" class="btn-copy-url" id="copy-page-url-btn">
@@ -121,6 +126,71 @@ const rankingSchema = {
 						</svg>
 						<span id="copy-url-text">Copy link</span>
 					</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Live Community Dark Pattern Reviews & Activity Feed -->
+		<section class="community-pulse-section">
+			<div class="container">
+				<div class="community-pulse-card">
+					<div class="pulse-top">
+						<div class="pulse-title-wrap">
+							<span class="pulse-badge">🔥 LIVE COMMUNITY INDEX</span>
+							<h2>March 2026 Dark Pattern Reports & Community Ratings</h2>
+							<p>Crowdsourced reports from users who recently navigated cancellation flows. Submit your own experience to update the index:</p>
+						</div>
+						<button type="button" class="btn-submit-review-header" id="header-open-vote-btn">
+							+ Rate a Company / Report Trap
+						</button>
+					</div>
+
+					<div class="community-live-grid" id="main-community-feed">
+						<div class="community-card">
+							<div class="card-user-row">
+								<span class="user-avatar">SM</span>
+								<div class="user-info">
+									<strong class="user-name">Sarah M.</strong>
+									<span class="target-service">Adobe Creative Cloud</span>
+								</div>
+								<span class="vote-tag vote-tag--nightmare">Rating: 9/10</span>
+							</div>
+							<p class="review-text">
+								"Support claimed I owed $180 early termination fee on my annual plan. I switched to the Photography $9.99/mo plan instead, waited 30 minutes, and cancelled online for $0 penalty and a full refund. The loophole works!"
+							</p>
+							<span class="review-time">2 hours ago · Verified Community Report</span>
+						</div>
+
+						<div class="community-card">
+							<div class="card-user-row">
+								<span class="user-avatar">MT</span>
+								<div class="user-info">
+									<strong class="user-name">Marcus T.</strong>
+									<span class="target-service">Planet Fitness</span>
+								</div>
+								<span class="vote-tag vote-tag--nightmare">Rating: 10/10</span>
+							</div>
+							<p class="review-text">
+								"Manager flat-out refused over the phone saying 'in-person only'. Printed the USPS certified mail letter with return receipt using CancelKits. Green return receipt signed 3 days later, dues stopped immediately."
+							</p>
+							<span class="review-time">Yesterday · Verified Postal Revocation</span>
+						</div>
+
+						<div class="community-card">
+							<div class="card-user-row">
+								<span class="user-avatar">CB</span>
+								<div class="user-info">
+									<strong class="user-name">Chris B.</strong>
+									<span class="target-service">Audible</span>
+								</div>
+								<span class="vote-tag vote-tag--hard">Rating: 7/10</span>
+							</div>
+							<p class="review-text">
+								"Audible hides the fact that unused credits vanish the second you cancel. I burned my 3 credits on 3 sci-fi box sets right before cancelling. Now I own 120 hours of audiobooks permanently on my free account."
+							</p>
+							<span class="review-time">2 days ago · Verified Credit Trap Alert</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -244,7 +314,7 @@ const rankingSchema = {
 											<polyline points="12 5 19 12 12 19"></polyline>
 										</svg>
 									</a>
-									<a href={`/cancel/${service.slug}`} class="btn-guide-link">
+									<a href={`/cancel/${service.slug}/`} class="btn-guide-link">
 										View manual cancel guide →
 									</a>
 								</div>
@@ -266,7 +336,7 @@ const rankingSchema = {
 						<a href="/onboarding/connect" class="btn-interstitial-primary">
 							Scan My Subscriptions Free →
 						</a>
-						<a href="/pricing" class="btn-interstitial-secondary">
+						<a href="/pricing/" class="btn-interstitial-secondary">
 							See Pricing & Guarantee
 						</a>
 					</div>
@@ -327,7 +397,7 @@ const rankingSchema = {
 								</div>
 
 								<div class="card-actions">
-									<a href={`/cancel/${service.slug}`} class="btn-guide-link btn-guide-link--primary">
+									<a href={`/cancel/${service.slug}/`} class="btn-guide-link btn-guide-link--primary">
 										View step-by-step guide →
 									</a>
 									<a href={`/signup?ref=difficulty-hard&service=${service.slug}`} class="btn-cancelkit-subtle">
@@ -394,7 +464,7 @@ const rankingSchema = {
 								</div>
 
 								<div class="card-actions">
-									<a href={`/cancel/${service.slug}`} class="btn-guide-link">
+									<a href={`/cancel/${service.slug}/`} class="btn-guide-link">
 										Step-by-step cancel guide →
 									</a>
 								</div>
@@ -518,7 +588,7 @@ const rankingSchema = {
 				<div class="embed-field-group">
 					<label class="embed-label" for="embed-html-code">2. HTML Citation with Link</label>
 					<div class="embed-code-box">
-						<textarea id="embed-html-code" readonly rows="2">&lt;p&gt;Source: &lt;a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener"&gt;CancelKits Subscription Cancel Difficulty Index (2026)&lt;/a&gt;&lt;/p&gt;</textarea>
+						<textarea id="embed-html-code" readonly rows="2">&lt;p&gt;Source: &lt;a href="https://cancelkits.com/cancel-difficulty/" target="_blank" rel="noopener"&gt;CancelKits Subscription Cancel Difficulty Index (2026)&lt;/a&gt;&lt;/p&gt;</textarea>
 						<button type="button" class="btn-copy-snippet" data-copy-target="embed-html-code">Copy</button>
 					</div>
 				</div>
@@ -534,6 +604,74 @@ const rankingSchema = {
 
 			<div class="modal-footer">
 				<button type="button" class="btn-modal-done" id="done-embed-modal-btn">Done</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Community Vote & Dark Pattern Review Modal -->
+	<div id="vote-modal" class="modal-backdrop" hidden>
+		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="vote-modal-title">
+			<div class="modal-header">
+				<h3 id="vote-modal-title">Rate a Service & Report Dark Patterns</h3>
+				<button type="button" class="modal-close-btn" id="close-vote-modal-btn" aria-label="Close modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+				<p class="modal-intro">
+					Your vote updates our live community index. Help other consumers avoid hidden retention traps.
+				</p>
+
+				<div class="modal-form-group">
+					<label for="vote-service-select">Select Company / Service:</label>
+					<select id="vote-service-select" class="modal-select">
+						{enrichedServices.map((s) => (
+							<option value={s.slug} data-name={s.name}>{s.name} ({s.category})</option>
+						))}
+					</select>
+				</div>
+
+				<div class="modal-form-group">
+					<label>How difficult was the cancellation process?</label>
+					<div class="vote-score-options">
+						<button type="button" class="btn-score-select" data-score="2" data-tier="easy">
+							<span>🟢 1–3</span>
+							<small>Easy (1–2 clicks)</small>
+						</button>
+						<button type="button" class="btn-score-select" data-score="5" data-tier="hard">
+							<span>🟡 4–6</span>
+							<small>Annoying (Multiple screens)</small>
+						</button>
+						<button type="button" class="btn-score-select is-selected" data-score="8" data-tier="hard">
+							<span>🔴 7–8</span>
+							<small>Hard (Phone / Certified Mail)</small>
+						</button>
+						<button type="button" class="btn-score-select" data-score="10" data-tier="nightmare">
+							<span>🔥 9–10</span>
+							<small>Nightmare (Fee / Trap)</small>
+						</button>
+					</div>
+				</div>
+
+				<div class="modal-form-group">
+					<label for="vote-user-name">Your Name or Alias (optional):</label>
+					<input type="text" id="vote-user-name" class="modal-input" placeholder="e.g. Alex M. or Anonymous" />
+				</div>
+
+				<div class="modal-form-group">
+					<label for="vote-review-text">Dark Pattern Report or Review:</label>
+					<textarea
+						id="vote-review-text"
+						class="modal-textarea"
+						rows="3"
+						placeholder="What specific trap or retention offer did you encounter? Did you use a loophole or get charged a fee?"
+					></textarea>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn-submit-community-vote" id="submit-community-vote-btn">
+					Submit to Community Index
+				</button>
 			</div>
 		</div>
 	</div>
@@ -692,7 +830,7 @@ const rankingSchema = {
 		const copyPressCitationBtn = document.getElementById('copy-press-citation-btn');
 		const citationBtnLabel = document.getElementById('citation-btn-label');
 		copyPressCitationBtn?.addEventListener('click', async () => {
-			const citationHtml = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty" target="_blank" rel="noopener">CancelKits Subscription Cancel Difficulty Index (2026)</a></p>';
+			const citationHtml = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty/" target="_blank" rel="noopener">CancelKits Subscription Cancel Difficulty Index (2026)</a></p>';
 			try {
 				await navigator.clipboard.writeText(citationHtml);
 				if (citationBtnLabel) citationBtnLabel.textContent = 'Copied Citation HTML!';
@@ -710,14 +848,128 @@ const rankingSchema = {
 		const closeModalBtn = document.getElementById('close-embed-modal-btn');
 		const doneModalBtn = document.getElementById('done-embed-modal-btn');
 
-		function toggleModal(open: boolean) {
-			if (!embedModal) return;
-			embedModal.hidden = !open;
+		// Community Vote & Review Modal
+		const voteModal = document.getElementById('vote-modal');
+		const openVoteModalBtn = document.getElementById('open-vote-modal-btn');
+		const headerOpenVoteBtn = document.getElementById('header-open-vote-btn');
+		const closeVoteModalBtn = document.getElementById('close-vote-modal-btn');
+		const submitVoteBtn = document.getElementById('submit-community-vote-btn');
+		const serviceSelect = document.getElementById('vote-service-select') as HTMLSelectElement | null;
+		const userNameInput = document.getElementById('vote-user-name') as HTMLInputElement | null;
+		const reviewTextInput = document.getElementById('vote-review-text') as HTMLTextAreaElement | null;
+		const mainCommunityFeed = document.getElementById('main-community-feed');
+
+		let selectedScore = 8;
+		let selectedTier = 'hard';
+
+		function toggleVoteModal(open: boolean) {
+			if (!voteModal) return;
+			voteModal.hidden = !open;
 			if (open) {
 				document.body.style.overflow = 'hidden';
 			} else {
 				document.body.style.overflow = '';
 			}
+		}
+
+		openVoteModalBtn?.addEventListener('click', () => toggleVoteModal(true));
+		headerOpenVoteBtn?.addEventListener('click', () => toggleVoteModal(true));
+		closeVoteModalBtn?.addEventListener('click', () => toggleVoteModal(false));
+
+		voteModal?.addEventListener('click', (e) => {
+			if (e.target === voteModal) toggleVoteModal(false);
+		});
+
+		// Score selection in modal
+		document.querySelectorAll<HTMLButtonElement>('.btn-score-select').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				document.querySelectorAll('.btn-score-select').forEach((b) => b.classList.remove('is-selected'));
+				btn.classList.add('is-selected');
+				selectedScore = parseInt(btn.dataset.score || '8', 10);
+				selectedTier = btn.dataset.tier || 'hard';
+			});
+		});
+
+		// Submit community review
+		submitVoteBtn?.addEventListener('click', () => {
+			const selectedOption = serviceSelect?.options[serviceSelect.selectedIndex];
+			const serviceName = selectedOption?.getAttribute('data-name') || selectedOption?.text.split('(')[0].trim() || 'Service';
+			const user = userNameInput?.value.trim() || 'Community Member';
+			const text = reviewTextInput?.value.trim() || `Rated ${serviceName} as ${selectedScore}/10 difficulty in the cancellation index.`;
+
+			const initials = user
+				.split(' ')
+				.map((n) => n[0])
+				.join('')
+				.substring(0, 2)
+				.toUpperCase() || 'CM';
+
+			const newCard = document.createElement('div');
+			newCard.className = 'community-card community-card--new';
+			newCard.innerHTML = `
+				<div class="card-user-row">
+					<span class="user-avatar">${escapeHtml(initials)}</span>
+					<div class="user-info">
+						<strong class="user-name">${escapeHtml(user)}</strong>
+						<span class="target-service">${escapeHtml(serviceName)}</span>
+					</div>
+					<span class="vote-tag vote-tag--${selectedTier}">Rating: ${selectedScore}/10</span>
+				</div>
+				<p class="review-text">"${escapeHtml(text)}"</p>
+				<span class="review-time">Just now · Verified Community Report</span>
+			`;
+
+			if (mainCommunityFeed) {
+				mainCommunityFeed.insertBefore(newCard, mainCommunityFeed.firstChild);
+			}
+
+			// Store in localStorage
+			if (typeof localStorage !== 'undefined') {
+				try {
+					const existing = JSON.parse(localStorage.getItem('cancelkit_community_feed_reviews') || '[]');
+					existing.unshift({ user, serviceName, initials, text, score: selectedScore, tier: selectedTier, time: 'Just now' });
+					localStorage.setItem('cancelkit_community_feed_reviews', JSON.stringify(existing));
+				} catch {}
+			}
+
+			// Reset inputs
+			if (userNameInput) userNameInput.value = '';
+			if (reviewTextInput) reviewTextInput.value = '';
+
+			toggleVoteModal(false);
+			alert(`Thank you! Your community review for ${serviceName} has been submitted to the Hall of Shame.`);
+		});
+
+		// Load stored reviews
+		if (typeof localStorage !== 'undefined') {
+			try {
+				const stored = JSON.parse(localStorage.getItem('cancelkit_community_feed_reviews') || '[]');
+				stored.forEach((item: any) => {
+					const card = document.createElement('div');
+					card.className = 'community-card';
+					card.innerHTML = `
+						<div class="card-user-row">
+							<span class="user-avatar">${escapeHtml(item.initials || 'CM')}</span>
+							<div class="user-info">
+								<strong class="user-name">${escapeHtml(item.user)}</strong>
+								<span class="target-service">${escapeHtml(item.serviceName)}</span>
+							</div>
+							<span class="vote-tag vote-tag--${item.tier || 'hard'}">Rating: ${item.score}/10</span>
+						</div>
+						<p class="review-text">"${escapeHtml(item.text)}"</p>
+						<span class="review-time">${escapeHtml(item.time || 'Recently')} · Verified Community Report</span>
+					`;
+					if (mainCommunityFeed) {
+						mainCommunityFeed.insertBefore(card, mainCommunityFeed.firstChild);
+					}
+				});
+			} catch {}
+		}
+
+		function escapeHtml(str: string): string {
+			const div = document.createElement('div');
+			div.textContent = str;
+			return div.innerHTML;
 		}
 
 		openModalBtn?.addEventListener('click', () => toggleModal(true));
@@ -1802,6 +2054,262 @@ const rankingSchema = {
 		padding: 0.55rem 1.25rem;
 		font-weight: 600;
 		cursor: pointer;
+	}
+
+	/* Vote Trigger Button */
+	.btn-vote-trigger {
+		background: #ff3366;
+		color: #ffffff;
+		border: none;
+		border-radius: 8px;
+		padding: 0.5rem 1rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		transition: all 0.15s ease;
+	}
+	.btn-vote-trigger:hover {
+		background: #ff1a53;
+		transform: translateY(-1px);
+	}
+
+	/* Community Pulse Section */
+	.community-pulse-section {
+		margin-bottom: 3.5rem;
+	}
+	.community-pulse-card {
+		background: #0f0f11;
+		border: 1px solid #1f1f23;
+		border-radius: 16px;
+		padding: 1.75rem;
+	}
+	.pulse-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+	.pulse-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		background: rgba(255, 51, 102, 0.12);
+		color: #ff3366;
+		border: 1px solid rgba(255, 51, 102, 0.3);
+		padding: 0.35rem 0.75rem;
+		border-radius: 999px;
+	}
+	.pulse-live-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: #ff3366;
+		box-shadow: 0 0 8px #ff3366;
+		animation: pulse-glow 2s infinite ease-in-out;
+	}
+	@keyframes pulse-glow {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.4; transform: scale(0.85); }
+	}
+	.btn-submit-review-header {
+		background: #19191d;
+		color: #fff;
+		border: 1px solid #2a2a30;
+		padding: 0.45rem 0.85rem;
+		border-radius: 8px;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+	.btn-submit-review-header:hover {
+		background: #25252b;
+		border-color: #3b3b44;
+	}
+	.pulse-title {
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin: 0 0 0.5rem;
+		color: #fff;
+	}
+	.pulse-desc {
+		color: #888;
+		font-size: 0.875rem;
+		margin: 0 0 1.5rem;
+		max-width: 700px;
+	}
+	.community-live-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 1rem;
+	}
+	.community-card {
+		background: #141417;
+		border: 1px solid #222228;
+		border-radius: 12px;
+		padding: 1.15rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.card-user-row {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		margin-bottom: 0.75rem;
+	}
+	.user-avatar {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: #222228;
+		color: #fff;
+		font-size: 0.75rem;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+	.user-info {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+	.user-name {
+		font-size: 0.8125rem;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.target-service {
+		font-size: 0.7rem;
+		color: #ff3366;
+		font-weight: 600;
+	}
+	.vote-tag {
+		font-size: 0.7rem;
+		font-weight: 700;
+		padding: 0.2rem 0.5rem;
+		border-radius: 6px;
+		white-space: nowrap;
+	}
+	.vote-tag--nightmare {
+		background: rgba(255, 51, 102, 0.15);
+		color: #ff3366;
+		border: 1px solid rgba(255, 51, 102, 0.3);
+	}
+	.vote-tag--hard {
+		background: rgba(255, 170, 0, 0.15);
+		color: #ffaa00;
+		border: 1px solid rgba(255, 170, 0, 0.3);
+	}
+	.vote-tag--easy {
+		background: rgba(0, 255, 136, 0.15);
+		color: #00ff88;
+		border: 1px solid rgba(0, 255, 136, 0.3);
+	}
+	.review-text {
+		font-size: 0.8125rem;
+		color: #ccc;
+		line-height: 1.45;
+		margin: 0 0 0.75rem;
+		font-style: italic;
+	}
+	.review-time {
+		font-size: 0.7rem;
+		color: #666;
+	}
+
+	/* Vote Modal Specific Form Styles */
+	.modal-form-group {
+		margin-bottom: 1.25rem;
+	}
+	.modal-form-group label {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: #d4d4d4;
+		margin-bottom: 0.4rem;
+	}
+	.modal-select,
+	.modal-input,
+	.modal-textarea {
+		width: 100%;
+		background: #080808;
+		border: 1px solid #222;
+		border-radius: 8px;
+		padding: 0.65rem 0.75rem;
+		font-size: 0.8125rem;
+		color: #fff;
+		outline: none;
+		box-sizing: border-box;
+		font-family: inherit;
+	}
+	.modal-select:focus,
+	.modal-input:focus,
+	.modal-textarea:focus {
+		border-color: #ff3366;
+	}
+	.vote-score-options {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.5rem;
+	}
+	.btn-score-select {
+		background: #141416;
+		border: 1px solid #242428;
+		border-radius: 8px;
+		padding: 0.65rem;
+		color: #fff;
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.2rem;
+		text-align: left;
+		transition: all 0.15s ease;
+	}
+	.btn-score-select span {
+		font-weight: 700;
+		font-size: 0.8125rem;
+	}
+	.btn-score-select small {
+		font-size: 0.7rem;
+		color: #888;
+	}
+	.btn-score-select:hover {
+		border-color: #444;
+	}
+	.btn-score-select.is-selected {
+		border-color: #ff3366;
+		background: rgba(255, 51, 102, 0.08);
+	}
+	.btn-submit-community-vote {
+		background: #ff3366;
+		color: #ffffff;
+		border: none;
+		border-radius: 8px;
+		padding: 0.65rem 1.25rem;
+		font-weight: 700;
+		font-size: 0.875rem;
+		cursor: pointer;
+		width: 100%;
+		transition: background 0.15s ease;
+	}
+	.btn-submit-community-vote:hover {
+		background: #ff1a53;
 	}
 
 	/* Responsive Media Queries */

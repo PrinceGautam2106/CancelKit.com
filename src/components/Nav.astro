@@ -4,10 +4,10 @@ import PlanBadge from './PlanBadge.astro';
 const navigation = [
 	{ label: 'Features', href: '/#features' },
 	{ label: 'How it works', href: '/#how-it-works' },
-	{ label: 'Cancel guides', href: '/cancel' },
-	{ label: 'Pricing', href: '/pricing' },
-	{ label: 'Refer & Earn', href: '/refer' },
-	{ label: 'Blog', href: '/blog' },
+	{ label: 'Cancel guides', href: '/cancel/' },
+	{ label: 'Pricing', href: '/pricing/' },
+	{ label: 'Refer & Earn', href: '/refer/' },
+	{ label: 'Blog', href: '/blog/' },
 ];
 const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 ---
@@ -21,9 +21,9 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 
 		<div class="nav__links">
 			{navigation.map((item) => (
-				<a class:list={['nav__link', item.href === '/cancel' && 'nav__link--guides']} href={item.href}>
+				<a class:list={['nav__link', item.href === '/cancel/' && 'nav__link--guides']} href={item.href}>
 					<span>{item.label}</span>
-					{item.href === '/cancel' && <span class="nav__pill-badge">50+</span>}
+					{item.href === '/cancel/' && <span class="nav__pill-badge">50+</span>}
 				</a>
 			))}
 		</div>
@@ -40,7 +40,7 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		</div>
 
 		<div class="nav__mobile-right">
-			<a class="nav__mobile-guides-pill" href="/cancel" aria-label="Cancel Guides (50+ available)">
+			<a class="nav__mobile-guides-pill" href="/cancel/" aria-label="Cancel Guides (50+ available)">
 				<svg class="nav__mobile-guides-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
 				<span>Guides</span>
 				<span class="nav__mobile-badge">50+</span>
@@ -57,7 +57,7 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 <div id="mobile-menu" class="mobile-menu" data-mobile-menu hidden>
 	<nav class="mobile-menu__nav" aria-label="Mobile navigation">
 		<div class="mobile-menu__featured">
-			<a href="/cancel" class="mobile-menu__featured-card">
+			<a href="/cancel/" class="mobile-menu__featured-card">
 				<div class="mobile-menu__featured-head">
 					<span class="mobile-menu__featured-tag">FREE DIRECTORY</span>
 					<span class="mobile-menu__featured-badge">50+ Playbooks</span>
@@ -74,9 +74,9 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 
 		<div class="mobile-menu__links">
 			{navigation.map((item) => (
-				<a class:list={['mobile-menu__link', item.href === '/cancel' && 'mobile-menu__link--guides']} href={item.href}>
+				<a class:list={['mobile-menu__link', item.href === '/cancel/' && 'mobile-menu__link--guides']} href={item.href}>
 					<span>{item.label}</span>
-					{item.href === '/cancel' && <span class="mobile-menu__guides-pill">50+</span>}
+					{item.href === '/cancel/' && <span class="mobile-menu__guides-pill">50+</span>}
 				</a>
 			))}
 		</div>

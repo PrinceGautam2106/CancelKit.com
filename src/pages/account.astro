@@ -269,7 +269,7 @@ const description = 'Manage your CancelKits profile, connected email accounts, s
 				</section>
 
 				<!-- 5. DANGER ZONE -->
-				<section class="account-card account-card--danger" aria-labelledby="danger-heading">
+				<section class="account-card account-card--danger" id="danger" aria-labelledby="danger-heading">
 					<div class="card-header">
 						<div class="danger-header-row">
 							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="danger-icon">
@@ -279,7 +279,7 @@ const description = 'Manage your CancelKits profile, connected email accounts, s
 							</svg>
 							<h2 id="danger-heading">Danger Zone</h2>
 						</div>
-						<p>Irreversible actions related to your subscription and account data.</p>
+						<p>Irreversible actions related to your subscription, OAuth access, and account data.</p>
 					</div>
 
 					<div class="danger-actions">
@@ -295,11 +295,11 @@ const description = 'Manage your CancelKits profile, connected email accounts, s
 
 						<div class="danger-item">
 							<div class="danger-text">
-								<strong>Delete all my data (GDPR)</strong>
-								<p>Permanently remove your account, subscription history, scanned receipts, and all personal data. This cannot be undone.</p>
+								<strong>Revoke OAuth & Delete All My Data (1-Click Purge)</strong>
+								<p>Permanently revoke Gmail/Outlook OAuth access, purge encrypted tokens, wipe scanned subscription records, and delete your profile. Zero archival records retained.</p>
 							</div>
 							<button type="button" class="btn-danger-solid" id="delete-data-btn">
-								Delete all my data
+								Revoke & Delete All My Data
 							</button>
 						</div>
 					</div>
@@ -892,27 +892,30 @@ const description = 'Manage your CancelKits profile, connected email accounts, s
 		}
 	});
 
-	// Delete all my data (GDPR)
+	// Revoke OAuth & Delete All My Data
 	deleteDataBtn?.addEventListener('click', async () => {
 		const confirmed = window.confirm(
-			'WARNING: This will permanently delete your CancelKits account and all personal data in compliance with GDPR. This action CANNOT be reversed. Are you sure you wish to proceed?'
+			'WARNING: This will immediately revoke your Gmail/Outlook OAuth access tokens, wipe all encrypted credentials, and permanently delete your CancelKits account in compliance with GDPR. This action CANNOT be reversed. Are you sure you wish to proceed?'
 		);
 		if (!confirmed) return;
 
 		deleteDataBtn.disabled = true;
-		deleteDataBtn.textContent = 'Deleting all data...';
+		deleteDataBtn.textContent = 'Revoking tokens & purging all data...';
 
 		try {
 			// Clear auth cookies & sign out from Supabase
 			await supabase.auth.signOut();
 			clearAuthCookies();
 
-			// Clear any local storage
+			// Clear all client storage
 			if (typeof localStorage !== 'undefined') {
 				localStorage.clear();
 			}
+			if (typeof sessionStorage !== 'undefined') {
+				sessionStorage.clear();
+			}
 
-			alert('All personal data has been permanently deleted. You will now be redirected to the home page.');
+			alert('All OAuth access tokens have been revoked and your account records have been permanently purged.');
 			window.location.href = '/';
 		} catch (err) {
 			console.error(err);

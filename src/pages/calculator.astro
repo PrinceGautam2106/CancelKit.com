@@ -163,6 +163,12 @@ const webAppSchema = {
 				<p class="calc-subtitle">
 					Check every subscription you might have below. Watch your monthly, yearly, and 5-year costs calculate in real time.
 				</p>
+
+				<div class="calc-hero-nav">
+					<span class="calc-hero-nav__badge">NEW</span>
+					<span>Want to model compounded opportunity cost?</span>
+					<a href="/subscription-creep-calculator/" class="calc-hero-nav__link">Try the Subscription Creep Calculator (7% Index Return) →</a>
+				</div>
 			</div>
 		</section>
 
@@ -283,6 +289,10 @@ const webAppSchema = {
 									<p class="gut-punch-sub">
 										Invested in an index fund at 8%, this could be worth <strong id="val-invested">$0</strong>.
 									</p>
+									<a href="/subscription-creep-calculator/" class="gut-punch-creep-link">
+										<span>Model 3, 5 & 10-Yr Compounded Loss</span>
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+									</a>
 								</div>
 							</div>
 
@@ -750,6 +760,44 @@ Calculate yours free: https://cancelkits.com/calculator`;
 		line-height: 1.6;
 	}
 
+	.calc-hero-nav {
+		display: inline-flex;
+		align-items: center;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem 0.75rem;
+		margin-top: 1.25rem;
+		padding: 0.5rem 1rem;
+		background: rgba(0, 255, 136, 0.05);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		border-radius: 9999px;
+		font-size: 0.8125rem;
+		color: #a3a3a3;
+	}
+
+	.calc-hero-nav__badge {
+		font-size: 0.6875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		background: rgba(0, 255, 136, 0.15);
+		color: #00ff88;
+		padding: 0.15rem 0.45rem;
+		border-radius: 4px;
+	}
+
+	.calc-hero-nav__link {
+		color: #00ff88;
+		font-weight: 600;
+		text-decoration: none;
+		transition: color 0.15s ease, text-decoration-color 0.15s ease;
+	}
+
+	.calc-hero-nav__link:hover {
+		color: #ffffff;
+		text-decoration: underline;
+	}
+
 	/* Workspace Layout */
 	.calc-workspace {
 		margin-bottom: 4.5rem;
@@ -1174,6 +1222,23 @@ Calculate yours free: https://cancelkits.com/calculator`;
 	}
 	.gut-punch-sub strong {
 		color: #00ff88;
+	}
+
+	.gut-punch-creep-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		margin-top: 0.65rem;
+		font-size: 0.72rem;
+		font-weight: 600;
+		color: #00ff88;
+		text-decoration: none;
+		transition: color 0.15s ease;
+	}
+
+	.gut-punch-creep-link:hover {
+		color: #ffffff;
+		text-decoration: underline;
 	}
 
 	/* Reveal Moment Banner (> $50/mo) */

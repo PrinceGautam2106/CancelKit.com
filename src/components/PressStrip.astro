@@ -5,112 +5,191 @@ interface Props {
 
 const { class: className = '' } = Astro.props;
 
-const outlets = [
-	{ name: 'Product Hunt', abbr: 'PH' },
-	{ name: 'TechCrunch', abbr: 'TC' },
-	{ name: 'Lifehacker', abbr: 'LH' },
-	{ name: 'The Hustle', abbr: 'TH' },
+const trustPillars = [
+	{
+		icon: '🛡️',
+		title: 'AES-256 At Rest',
+		desc: 'OAuth tokens encrypted with AES-256-GCM',
+		href: '/security/#encryption',
+	},
+	{
+		icon: '🔒',
+		title: 'Strict gmail.readonly',
+		desc: 'Receipt metadata only — zero write access',
+		href: '/security/#scoping',
+	},
+	{
+		icon: '🚫',
+		title: 'Zero Data Broker Sharing',
+		desc: 'Never sold or monetized to advertisers',
+		href: '/security/#privacy',
+	},
+	{
+		icon: '⚡',
+		title: '1-Click Complete Purge',
+		desc: 'Instant data & token deletion in settings',
+		href: '/security/#deletion',
+	},
 ];
 ---
 
-<section class:list={['press-strip', className]} aria-label="As featured in">
-	<div class="press-strip__inner">
-		<p class="press-strip__label">As featured in</p>
-		<ul class="press-strip__logos">
-			{outlets.map((o) => (
-				<li class="press-strip__item" title={`${o.name} — logo coming after launch coverage`}>
-					<span class="press-strip__mark" aria-hidden="true">{o.abbr}</span>
-					<span class="press-strip__name">{o.name}</span>
+<section class:list={['trust-strip', className]} aria-label="Verifiable Security & Privacy Guarantees">
+	<div class="trust-strip__inner">
+		<div class="trust-strip__header">
+			<span class="trust-strip__badge">VERIFIABLE SECURITY</span>
+			<span class="trust-strip__label">Our Privacy Architecture</span>
+		</div>
+
+		<ul class="trust-strip__list">
+			{trustPillars.map((p) => (
+				<li class="trust-strip__item">
+					<a href={p.href} class="trust-strip__link" title={p.desc}>
+						<span class="trust-strip__icon" aria-hidden="true">{p.icon}</span>
+						<div class="trust-strip__text">
+							<strong class="trust-strip__title">{p.title}</strong>
+							<span class="trust-strip__desc">{p.desc}</span>
+						</div>
+					</a>
 				</li>
 			))}
 		</ul>
+
+		<a href="/security/" class="trust-strip__more">
+			<span>Full Security Specs →</span>
+		</a>
 	</div>
 </section>
 
 <style>
-	.press-strip {
-		background: var(--color-surface);
-		border-block: 1px solid var(--color-border);
-		padding: 1.35rem 0;
+	.trust-strip {
+		background: #080808;
+		border-block: 1px solid #1a1a1a;
+		padding: 1.15rem 0;
 		width: 100%;
 	}
 
-	.press-strip__inner {
-		width: min(100% - 2rem, 72rem);
+	.trust-strip__inner {
+		width: min(100% - 2.5rem, 76rem);
 		margin: 0 auto;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: center;
-		gap: 1.25rem 2rem;
+		justify-content: space-between;
+		gap: 1rem 1.5rem;
 	}
 
-	.press-strip__label {
-		margin: 0;
+	.trust-strip__header {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+	}
+
+	.trust-strip__badge {
 		font-family: var(--font-mono);
-		font-size: 0.68rem;
-		font-weight: 500;
-		letter-spacing: 0.12em;
+		font-size: 0.65rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: var(--color-faint);
-		white-space: nowrap;
+		color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.1);
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		border: 1px solid rgba(0, 255, 136, 0.2);
 	}
 
-	.press-strip__logos {
+	.trust-strip__label {
+		font-family: var(--font-display);
+		font-size: 0.825rem;
+		font-weight: 600;
+		color: #888;
+	}
+
+	.trust-strip__list {
 		margin: 0;
 		padding: 0;
 		list-style: none;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: center;
-		gap: 0.65rem 1.75rem;
+		gap: 0.75rem 1.5rem;
 	}
 
-	.press-strip__item {
+	.trust-strip__item {
+		display: inline-flex;
+	}
+
+	.trust-strip__link {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		opacity: 0.45;
-		filter: grayscale(1);
-		transition: opacity 0.2s;
+		text-decoration: none;
+		color: inherit;
+		transition: opacity 0.15s ease;
 	}
 
-	.press-strip__item:hover {
-		opacity: 0.75;
+	.trust-strip__link:hover {
+		opacity: 0.85;
 	}
 
-	.press-strip__mark {
-		display: grid;
-		place-items: center;
-		width: 1.75rem;
-		height: 1.75rem;
-		border-radius: 6px;
-		border: 1px solid #3a3a3a;
-		background: #111;
-		color: #888;
-		font-family: var(--font-display);
-		font-size: 0.62rem;
-		font-weight: 700;
-		letter-spacing: -0.02em;
+	.trust-strip__icon {
+		font-size: 1rem;
+		line-height: 1;
 	}
 
-	.press-strip__name {
-		font-family: var(--font-display);
-		font-size: 0.95rem;
+	.trust-strip__text {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.trust-strip__title {
+		font-size: 0.8rem;
 		font-weight: 600;
-		letter-spacing: -0.03em;
-		color: #7a7a7a;
+		color: #e5e5e5;
+		line-height: 1.2;
 	}
 
-	@media (max-width: 40rem) {
-		.press-strip__inner {
+	.trust-strip__desc {
+		font-size: 0.68rem;
+		color: #777;
+		line-height: 1.2;
+	}
+
+	.trust-strip__more {
+		font-size: 0.775rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-decoration: none;
+		white-space: nowrap;
+		transition: color 0.15s ease;
+	}
+
+	.trust-strip__more:hover {
+		color: #fff;
+		text-decoration: underline;
+	}
+
+	@media (max-width: 900px) {
+		.trust-strip__inner {
 			flex-direction: column;
+			align-items: flex-start;
 			gap: 0.85rem;
 		}
 
-		.press-strip__logos {
-			gap: 0.75rem 1.25rem;
+		.trust-strip__list {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 0.75rem 1rem;
+			width: 100%;
+		}
+
+		.trust-strip__more {
+			align-self: flex-end;
+		}
+	}
+
+	@media (max-width: 540px) {
+		.trust-strip__list {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

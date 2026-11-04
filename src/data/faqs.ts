@@ -36,7 +36,7 @@ export const homepageFaqs: FaqItem[] = [
 			'For many major services, CancelKits helps you cancel from the dashboard. Supported services include popular streaming, software, fitness, and news subscriptions. For harder providers like some gym memberships, CancelKits provides verified step-by-step cancel guides so you can finish without guessing through dark patterns or phone trees.',
 		answerHtml: `
 			<p>For many major services, CancelKits helps you cancel from the dashboard — including popular streaming, software, fitness, and news subscriptions.</p>
-			<p>For harder providers like some gyms, CancelKits provides verified <a href="/cancel" class="faq-inline-link">step-by-step cancel guides</a> so you are not stuck in dark patterns or hold music.</p>
+			<p>For harder providers like some gyms, CancelKits provides verified <a href="/cancel/" class="faq-inline-link">step-by-step cancel guides</a> so you are not stuck in dark patterns or hold music.</p>
 		`,
 	},
 	{
@@ -54,7 +54,7 @@ export const homepageFaqs: FaqItem[] = [
 			'CancelKits is free to start with no credit card required. The free plan lets you scan and use cancel guides. CancelKits Pro is $9 per month or $79 per year and unlocks unlimited scanning, one-click cancellation tools, renewal alerts, and savings tracking. Pro includes a 7-day free trial.',
 		answerHtml: `
 			<p>CancelKits is free to start — no credit card required. Scan your inbox and use cancel guides on the free plan.</p>
-			<p>CancelKits Pro is <strong>$9/month</strong> or <strong>$79/year</strong> (save 27%) with unlimited scanning, one-click cancel tools, renewal alerts, and savings tracking. <a href="/pricing" class="faq-inline-link">See pricing →</a></p>
+			<p>CancelKits Pro is <strong>$9/month</strong> or <strong>$79/year</strong> (save 27%) with unlimited scanning, one-click cancel tools, renewal alerts, and savings tracking. <a href="/pricing/" class="faq-inline-link">See pricing →</a></p>
 		`,
 	},
 	{
@@ -63,7 +63,7 @@ export const homepageFaqs: FaqItem[] = [
 			'Many subscription apps only remind you to cancel or take a cut of negotiated savings. Rocket Money is often associated with concierge-style bill negotiation and percentage-based fees. CancelKits focuses on finding forgotten subscriptions from email receipts, flat Pro pricing at $9/month with no cut of your savings, web access without a required app download, and 50+ service-specific cancel guides.',
 		answerHtml: `
 			<p>Many apps only remind you to cancel — or take a percentage of negotiated savings. CancelKits focuses on finding forgotten subscriptions from email receipts and helping you cancel them.</p>
-			<p>Pro is a flat <strong>$9/month</strong> with no cut of your savings, works on the web, and includes 50+ service-specific cancel guides. <a href="/blog/best-apps-to-cancel-subscriptions-2026" class="faq-inline-link">Compare options →</a></p>
+			<p>Pro is a flat <strong>$9/month</strong> with no cut of your savings, works on the web, and includes 50+ service-specific cancel guides. <a href="/blog/best-apps-to-cancel-subscriptions-2026/" class="faq-inline-link">Compare options →</a></p>
 		`,
 	},
 	{
@@ -79,7 +79,7 @@ export const homepageFaqs: FaqItem[] = [
 				<li><strong>Fitness:</strong> Peloton, Headspace, Calm, Duolingo</li>
 				<li><strong>News:</strong> New York Times, Audible, Kindle Unlimited</li>
 			</ul>
-			<p><a href="/cancel" class="faq-inline-link">See the full cancel guides hub →</a></p>
+			<p><a href="/cancel/" class="faq-inline-link">See the full cancel guides hub →</a></p>
 		`,
 	},
 	{
@@ -96,8 +96,8 @@ export const homepageFaqs: FaqItem[] = [
 		answer:
 			'Refund eligibility depends on each provider. CancelKits cancel guides include refund notes where relevant. Some providers offer prorated or goodwill refunds; others do not. Free trials that converted to paid are a common refund request path.',
 		answerHtml: `
-			<p>Refunds depend on each provider. Each CancelKits <a href="/cancel" class="faq-inline-link">cancel guide</a> includes refund notes where relevant.</p>
-			<p>Some providers offer prorated or goodwill refunds; others do not. Free trials that converted to paid are a common place to request a refund. See also <a href="/blog/how-to-get-refund-for-subscription" class="faq-inline-link">how to get a subscription refund</a>.</p>
+			<p>Refunds depend on each provider. Each CancelKits <a href="/cancel/" class="faq-inline-link">cancel guide</a> includes refund notes where relevant.</p>
+			<p>Some providers offer prorated or goodwill refunds; others do not. Free trials that converted to paid are a common place to request a refund. See also <a href="/blog/how-to-get-refund-for-subscription/" class="faq-inline-link">how to get a subscription refund</a>.</p>
 		`,
 	},
 	{

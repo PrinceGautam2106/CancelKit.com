@@ -1,0 +1,925 @@
+---
+export const prerender = true;
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+const pageTitle = "Gym Certified Mail Cancellation Letter Generator (Free PDF) | CancelKits";
+const pageDescription = "Generate a legally binding USPS certified mail cancellation letter for Planet Fitness, LA Fitness, Anytime, Gold's, or any gym in 60 seconds. Free, zero login, printable PDF.";
+
+const softwareSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'Gym Certified Mail Cancellation Letter Generator',
+	applicationCategory: 'BusinessApplication',
+	operatingSystem: 'Web',
+	url: 'https://cancelkits.com/gym-cancellation-letter',
+	description: 'Free client-side tool to generate legally compliant USPS Certified Mail gym cancellation notices.',
+	offers: {
+		'@type': 'Offer',
+		price: '0',
+		priceCurrency: 'USD',
+	},
+};
+
+const howToSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'HowTo',
+	name: 'How to Cancel a Gym Membership by Certified Mail',
+	description: 'Step-by-step instructions for canceling Planet Fitness, LA Fitness, or any gym using USPS Certified Mail.',
+	step: [
+		{
+			'@type': 'HowToStep',
+			name: 'Fill in your gym details',
+			text: 'Enter your gym chain, local club address, and your member ID / key tag number.',
+			url: 'https://cancelkits.com/gym-cancellation-letter#form',
+		},
+		{
+			'@type': 'HowToStep',
+			name: 'Print and sign the notice',
+			text: 'Generate and print the letter, then sign in blue or black ink above your printed name.',
+			url: 'https://cancelkits.com/gym-cancellation-letter#preview',
+		},
+		{
+			'@type': 'HowToStep',
+			name: 'Send via USPS Certified Mail',
+			text: 'Take the envelope to any post office and request Certified Mail with Return Receipt Requested (PS Form 3811).',
+			url: 'https://cancelkits.com/gym-cancellation-letter#usps-guide',
+		},
+		{
+			'@type': 'HowToStep',
+			name: 'Save the green card confirmation',
+			text: 'Retain the postal tracking number and returned signature card as proof for your bank if charges continue.',
+			url: 'https://cancelkits.com/gym-cancellation-letter#proof',
+		},
+	],
+};
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: [
+		{
+			'@type': 'Question',
+			name: 'Can a gym refuse a certified cancellation letter?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'No. Under federal consumer protection guidelines and standard membership contracts, certified mail provides legally verifiable proof of written notice. Once USPS confirms delivery, the gym has formal notice to stop billing.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Why do gyms like Planet Fitness require certified mail instead of email?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Gyms intentionally use friction (dark patterns) hoping members will keep paying rather than making the effort to visit during manager hours or visit a post office. Certified mail legally bypasses the in-person requirement without giving staff a chance to run retention pitches.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Does certified mail stop recurring bank debits (ACH)?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Yes. Under the Electronic Fund Transfer Act (EFTA, 12 CFR § 1005.10(c)), consumers have the legal right to revoke preauthorized electronic transfers by providing written notice to the payee.',
+			},
+		},
+	],
+};
+---
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalPath="/gym-cancellation-letter/"
+	schemas={[softwareSchema, howToSchema, faqSchema]}
+>
+	<Nav />
+
+	<main class="letter-tool">
+		<!-- Hero Section -->
+		<header class="tool-hero">
+			<div class="tool-hero__badge">
+				<span class="badge-dot"></span>
+				<span>100% Free • No Login Required • Printable PDF</span>
+			</div>
+			<h1 class="tool-hero__title">
+				Gym Certified Mail Cancellation Letter Generator
+			</h1>
+			<p class="tool-hero__subtitle">
+				Cancel Planet Fitness, LA Fitness, Anytime Fitness, or any local gym without stepping foot in the club. Generate a legally compliant written notice to send via USPS Certified Mail with Return Receipt.
+			</p>
+		</header>
+
+		<!-- Tool Workspace -->
+		<section class="tool-workspace" id="form">
+			<!-- Left Column: Inputs Form -->
+			<div class="tool-form-card">
+				<div class="form-card__header">
+					<h2>1. Enter Membership Details</h2>
+					<p>Your information stays 100% in your browser. Nothing is stored on our servers.</p>
+				</div>
+
+				<form id="gym-letter-form" class="generator-form" onsubmit="return false;">
+					<div class="form-group">
+						<label for="gym-chain">Gym Chain / Brand</label>
+						<select id="gym-chain" class="form-input">
+							<option value="Planet Fitness">Planet Fitness</option>
+							<option value="LA Fitness">LA Fitness</option>
+							<option value="Anytime Fitness">Anytime Fitness</option>
+							<option value="Gold's Gym">Gold's Gym</option>
+							<option value="Crunch Fitness">Crunch Fitness</option>
+							<option value="Equinox">Equinox</option>
+							<option value="24 Hour Fitness">24 Hour Fitness</option>
+							<option value="OrangeTheory Fitness">OrangeTheory Fitness</option>
+							<option value="Other">Other Gym / Health Club</option>
+						</select>
+					</div>
+
+					<div class="form-group" id="custom-gym-name-wrap" style="display: none;">
+						<label for="custom-gym-name">Custom Gym Name</label>
+						<input type="text" id="custom-gym-name" class="form-input" placeholder="e.g. Metro Fitness Club" />
+					</div>
+
+					<div class="form-divider"><span>Club Location</span></div>
+
+					<div class="form-group">
+						<label for="club-address">Gym Club Street Address</label>
+						<input type="text" id="club-address" class="form-input" placeholder="e.g. 123 Fitness Blvd, Suite 4" />
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label for="club-city">City</label>
+							<input type="text" id="club-city" class="form-input" placeholder="e.g. Austin" />
+						</div>
+						<div class="form-group form-group--small">
+							<label for="club-state">State</label>
+							<input type="text" id="club-state" class="form-input" placeholder="TX" maxlength="2" />
+						</div>
+						<div class="form-group">
+							<label for="club-zip">ZIP</label>
+							<input type="text" id="club-zip" class="form-input" placeholder="78701" maxlength="10" />
+						</div>
+					</div>
+
+					<div class="form-divider"><span>Your Information</span></div>
+
+					<div class="form-group">
+						<label for="member-name">Your Full Name</label>
+						<input type="text" id="member-name" class="form-input" placeholder="e.g. Alex M. Johnson" />
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label for="member-id">Key Tag / Barcode / Member ID</label>
+							<input type="text" id="member-id" class="form-input" placeholder="e.g. 102938475" />
+						</div>
+						<div class="form-group">
+							<label for="member-phone">Phone Number</label>
+							<input type="tel" id="member-phone" class="form-input" placeholder="e.g. (555) 234-5678" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="member-email">Account Email Address</label>
+						<input type="email" id="member-email" class="form-input" placeholder="e.g. alex@example.com" />
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label for="cancel-reason">Reason for Cancellation</label>
+							<select id="cancel-reason" class="form-input">
+								<option value="General cancellation / No longer using the facility">General cancellation / No longer using</option>
+								<option value="Relocation / Moved outside facility radius">Relocation / Moved</option>
+								<option value="Financial considerations / Budget adjustment">Financial / Budget adjustment</option>
+								<option value="Medical condition / Physical restriction">Medical condition / Injury</option>
+								<option value="Unsatisfactory facility conditions">Facility / Equipment dissatisfaction</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="effective-date">Effective Date</label>
+							<input type="date" id="effective-date" class="form-input" />
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<!-- Right Column: Live Letter Preview & Actions -->
+			<div class="tool-preview-card" id="preview">
+				<div class="preview-card__actions">
+					<div class="preview-status">
+						<span class="preview-status__dot"></span>
+						<span>Live Document Preview</span>
+					</div>
+					<div class="preview-buttons">
+						<button type="button" class="btn btn--copy" id="copy-btn">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+							<span id="copy-btn-text">Copy Text</span>
+						</button>
+						<button type="button" class="btn btn--print" id="print-btn">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+							<span>Print / Save PDF</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Printable Formal Letter Sheet -->
+				<div class="letter-sheet" id="letter-sheet">
+					<div class="letter-certified-header">
+						<span>SENT VIA USPS CERTIFIED MAIL — RETURN RECEIPT REQUESTED</span>
+					</div>
+
+					<div class="letter-date" id="letter-date-display">[Today's Date]</div>
+
+					<div class="letter-recipient">
+						<strong>To:</strong> Club Management & Membership Department<br />
+						<span id="preview-gym-name">Planet Fitness</span><br />
+						<span id="preview-gym-address">[Club Street Address]</span><br />
+						<span id="preview-gym-city-state-zip">[City, State, ZIP]</span>
+					</div>
+
+					<div class="letter-subject">
+						<strong>RE: FORMAL WRITTEN NOTICE OF MEMBERSHIP CANCELLATION</strong><br />
+						<span>Member ID / Key Tag: <strong id="preview-member-id">[Member ID]</strong></span>
+					</div>
+
+					<div class="letter-body">
+						<p>Dear Membership Director / General Manager,</p>
+
+						<p>
+							Please accept this letter as my formal written notice to cancel my gym membership with <strong id="preview-gym-brand">Planet Fitness</strong>, effective immediately as of <span id="preview-effective-date">[Effective Date]</span>.
+						</p>
+
+						<div class="letter-callout">
+							<strong>Member Account Identification:</strong>
+							<ul>
+								<li><strong>Full Name:</strong> <span id="preview-member-name">[Your Full Name]</span></li>
+								<li><strong>Key Tag / Barcode:</strong> <span id="preview-id-repeat">[Member ID]</span></li>
+								<li><strong>Account Email:</strong> <span id="preview-member-email">[Your Email Address]</span></li>
+								<li><strong>Phone Number:</strong> <span id="preview-member-phone">[Your Phone Number]</span></li>
+								<li><strong>Reason for Cancellation:</strong> <span id="preview-cancel-reason">General cancellation / No longer using the facility</span></li>
+							</ul>
+						</div>
+
+						<p>
+							In accordance with consumer protection statutes and the <strong>Electronic Fund Transfer Act (EFTA, 12 CFR § 1005.10(c))</strong>:
+						</p>
+
+						<ol>
+							<li><strong>Revocation of Electronic Billing Authorization:</strong> I hereby immediately revoke and terminate any existing preauthorized recurring automatic bank debits (ACH), recurring credit card billings, or annual maintenance fees associated with this membership account.</li>
+							<li><strong>Account Termination:</strong> Please process my cancellation and confirm that my remaining account balance is $0.00.</li>
+							<li><strong>Written Confirmation:</strong> Please send written or email confirmation of this processed cancellation to my email address listed above within ten (10) business days of receiving this notice.</li>
+						</ol>
+
+						<p>
+							This letter is dispatched with United States Postal Service (USPS) Certified Mail tracking and Return Receipt Requested, establishing a legally verifiable date of delivery. Any subsequent charges or unauthorized drafts initiated against my account following receipt will be promptly contested with my financial institution and reported to state consumer protection authorities.
+						</p>
+
+						<p>Thank you for your prompt attention to this matter.</p>
+					</div>
+
+					<div class="letter-signature-block">
+						<p>Sincerely,</p>
+						<div class="signature-line">
+							<span class="sign-x">X</span>
+							<span class="sign-label">(Member Signature)</span>
+						</div>
+						<div class="printed-name" id="preview-signature-name">[Your Printed Name]</div>
+						<div class="signature-date">Date Signed: ________________________</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- USPS Certified Mail Step-by-Step Instructions -->
+		<section class="usps-instructions" id="usps-guide">
+			<h2>How to Mail Your Certified Cancellation Letter (USPS Guide)</h2>
+			<div class="steps-grid">
+				<div class="step-card">
+					<div class="step-num">1</div>
+					<h3>Print & Sign</h3>
+					<p>Click <strong>Print / Save PDF</strong> above. Sign in ink above your printed name. Make a photocopy or phone snapshot of the signed letter for your records.</p>
+				</div>
+				<div class="step-card">
+					<div class="step-num">2</div>
+					<h3>Request Certified Mail</h3>
+					<p>At any USPS Post Office window, ask for <strong>Certified Mail with Return Receipt Requested</strong> (the green card, Form 3811, or electronic return receipt).</p>
+				</div>
+				<div class="step-card">
+					<div class="step-num">3</div>
+					<h3>Save Tracking & Signature</h3>
+					<p>Keep your USPS tracking barcode receipt. When the gym signs for delivery, USPS records the exact timestamp. This proves legal notice if they attempt another charge.</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- FAQ Section -->
+		<section class="tool-faq">
+			<h2>Frequently Asked Questions About Gym Cancellation Letters</h2>
+			<div class="faq-list">
+				<details class="faq-item">
+					<summary>Can a gym legally ignore a certified mail cancellation letter?</summary>
+					<p>No. Under standard contract law, certified mail provides verifiable legal proof of delivery. Even if franchise front desk staff claim you "must come in person," sending certified mail to the gym's physical address satisfies the written notice requirement. If they charge you after receiving it, your credit card company or bank will readily reverse the charges with your USPS delivery receipt.</p>
+				</details>
+				<details class="faq-item">
+					<summary>How much does USPS Certified Mail with Return Receipt cost?</summary>
+					<p>As of 2026, USPS Certified Mail with an Electronic Return Receipt costs approximately $7 to $9 total. Compared to paying another $25 to $60 month of unwanted gym dues or an annual maintenance fee, it pays for itself immediately.</p>
+				</details>
+				<details class="faq-item">
+					<summary>Which gym address should I send the letter to?</summary>
+					<p>Always send the letter to the specific <strong>home club location</strong> where you signed up or work out. You can find the club address on your original agreement or by searching the gym's website location finder.</p>
+				</details>
+			</div>
+		</section>
+	</main>
+
+	<Footer />
+</BaseLayout>
+
+<script>
+	// Interactive Real-Time Form-to-Letter Binding
+	function initGenerator() {
+		const gymChain = document.getElementById('gym-chain') as HTMLSelectElement;
+		const customGymNameWrap = document.getElementById('custom-gym-name-wrap') as HTMLElement;
+		const customGymName = document.getElementById('custom-gym-name') as HTMLInputElement;
+		const clubAddress = document.getElementById('club-address') as HTMLInputElement;
+		const clubCity = document.getElementById('club-city') as HTMLInputElement;
+		const clubState = document.getElementById('club-state') as HTMLInputElement;
+		const clubZip = document.getElementById('club-zip') as HTMLInputElement;
+		const memberName = document.getElementById('member-name') as HTMLInputElement;
+		const memberId = document.getElementById('member-id') as HTMLInputElement;
+		const memberPhone = document.getElementById('member-phone') as HTMLInputElement;
+		const memberEmail = document.getElementById('member-email') as HTMLInputElement;
+		const cancelReason = document.getElementById('cancel-reason') as HTMLSelectElement;
+		const effectiveDate = document.getElementById('effective-date') as HTMLInputElement;
+
+		// Preview Elements
+		const previewGymName = document.getElementById('preview-gym-name')!;
+		const previewGymBrand = document.getElementById('preview-gym-brand')!;
+		const previewGymAddress = document.getElementById('preview-gym-address')!;
+		const previewGymCityStateZip = document.getElementById('preview-gym-city-state-zip')!;
+		const previewMemberId = document.getElementById('preview-member-id')!;
+		const previewIdRepeat = document.getElementById('preview-id-repeat')!;
+		const previewMemberName = document.getElementById('preview-member-name')!;
+		const previewMemberEmail = document.getElementById('preview-member-email')!;
+		const previewMemberPhone = document.getElementById('preview-member-phone')!;
+		const previewCancelReason = document.getElementById('preview-cancel-reason')!;
+		const previewEffectiveDate = document.getElementById('preview-effective-date')!;
+		const previewSignatureName = document.getElementById('preview-signature-name')!;
+		const letterDateDisplay = document.getElementById('letter-date-display')!;
+
+		// Set today's date formatted
+		const today = new Date();
+		const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+		const formattedToday = today.toLocaleDateString('en-US', options);
+		letterDateDisplay.textContent = formattedToday;
+
+		// Set default date input to today
+		if (effectiveDate && !effectiveDate.value) {
+			effectiveDate.value = today.toISOString().split('T')[0];
+		}
+
+		function updatePreview() {
+			const selectedBrand = gymChain.value === 'Other' 
+				? (customGymName.value.trim() || 'Gym Management') 
+				: gymChain.value;
+
+			previewGymName.textContent = selectedBrand;
+			previewGymBrand.textContent = selectedBrand;
+
+			customGymNameWrap.style.display = gymChain.value === 'Other' ? 'block' : 'none';
+
+			previewGymAddress.textContent = clubAddress.value.trim() || '[Club Street Address]';
+
+			const city = clubCity.value.trim();
+			const state = clubState.value.trim().toUpperCase();
+			const zip = clubZip.value.trim();
+			const cityStateZip = [city, state, zip].filter(Boolean).join(' ');
+			previewGymCityStateZip.textContent = cityStateZip || '[City, State, ZIP]';
+
+			const name = memberName.value.trim() || '[Your Full Name]';
+			previewMemberName.textContent = name;
+			previewSignatureName.textContent = name;
+
+			const id = memberId.value.trim() || '[Member ID / Barcode]';
+			previewMemberId.textContent = id;
+			previewIdRepeat.textContent = id;
+
+			previewMemberEmail.textContent = memberEmail.value.trim() || '[Your Email Address]';
+			previewMemberPhone.textContent = memberPhone.value.trim() || '[Your Phone Number]';
+			previewCancelReason.textContent = cancelReason.value;
+
+			if (effectiveDate.value) {
+				const [y, m, d] = effectiveDate.value.split('-');
+				const eff = new Date(Number(y), Number(m) - 1, Number(d));
+				previewEffectiveDate.textContent = eff.toLocaleDateString('en-US', options);
+			} else {
+				previewEffectiveDate.textContent = formattedToday;
+			}
+		}
+
+		// Listen to all inputs
+		const inputs = [gymChain, customGymName, clubAddress, clubCity, clubState, clubZip, memberName, memberId, memberPhone, memberEmail, cancelReason, effectiveDate];
+		inputs.forEach((input) => {
+			if (input) {
+				input.addEventListener('input', updatePreview);
+				input.addEventListener('change', updatePreview);
+			}
+		});
+
+		updatePreview();
+
+		// Print Button
+		const printBtn = document.getElementById('print-btn');
+		printBtn?.addEventListener('click', () => {
+			window.print();
+		});
+
+		// Copy Button
+		const copyBtn = document.getElementById('copy-btn');
+		const copyBtnText = document.getElementById('copy-btn-text');
+		copyBtn?.addEventListener('click', () => {
+			const sheet = document.getElementById('letter-sheet');
+			if (!sheet) return;
+			const text = sheet.innerText;
+			navigator.clipboard.writeText(text).then(() => {
+				if (copyBtnText) copyBtnText.textContent = 'Copied!';
+				setTimeout(() => {
+					if (copyBtnText) copyBtnText.textContent = 'Copy Text';
+				}, 2000);
+			});
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initGenerator);
+	} else {
+		initGenerator();
+	}
+</script>
+
+<style>
+	.letter-tool {
+		background: #050505;
+		color: #fff;
+		min-height: 100vh;
+		padding: 5rem 1.25rem 6rem;
+		max-width: 82rem;
+		margin: 0 auto;
+	}
+
+	.tool-hero {
+		text-align: center;
+		max-width: 48rem;
+		margin: 0 auto 3.5rem;
+	}
+
+	.tool-hero__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--color-accent);
+		margin-bottom: 1.25rem;
+	}
+
+	.badge-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 8px var(--color-accent);
+	}
+
+	.tool-hero__title {
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 4vw, 3.25rem);
+		font-weight: 700;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+		margin-bottom: 1rem;
+	}
+
+	.tool-hero__subtitle {
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	/* Workspace Grid */
+	.tool-workspace {
+		display: grid;
+		grid-template-columns: 1fr 1.2fr;
+		gap: 2.5rem;
+		align-items: start;
+	}
+
+	@media (max-width: 64rem) {
+		.tool-workspace {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Form Card */
+	.tool-form-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 2rem;
+	}
+
+	.form-card__header h2 {
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.form-card__header p {
+		color: var(--color-faint);
+		font-size: 0.85rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.generator-form {
+		display: grid;
+		gap: 1.15rem;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+
+	.form-group label {
+		font-size: 0.82rem;
+		font-weight: 600;
+		color: #ccc;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.form-input {
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-sm);
+		padding: 0.75rem 0.95rem;
+		color: #fff;
+		font-family: var(--font-sans);
+		font-size: 0.92rem;
+		transition: all 0.2s;
+	}
+
+	.form-input:focus {
+		outline: none;
+		border-color: var(--color-accent);
+		box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.15);
+	}
+
+	.form-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+
+	.form-group--small {
+		max-width: 5rem;
+	}
+
+	.form-divider {
+		display: flex;
+		align-items: center;
+		margin: 0.75rem 0 0.25rem;
+	}
+
+	.form-divider span {
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	/* Preview Card */
+	.tool-preview-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 2rem;
+		position: sticky;
+		top: 6rem;
+	}
+
+	.preview-card__actions {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.preview-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.preview-status__dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--color-accent);
+	}
+
+	.preview-buttons {
+		display: flex;
+		gap: 0.65rem;
+	}
+
+	.btn {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.55rem 1rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn--copy {
+		background: #1c1c1c;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+	}
+
+	.btn--copy:hover {
+		background: #252525;
+	}
+
+	.btn--print {
+		background: var(--color-accent);
+		color: #000;
+		border: 1px solid var(--color-accent);
+	}
+
+	.btn--print:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+	}
+
+	/* Printed Letter Sheet Styling */
+	.letter-sheet {
+		background: #fff;
+		color: #111;
+		padding: 3rem 2.75rem;
+		border-radius: var(--radius-card);
+		font-family: 'Times New Roman', Times, serif;
+		font-size: 0.98rem;
+		line-height: 1.6;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+
+	.letter-certified-header {
+		text-align: center;
+		font-family: Arial, sans-serif;
+		font-weight: bold;
+		font-size: 0.82rem;
+		letter-spacing: 0.05em;
+		padding-bottom: 0.75rem;
+		margin-bottom: 1.5rem;
+		border-bottom: 2px solid #111;
+	}
+
+	.letter-date {
+		margin-bottom: 1.25rem;
+		font-weight: bold;
+	}
+
+	.letter-recipient {
+		margin-bottom: 1.5rem;
+		line-height: 1.45;
+	}
+
+	.letter-subject {
+		background: #f4f4f4;
+		padding: 0.75rem 1rem;
+		border-left: 3px solid #111;
+		margin-bottom: 1.5rem;
+		font-family: Arial, sans-serif;
+		font-size: 0.9rem;
+	}
+
+	.letter-body p {
+		margin-bottom: 1rem;
+	}
+
+	.letter-callout {
+		background: #fafafa;
+		border: 1px solid #ddd;
+		padding: 0.85rem 1.25rem;
+		margin: 1.25rem 0;
+		font-family: Arial, sans-serif;
+		font-size: 0.88rem;
+	}
+
+	.letter-callout ul {
+		margin: 0.5rem 0 0 1rem;
+		padding: 0;
+	}
+
+	.letter-callout li {
+		margin-bottom: 0.25rem;
+	}
+
+	.letter-body ol {
+		margin: 0.75rem 0 1.25rem 1.25rem;
+		padding: 0;
+	}
+
+	.letter-body li {
+		margin-bottom: 0.5rem;
+	}
+
+	.letter-signature-block {
+		margin-top: 2.5rem;
+	}
+
+	.signature-line {
+		width: 16rem;
+		border-bottom: 1px solid #111;
+		margin: 2.5rem 0 0.5rem;
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		padding-bottom: 0.2rem;
+	}
+
+	.sign-x {
+		font-family: Arial, sans-serif;
+		font-weight: bold;
+	}
+
+	.sign-label {
+		font-size: 0.75rem;
+		color: #666;
+		font-family: Arial, sans-serif;
+	}
+
+	.printed-name {
+		font-weight: bold;
+		margin-bottom: 0.5rem;
+	}
+
+	.signature-date {
+		font-size: 0.88rem;
+		color: #444;
+	}
+
+	/* USPS Instructions */
+	.usps-instructions {
+		margin-top: 5rem;
+		border-top: 1px solid var(--color-border);
+		padding-top: 4rem;
+	}
+
+	.usps-instructions h2 {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		text-align: center;
+		margin-bottom: 2.5rem;
+	}
+
+	.steps-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+	}
+
+	@media (max-width: 50rem) {
+		.steps-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.step-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.75rem;
+		position: relative;
+	}
+
+	.step-num {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		display: grid;
+		place-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.step-card h3 {
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.step-card p {
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.5;
+	}
+
+	/* FAQ */
+	.tool-faq {
+		margin-top: 4.5rem;
+		max-width: 50rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.tool-faq h2 {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+
+	.faq-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.faq-item {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.25rem 1.5rem;
+	}
+
+	.faq-item summary {
+		font-weight: 600;
+		font-size: 1rem;
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.faq-item p {
+		margin-top: 0.75rem;
+		color: var(--color-muted);
+		line-height: 1.6;
+		font-size: 0.92rem;
+	}
+
+	/* PRINT STYLESHEET — CRITICAL: Prints only the formal 8.5x11 letter cleanly */
+	@media print {
+		body {
+			background: #fff !important;
+			color: #000 !important;
+		}
+
+		nav, footer, .tool-hero, .tool-form-card, .preview-card__actions, .usps-instructions, .tool-faq {
+			display: none !important;
+		}
+
+		.letter-tool {
+			padding: 0 !important;
+			margin: 0 !important;
+			max-width: none !important;
+		}
+
+		.tool-workspace {
+			display: block !important;
+		}
+
+		.tool-preview-card {
+			position: static !important;
+			border: none !important;
+			padding: 0 !important;
+			background: transparent !important;
+		}
+
+		.letter-sheet {
+			box-shadow: none !important;
+			padding: 0 !important;
+			border-radius: 0 !important;
+			font-size: 11pt !important;
+			line-height: 1.5 !important;
+		}
+	}
+</style>

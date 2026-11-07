@@ -13,5 +13,5 @@ Disallow: /unsubscribe
 Disallow: /start
 Disallow: /r/
 
-Sitemap: https://cancelkits.com/sitemap-index.xml
 Sitemap: https://cancelkits.com/sitemap.xml
+Sitemap: https://cancelkits.com/sitemap-index.xml

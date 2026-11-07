@@ -32,11 +32,11 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 			<select data-language-switcher class="nav__lang" aria-label="Language">
 				{locales.map((lang) => <option value={lang} selected={lang === currentLang}>{lang.toUpperCase()}</option>)}
 			</select>
-			<a class="nav__plan-wrap" id="nav-plan-badge" href="/account" hidden>
+			<a class="nav__plan-wrap" id="nav-plan-badge" href="/account/" hidden>
 				<PlanBadge plan="free" />
 			</a>
-			<a class="nav__signin" id="nav-signin-link" href="/signin">Sign in</a>
-			<a class="nav__cta" id="nav-cta-link" href="/start">Start free</a>
+			<a class="nav__signin" id="nav-signin-link" href="/signin/">Sign in</a>
+			<a class="nav__cta" id="nav-cta-link" href="/start/">Start free</a>
 		</div>
 
 		<div class="nav__mobile-right">
@@ -97,11 +97,11 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 		</div>
 
 		<div class="mobile-menu__actions">
-			<a class="mobile-menu__plan-wrap" id="mobile-plan-badge" href="/account" hidden>
+			<a class="mobile-menu__plan-wrap" id="mobile-plan-badge" href="/account/" hidden>
 				<PlanBadge plan="free" />
 			</a>
-			<a class="mobile-menu__signin" id="mobile-signin-link" href="/signin">Sign in</a>
-			<a class="mobile-menu__cta" id="mobile-cta-link" href="/start">Start free →</a>
+			<a class="mobile-menu__signin" id="mobile-signin-link" href="/signin/">Sign in</a>
+			<a class="mobile-menu__cta" id="mobile-cta-link" href="/start/">Start free →</a>
 		</div>
 	</nav>
 </div>
@@ -280,19 +280,19 @@ const currentLang = (Astro.url.pathname.split('/')[1] || 'en') as Locale;
 
 				if (signinLink) {
 					signinLink.textContent = 'Dashboard';
-					signinLink.setAttribute('href', '/dashboard');
+					signinLink.setAttribute('href', '/dashboard/');
 				}
 				if (mobileSigninLink) {
 					mobileSigninLink.textContent = 'Dashboard';
-					mobileSigninLink.setAttribute('href', '/dashboard');
+					mobileSigninLink.setAttribute('href', '/dashboard/');
 				}
 				if (ctaLink) {
 					ctaLink.textContent = 'Account';
-					ctaLink.setAttribute('href', '/account');
+					ctaLink.setAttribute('href', '/account/');
 				}
 				if (mobileCtaLink) {
 					mobileCtaLink.textContent = 'Account →';
-					mobileCtaLink.setAttribute('href', '/account');
+					mobileCtaLink.setAttribute('href', '/account/');
 				}
 			}
 		} catch {

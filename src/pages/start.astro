@@ -8,5 +8,5 @@ if (email) params.set('email', email);
 if (service) params.set('service', service);
 const query = params.toString() ? `?${params.toString()}` : '';
 
-return Astro.redirect(`/onboarding/connect${query}`);
+return Astro.redirect(`/onboarding/connect/${query}`);
 ---

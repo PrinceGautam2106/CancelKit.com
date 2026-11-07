@@ -1,4 +1,7 @@
 // @ts-check
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
@@ -10,10 +13,34 @@ import { SERVICE_ALIASES } from './src/data/services';
 const aliasSlugs = Object.keys(SERVICE_ALIASES);
 const aliasRegex = new RegExp(`\\/cancel\\/(${aliasSlugs.join('|')})\\/?$`);
 
+/**
+ * Ensures sitemap.xml directly contains the direct 200 OK canonical <urlset>
+ * instead of a multi-tier sitemap index wrapper.
+ */
+function canonicalSitemapSync() {
+	return {
+		name: 'canonical-sitemap-sync',
+		hooks: {
+			'astro:build:done': async ({ dir }) => {
+				const targetDir = fileURLToPath(dir);
+				const clientDir = targetDir.endsWith('client') || targetDir.endsWith('client/')
+					? targetDir
+					: path.join(targetDir, 'client');
+				const sitemap0 = path.join(clientDir, 'sitemap-0.xml');
+				const sitemapXml = path.join(clientDir, 'sitemap.xml');
+				if (fs.existsSync(sitemap0)) {
+					fs.copyFileSync(sitemap0, sitemapXml);
+				}
+			},
+		},
+	};
+}
+
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
 		mdx(),
+		canonicalSitemapSync(),
 		sitemap({
 			filter: (page) =>
 				!page.includes('/dashboard') &&

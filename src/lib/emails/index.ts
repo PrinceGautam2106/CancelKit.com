@@ -62,4 +62,10 @@ export {
 	type FamilyInviteEmailData,
 } from './family-invite';
 
+export {
+	cancelDispatchSubject,
+	cancelDispatchHtml,
+	type CancelDispatchData,
+} from './cancel-dispatch';
+
 export { emailLayout, styles, SITE } from './layout';

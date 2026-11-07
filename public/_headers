@@ -1,0 +1,200 @@
+# Cloudflare Worker Assets & Pages Custom Cache-Control Headers
+# Maximize Edge Cache Hit Rate (> 70%) while protecting dynamic authenticated routes
+
+# ── 1. Immutable Static Hashed Assets (1 year edge & browser cache) ──
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+
+# ── 2. Static Media & Fonts (30 days browser cache, 1 year edge cache) ──
+/og/*
+  Cache-Control: public, max-age=2592000, s-maxage=31536000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.png
+  Cache-Control: public, max-age=2592000, s-maxage=31536000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.svg
+  Cache-Control: public, max-age=2592000, s-maxage=31536000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.ico
+  Cache-Control: public, max-age=2592000, s-maxage=31536000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.webp
+  Cache-Control: public, max-age=2592000, s-maxage=31536000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: public, max-age=31536000
+/site.webmanifest
+  Cache-Control: public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=2592000
+  Cloudflare-CDN-Cache-Control: public, max-age=2592000
+
+# ── 3. SEO Metadata Files (1 day edge, 1 hour browser) ──
+/robots.txt
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600
+  CDN-Cache-Control: public, max-age=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=86400
+/sitemap.xml
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600
+  CDN-Cache-Control: public, max-age=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=86400
+/sitemap-index.xml
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600
+  CDN-Cache-Control: public, max-age=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=86400
+/sitemap-*.xml
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=3600
+  CDN-Cache-Control: public, max-age=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=86400
+
+# ── 4. High-Traffic Prerendered Static HTML Pages (7 days Edge Cache, 4 hours browser) ──
+/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/cancel/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/cancel/*
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/blog/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/blog/*
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/pricing/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/about/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/security/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/alternatives/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/wall-of-love/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/privacy/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/terms/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/cookies/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/contact/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/refer/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/calculator/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/cancel-difficulty/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/gym-cancellation-letter/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/subscription-creep-calculator/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Config-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/statement-scanner/
+  Cache-Control: public, max-age=14400, s-maxage=604800, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+  Cloudflare-CDN-Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# ── 5. Dynamic SSR, Authenticated & API Routes: NEVER Edge Cache ──
+/api/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/dashboard/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/dashboard/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/account/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/account/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/signin/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/signin/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/signup/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/signup/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/onboarding/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/onboarding/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/auth/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/r/*
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store
+/start/
+  Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+  CDN-Cache-Control: private, no-store
+  Cloudflare-CDN-Cache-Control: private, no-store

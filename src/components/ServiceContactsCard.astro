@@ -1,0 +1,440 @@
+---
+import type { ServiceContact } from '../data/serviceContacts';
+
+interface Props {
+	serviceName: string;
+	contact: ServiceContact;
+}
+
+const { serviceName, contact } = Astro.props;
+---
+
+<section class="contacts-card" aria-label={`Direct Customer Support & Cancellation Contacts for ${serviceName}`}>
+	<div class="contacts-card__header">
+		<div class="contacts-card__badge-row">
+			<span class="contacts-card__badge">📞 DIRECT CANCELLATION CHANNELS</span>
+			<span class="contacts-card__verified">✓ Verified 2026 Hotline & Bypass</span>
+		</div>
+		<h2 class="contacts-card__title">Hidden Phone Numbers & Direct Support Contacts for {serviceName}</h2>
+		<p class="contacts-card__desc">
+			Avoid endless chatbot loops and deceptive account menus. Use these direct phone numbers, verified cancellation emails, and IVR bypass shortcuts to reach human retention agents immediately:
+		</p>
+	</div>
+
+	<div class="contacts-card__grid">
+		<!-- Phone Contact -->
+		{contact.phone && (
+			<div class="contact-box contact-box--phone">
+				<div class="contact-box__top">
+					<div class="contact-box__icon-wrap" aria-hidden="true">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+					</div>
+					<div>
+						<span class="contact-box__label">Direct Retention Phone Number</span>
+						<a href={`tel:${contact.phone.replace(/[^0-9]/g, '')}`} class="contact-box__primary-link">
+							{contact.phone}
+						</a>
+					</div>
+				</div>
+
+				{contact.phoneHours && (
+					<div class="contact-box__meta">
+						<strong>Hours:</strong> {contact.phoneHours}
+					</div>
+				)}
+
+				{contact.ivrBypassTip && (
+					<div class="contact-box__tip">
+						<span class="contact-tip-badge">BOT BYPASS TIP:</span>
+						<p>{contact.ivrBypassTip}</p>
+					</div>
+				)}
+
+				<div class="contact-box__actions">
+					<a href={`tel:${contact.phone.replace(/[^0-9]/g, '')}`} class="btn-contact-action btn-contact-action--call">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+						<span>Click to Call</span>
+					</a>
+					<button type="button" class="btn-contact-action btn-contact-action--copy" data-copy-phone={contact.phone}>
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+						<span>Copy Phone</span>
+					</button>
+				</div>
+			</div>
+		)}
+
+		<!-- Email Contact -->
+		<div class="contact-box contact-box--email">
+			<div class="contact-box__top">
+				<div class="contact-box__icon-wrap" aria-hidden="true">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+				</div>
+				<div>
+					<span class="contact-box__label">Direct Cancellation & Billing Email</span>
+					<a href={`mailto:${contact.email}?subject=Cancellation Notice: ${serviceName}`} class="contact-box__primary-link">
+						{contact.email}
+					</a>
+				</div>
+			</div>
+
+			<div class="contact-box__meta">
+				<strong>Response Time:</strong> Typically within 24–48 hours
+			</div>
+
+			<div class="contact-box__tip">
+				<span class="contact-tip-badge">LEGAL PROOF:</span>
+				<p>Emailing your formal cancellation request creates an indelible timestamped paper trail that your credit card issuer will accept to chargeback any future renewals.</p>
+			</div>
+
+			<div class="contact-box__actions">
+				<a href={`mailto:${contact.email}?subject=Cancellation Notice: ${serviceName}`} class="btn-contact-action btn-contact-action--call">
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+					<span>Email Support</span>
+				</a>
+				<button type="button" class="btn-contact-action btn-contact-action--copy" data-copy-email={contact.email}>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					<span>Copy Email</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- Direct Cancel & Chat URLs -->
+		<div class="contact-box contact-box--links">
+			<div class="contact-box__top">
+				<div class="contact-box__icon-wrap" aria-hidden="true">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+				</div>
+				<div>
+					<span class="contact-box__label">Direct Deep Cancellation URL</span>
+					<a href={contact.directCancelUrl} target="_blank" rel="noopener noreferrer" class="contact-box__primary-link contact-box__primary-link--url">
+						Open {serviceName} Cancellation Page →
+					</a>
+				</div>
+			</div>
+
+			{contact.headquartersAddress && (
+				<div class="contact-box__meta contact-box__meta--address">
+					<strong>Certified Postal Mail Notice Address:</strong>
+					<span>{contact.headquartersAddress}</span>
+				</div>
+			)}
+
+			{contact.retentionTip && (
+				<div class="contact-box__tip">
+					<span class="contact-tip-badge">INSIDER RETENTION HACK:</span>
+					<p>{contact.retentionTip}</p>
+				</div>
+			)}
+		</div>
+	</div>
+
+	<!-- Legal Leverage Banner -->
+	{contact.legalRightsTip && (
+		<div class="contacts-card__legal-banner">
+			<div class="legal-badge" aria-hidden="true">⚖️ YOUR LEGAL CONSUMER RIGHTS</div>
+			<p>{contact.legalRightsTip}</p>
+		</div>
+	)}
+</section>
+
+<script>
+	// Handle copy phone & copy email buttons
+	document.querySelectorAll<HTMLButtonElement>('[data-copy-phone]').forEach((btn) => {
+		btn.addEventListener('click', async () => {
+			const phone = btn.getAttribute('data-copy-phone') || '';
+			try {
+				await navigator.clipboard.writeText(phone);
+				const span = btn.querySelector('span');
+				if (span) {
+					const orig = span.textContent;
+					span.textContent = '✓ Copied!';
+					btn.style.borderColor = 'var(--color-accent)';
+					setTimeout(() => {
+						span.textContent = orig;
+						btn.style.borderColor = '';
+					}, 2000);
+				}
+			} catch (err) {
+				console.error('Failed to copy phone', err);
+			}
+		});
+	});
+
+	document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((btn) => {
+		btn.addEventListener('click', async () => {
+			const email = btn.getAttribute('data-copy-email') || '';
+			try {
+				await navigator.clipboard.writeText(email);
+				const span = btn.querySelector('span');
+				if (span) {
+					const orig = span.textContent;
+					span.textContent = '✓ Copied!';
+					btn.style.borderColor = 'var(--color-accent)';
+					setTimeout(() => {
+						span.textContent = orig;
+						btn.style.borderColor = '';
+					}, 2000);
+				}
+			} catch (err) {
+				console.error('Failed to copy email', err);
+			}
+		});
+	});
+</script>
+
+<style>
+	.contacts-card {
+		margin-top: 3.5rem;
+		padding: 2.25rem 2rem;
+		border-radius: var(--radius-lg, 16px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: linear-gradient(180deg, rgba(25, 29, 36, 0.85) 0%, rgba(17, 20, 24, 0.95) 100%);
+		box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+	}
+
+	.contacts-card__header {
+		margin-bottom: 2rem;
+	}
+
+	.contacts-card__badge-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-bottom: 0.85rem;
+	}
+
+	.contacts-card__badge {
+		font-family: var(--font-mono, monospace);
+		font-size: 0.72rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		padding: 0.25rem 0.65rem;
+		border-radius: 9999px;
+		background: rgba(0, 255, 136, 0.12);
+		color: var(--color-accent, #00ff88);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+	}
+
+	.contacts-card__verified {
+		font-size: 0.78rem;
+		color: #a0aec0;
+		font-weight: 500;
+	}
+
+	.contacts-card__title {
+		font-family: var(--font-display, sans-serif);
+		font-size: 1.6rem;
+		font-weight: 700;
+		color: #fff;
+		margin: 0 0 0.65rem;
+		line-height: 1.3;
+	}
+
+	.contacts-card__desc {
+		margin: 0;
+		color: #a0aec0;
+		font-size: 0.975rem;
+		line-height: 1.6;
+		max-width: 48rem;
+	}
+
+	.contacts-card__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 1.25rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.contact-box {
+		padding: 1.5rem;
+		border-radius: var(--radius-card, 12px);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(13, 16, 20, 0.75);
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		transition: border-color 0.2s, transform 0.2s;
+	}
+
+	.contact-box:hover {
+		border-color: rgba(0, 255, 136, 0.3);
+		transform: translateY(-2px);
+	}
+
+	.contact-box__top {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+		margin-bottom: 0.85rem;
+	}
+
+	.contact-box__icon-wrap {
+		width: 42px;
+		height: 42px;
+		border-radius: 10px;
+		background: rgba(0, 255, 136, 0.1);
+		color: var(--color-accent, #00ff88);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.contact-box__label {
+		display: block;
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: #718096;
+		font-weight: 600;
+		margin-bottom: 0.25rem;
+	}
+
+	.contact-box__primary-link {
+		font-family: var(--font-display, sans-serif);
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: #fff;
+		text-decoration: none;
+		line-height: 1.3;
+		transition: color 0.2s;
+		word-break: break-all;
+	}
+
+	.contact-box__primary-link:hover {
+		color: var(--color-accent, #00ff88);
+	}
+
+	.contact-box__primary-link--url {
+		font-size: 1.05rem;
+		color: var(--color-accent, #00ff88);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.contact-box__meta {
+		font-size: 0.85rem;
+		color: #cbd5e0;
+		margin: 0.5rem 0 0.85rem;
+		line-height: 1.5;
+	}
+
+	.contact-box__meta strong {
+		color: #fff;
+	}
+
+	.contact-box__meta--address span {
+		display: block;
+		margin-top: 0.2rem;
+		color: #a0aec0;
+		font-size: 0.825rem;
+	}
+
+	.contact-box__tip {
+		margin: 0.75rem 0 1.25rem;
+		padding: 0.85rem 1rem;
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.03);
+		border-left: 3px solid var(--color-accent, #00ff88);
+	}
+
+	.contact-tip-badge {
+		display: block;
+		font-family: var(--font-mono, monospace);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--color-accent, #00ff88);
+		margin-bottom: 0.25rem;
+	}
+
+	.contact-box__tip p {
+		margin: 0;
+		font-size: 0.825rem;
+		color: #cbd5e0;
+		line-height: 1.5;
+	}
+
+	.contact-box__actions {
+		display: flex;
+		gap: 0.65rem;
+		margin-top: auto;
+	}
+
+	.btn-contact-action {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.65rem 1rem;
+		border-radius: 8px;
+		font-size: 0.85rem;
+		font-weight: 600;
+		cursor: pointer;
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.btn-contact-action--call {
+		background: var(--color-accent, #00ff88);
+		color: #000;
+		border: 1px solid var(--color-accent, #00ff88);
+		flex: 1;
+		justify-content: center;
+	}
+
+	.btn-contact-action--call:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
+
+	.btn-contact-action--copy {
+		background: rgba(255, 255, 255, 0.06);
+		color: #e2e8f0;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+	}
+
+	.btn-contact-action--copy:hover {
+		background: rgba(255, 255, 255, 0.12);
+		color: #fff;
+	}
+
+	.contacts-card__legal-banner {
+		padding: 1rem 1.25rem;
+		border-radius: 8px;
+		background: rgba(0, 168, 255, 0.08);
+		border: 1px solid rgba(0, 168, 255, 0.25);
+	}
+
+	.legal-badge {
+		font-family: var(--font-mono, monospace);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: #60a5fa;
+		margin-bottom: 0.35rem;
+	}
+
+	.contacts-card__legal-banner p {
+		margin: 0;
+		color: #dbeafe;
+		font-size: 0.88rem;
+		line-height: 1.55;
+	}
+
+	@media (max-width: 48rem) {
+		.contacts-card {
+			padding: 1.5rem 1.25rem;
+		}
+
+		.contacts-card__grid {
+			grid-template-columns: 1fr;
+		}
+
+		.btn-contact-action {
+			flex: 1;
+			justify-content: center;
+		}
+	}
+</style>

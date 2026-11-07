@@ -16,6 +16,9 @@ import {
 	type Service,
 } from '../../data/services';
 import { getTeardownForService } from '../../data/darkPatternTeardowns';
+import { getContactForService } from '../../data/serviceContacts';
+import ServiceContactsCard from '../../components/ServiceContactsCard.astro';
+import CancelEmailGenerator from '../../components/CancelEmailGenerator.astro';
 
 export function getStaticPaths() {
 	const directPaths = services.map((service) => ({
@@ -42,8 +45,22 @@ interface Props {
 }
 
 const { service } = Astro.props;
+const contact = getContactForService(service.slug, service.name, service.category);
 const related = getRelatedServices(service);
 const faqs = buildFaqs(service);
+const contactFaqs = [
+	{
+		question: `What is the direct phone number to cancel ${service.name}?`,
+		answer: contact.phone
+			? `The direct cancellation and customer service phone number for ${service.name} is ${contact.phone} (${contact.phoneHours || 'available during regular support hours'}). ${contact.ivrBypassTip ? `To bypass automated voice menus: ${contact.ivrBypassTip}` : ''}`
+			: `You can reach customer support directly through their online portal at ${contact.supportUrl || contact.directCancelUrl}.`,
+	},
+	{
+		question: `What is the cancellation email address for ${service.name}?`,
+		answer: `You can send a formal cancellation notice to ${contact.email}. Sending an email creates written, timestamped proof of your cancellation under FTC automatic renewal rules if you ever need to dispute unauthorized future charges with your bank.`,
+	},
+];
+const allFaqs = [...faqs, ...contactFaqs];
 const yearlyCost = service.monthlyPrice * 12;
 const teardown = getTeardownForService(service);
 
@@ -135,7 +152,7 @@ const softwareApplicationSchema = {
 const faqSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'FAQPage',
-	mainEntity: faqs.map((faq) => ({
+	mainEntity: allFaqs.map((faq) => ({
 		'@type': 'Question',
 		name: faq.question,
 		acceptedAnswer: { '@type': 'Answer', text: faq.answer },
@@ -490,84 +507,24 @@ const freeToolRecommendation = freeToolRecommendations[service.slug];
 				</section>
 			)}
 
-			<!-- Copy-Paste Formal Cancellation Notice -->
-			<section class="guide__script-section">
-				{(service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership' || service.slug === 'orange-theory') && (
-					<div class="guide__tool-cta-banner">
-						<div class="tool-cta-text">
-							<strong>Need a custom certified mail letter with your account number & club address?</strong>
-							<p>Use our free 1-page generator to automatically format your USPS certified mail letter and print directly to PDF.</p>
-						</div>
-						<a href="/gym-cancellation-letter/" class="tool-cta-btn">
-							<span>Open Free Gym Letter Generator →</span>
-						</a>
+			<!-- Hidden Direct Phone & Email Support Contacts -->
+			<ServiceContactsCard serviceName={service.name} contact={contact} />
+
+			<!-- Dedicated Gym Letter CTA for Fitness Centers -->
+			{(service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership' || service.slug === 'orange-theory') && (
+				<div class="guide__tool-cta-banner">
+					<div class="tool-cta-text">
+						<strong>Need a custom certified mail letter with your account number & club address?</strong>
+						<p>Use our free 1-page generator to automatically format your USPS certified mail letter and print directly to PDF.</p>
 					</div>
-				)}
-
-				<div class="guide__script-header">
-					<div class="guide__script-title-row">
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-						<h3>
-							{service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership'
-								? 'Certified Mail Cancellation Letter Template (Copy & Print PDF)'
-								: 'Formal Cancellation Script (Email / Support Chat / Certified Notice)'}
-						</h3>
-					</div>
-					<button type="button" class="guide__script-copy-btn" data-copy-script>
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-						<span data-script-btn-text>{service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership' ? 'Copy Letter Template' : 'Copy Script'}</span>
-					</button>
+					<a href="/gym-cancellation-letter/" class="tool-cta-btn">
+						<span>Open Free Gym Letter Generator →</span>
+					</a>
 				</div>
-				<p class="guide__script-desc">
-					{service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership'
-						? 'Use this certified mail cancellation letter template to cancel your membership without going in person. Print or copy this letter and send via USPS Certified Mail with Return Receipt Requested:'
-						: 'Use this copy-paste message if you need to contact customer support, send an email, or retain written proof for your bank:'}
-				</p>
-				<div class="guide__script-box">
-					<pre data-script-content>{service.slug === 'planet-fitness' || service.slug === 'la-fitness' || service.slug === 'gym-membership' ? `[Date]
+			)}
 
-VIA USPS CERTIFIED MAIL — RETURN RECEIPT REQUESTED
-
-To: ${service.name} Management
-[Home Club Location Address]
-[City, State, ZIP Code]
-
-Re: Formal Written Notice of Membership Cancellation — Member ID: [Your Member ID]
-
-Dear ${service.name} Management,
-
-Please accept this certified letter as my formal written notice to cancel my ${service.name} membership immediately, effective as of today's date.
-
-Member Information:
-- Full Name: [Your Full Name]
-- Key Tag / Member ID: [Your Member ID / Barcode]
-- Account Email: [Your Account Email]
-- Phone Number: [Your Phone Number]
-- Home Club Location: [Your Club Name / City]
-
-Under the terms of my agreement and consumer protection regulations:
-1. Please immediately cancel all recurring automatic bank debits (ACH) and credit card charges.
-2. Confirm in writing to my email address above that my membership has been terminated with a $0.00 balance.
-3. Remove my payment details from your active billing systems.
-
-Thank you,
-[Your Signature]
-[Your Printed Full Name]` : `Subject: Immediate Cancellation Notice — ${service.name} Account
-
-Dear ${service.name} Support Team,
-
-I am writing to formally request the immediate cancellation of my ${service.name} subscription associated with this email address.
-
-Please confirm:
-1. That my subscription has been terminated and will not auto-renew.
-2. The final date of access.
-3. That my payment card has been removed from future recurring debits.
-
-Thank you,
-[Your Full Name]
-[Your Account Email / Phone Number]`}</pre>
-				</div>
-			</section>
+			<!-- Automated Cancellation Email & Notice Generator Widget -->
+			<CancelEmailGenerator service={service} contact={contact} />
 
 			<!-- 3-Point Proof of Cancellation Checklist -->
 			<section class="guide__proof-card">
@@ -619,7 +576,7 @@ Thank you,
 			<section class="guide__faq" aria-labelledby="faq-heading">
 				<h2 id="faq-heading">Frequently Asked Questions</h2>
 				<div class="guide__faq-list">
-					{faqs.map((faq) => (
+					{allFaqs.map((faq) => (
 						<details class="guide__faq-item">
 							<summary>
 								<span>{faq.question}</span>

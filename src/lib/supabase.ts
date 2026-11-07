@@ -1,31 +1,73 @@
 import { createClient } from '@supabase/supabase-js';
 
+const isBrowser = typeof window !== 'undefined';
+
 // Environment variables for Supabase initialization
 export const SUPABASE_URL =
 	import.meta.env.PUBLIC_SUPABASE_URL ||
 	import.meta.env.SUPABASE_URL ||
-	(typeof process !== 'undefined' ? process.env?.SUPABASE_URL : '');
+	(typeof process !== 'undefined' ? process.env?.SUPABASE_URL : '') ||
+	'https://srgmysjkpmduhxhhbwrc.supabase.co';
 
 export const SUPABASE_ANON_KEY =
 	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ||
 	import.meta.env.SUPABASE_ANON_KEY ||
-	(typeof process !== 'undefined' ? process.env?.SUPABASE_ANON_KEY : '');
+	(typeof process !== 'undefined' ? process.env?.SUPABASE_ANON_KEY : '') ||
+	'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyZ215c2prcG1kdWh4aGhid3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NDgzNDMsImV4cCI6MjEwNTAyNDM0M30.6j_OT1oVOsZzMZjtuHYZBEOZrsrcVZvBChWoahLm42o';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-	throw new Error(
-		'Missing Supabase environment variables. Set PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in your .env file.'
+	console.warn(
+		'[Supabase] Warning: Missing Supabase environment variables. Using fallback configuration.'
 	);
 }
 
-// Supabase client instance
+// Supabase client instance with SSR-aware auth storage configuration
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-	auth: {
-		persistSession: true,
-		autoRefreshToken: true,
-		detectSessionInUrl: true,
-		storageKey: 'cancelkit-auth-token',
-	},
+	auth: isBrowser
+		? {
+				persistSession: true,
+				autoRefreshToken: true,
+				detectSessionInUrl: true,
+				storageKey: 'cancelkit-auth-token',
+		  }
+		: {
+				persistSession: false,
+				autoRefreshToken: false,
+				detectSessionInUrl: false,
+		  },
 });
+
+/**
+ * Creates or retrieves a Supabase client with optional Cloudflare runtime env support
+ */
+export function getSupabase(runtimeEnv?: Record<string, string | undefined>) {
+	const url =
+		runtimeEnv?.PUBLIC_SUPABASE_URL ||
+		runtimeEnv?.SUPABASE_URL ||
+		SUPABASE_URL;
+	const key =
+		runtimeEnv?.PUBLIC_SUPABASE_ANON_KEY ||
+		runtimeEnv?.SUPABASE_ANON_KEY ||
+		SUPABASE_ANON_KEY;
+
+	if (!url || !key) return supabase;
+	if (url === SUPABASE_URL && key === SUPABASE_ANON_KEY) return supabase;
+
+	return createClient(url, key, {
+		auth: isBrowser
+			? {
+					persistSession: true,
+					autoRefreshToken: true,
+					detectSessionInUrl: true,
+					storageKey: 'cancelkit-auth-token',
+			  }
+			: {
+					persistSession: false,
+					autoRefreshToken: false,
+					detectSessionInUrl: false,
+			  },
+	});
+}
 
 // TypeScript Types
 

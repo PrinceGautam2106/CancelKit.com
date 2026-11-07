@@ -1,0 +1,55 @@
+{
+  "description": "CancelKits Cloudflare Cache Rules configuration to push edge cache hit rates > 70%",
+  "rules": [
+    {
+      "id": "bypass_dynamic_and_auth",
+      "description": "Bypass Edge Cache for authenticated areas, API routes, and OAuth sessions",
+      "expression": "(http.request.uri.path wildcard \"/api/*\") or (http.request.uri.path wildcard \"/dashboard*\") or (http.request.uri.path wildcard \"/account*\") or (http.request.uri.path wildcard \"/signin*\") or (http.request.uri.path wildcard \"/signup*\") or (http.request.uri.path wildcard \"/auth/*\") or (http.request.uri.path wildcard \"/onboarding*\") or (http.request.uri.path wildcard \"/r/*\") or (http.request.uri.path wildcard \"/start*\") or (http.cookie contains \"sb-access-token\")",
+      "action": "set_cache_settings",
+      "action_parameters": {
+        "cache": false
+      }
+    },
+    {
+      "id": "cache_static_assets_immutable",
+      "description": "Aggressively cache hashed static JS/CSS/Fonts/Images at Cloudflare Edge (1 Year TTL)",
+      "expression": "(http.request.uri.path wildcard \"/_astro/*\") or (http.request.uri.path wildcard \"/og/*\") or (http.request.uri.path wildcard \"*.woff2\") or (http.request.uri.path wildcard \"*.svg\") or (http.request.uri.path wildcard \"*.png\") or (http.request.uri.path wildcard \"*.ico\")",
+      "action": "set_cache_settings",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": {
+          "mode": "override_origin",
+          "default": 31536000
+        },
+        "browser_ttl": {
+          "mode": "override_origin",
+          "default": 31536000
+        },
+        "serve_stale": {
+          "disable_stale_while_updating": false
+        }
+      }
+    },
+    {
+      "id": "cache_static_marketing_and_guides",
+      "description": "Cache all 200 OK cancel guides, blog posts, calculators, and marketing pages at Cloudflare Edge (7 Days TTL, Stale-While-Revalidate)",
+      "expression": "(http.request.uri.path eq \"/\") or (http.request.uri.path wildcard \"/cancel/*\") or (http.request.uri.path eq \"/cancel/\") or (http.request.uri.path wildcard \"/blog/*\") or (http.request.uri.path eq \"/blog/\") or (http.request.uri.path wildcard \"/pricing*\") or (http.request.uri.path wildcard \"/about*\") or (http.request.uri.path wildcard \"/security*\") or (http.request.uri.path wildcard \"/alternatives*\") or (http.request.uri.path wildcard \"/wall-of-love*\") or (http.request.uri.path wildcard \"/privacy*\") or (http.request.uri.path wildcard \"/terms*\") or (http.request.uri.path wildcard \"/cookies*\") or (http.request.uri.path wildcard \"/calculator*\") or (http.request.uri.path wildcard \"/cancel-difficulty*\") or (http.request.uri.path wildcard \"/gym-cancellation-letter*\") or (http.request.uri.path wildcard \"/subscription-creep-calculator*\") or (http.request.uri.path wildcard \"/statement-scanner*\")",
+      "action": "set_cache_settings",
+      "action_parameters": {
+        "cache": true,
+        "edge_ttl": {
+          "mode": "override_origin",
+          "default": 604800
+        },
+        "browser_ttl": {
+          "mode": "override_origin",
+          "default": 14400
+        },
+        "serve_stale": {
+          "disable_stale_while_updating": false
+        },
+        "respect_strong_etags": true
+      }
+    }
+  ]
+}

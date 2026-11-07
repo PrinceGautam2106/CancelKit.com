@@ -29,6 +29,8 @@ import {
 	weeklyRenewalRadarHtml,
 	liveSubscriptionAlertSubject,
 	liveSubscriptionAlertHtml,
+	cancelDispatchSubject,
+	cancelDispatchHtml,
 } from '../../lib/emails';
 
 export const prerender = false;
@@ -36,6 +38,7 @@ export const prerender = false;
 type TemplateName =
 	| 'welcome'
 	| 'cancel-confirmation'
+	| 'cancel-dispatch'
 	| 'renewal-alert'
 	| 'payment-failed'
 	| 'weekly-savings'
@@ -66,6 +69,11 @@ function resolveTemplate(
 			return {
 				subject: cancelConfirmationSubject(data as any),
 				html: cancelConfirmationHtml(data as any),
+			};
+		case 'cancel-dispatch':
+			return {
+				subject: cancelDispatchSubject(data as any),
+				html: cancelDispatchHtml(data as any),
 			};
 		case 'renewal-alert':
 			return {

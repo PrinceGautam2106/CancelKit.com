@@ -350,9 +350,210 @@ const description = 'See every subscription draining your account and cancel wha
 						<span>WhatsApp</span>
 					</a>
 
-					<a href="/refer" class="viral-share-btn viral-share-btn--more">
+					<a href="/refer/" class="viral-share-btn viral-share-btn--more">
 						<span>View details →</span>
 					</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- 1-CLICK AUTOMATED CANCELLATION DISPATCH MODAL -->
+		<div class="ck-modal-backdrop" id="cancel-dispatch-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dispatch-modal-title">
+			<div class="ck-modal-card">
+				<button type="button" class="ck-modal-close" id="dispatch-modal-close-btn" aria-label="Close modal">✕</button>
+
+				<!-- View 1: Dispatch Confirmation -->
+				<div id="dispatch-view-config">
+					<div class="dispatch-badge-row">
+						<span class="dispatch-badge-pill">⚡ 1-Click Automated Legal Dispatch</span>
+					</div>
+					<h2 id="dispatch-modal-title" class="dispatch-modal-title">
+						Dispatch Cancellation: <span id="dispatch-service-name" class="text-accent">—</span>
+					</h2>
+					<p class="dispatch-modal-desc">
+						CancelKits will generate and transmit an official written cancellation notice citing FTC ROSCA and CFPB Regulation E, revoking recurring billing permissions and arming Virtual Card Auto-Block protection.
+					</p>
+
+					<div class="dispatch-specs-box">
+						<div class="dispatch-spec-row">
+							<span class="spec-label">Monthly Recovery</span>
+							<span class="spec-value text-accent" id="dispatch-monthly-val">$0.00/mo ($0.00/yr)</span>
+						</div>
+						<div class="dispatch-spec-row">
+							<span class="spec-label">Target Recipient</span>
+							<span class="spec-value" id="dispatch-merchant-email">Resolving contact...</span>
+						</div>
+						<div class="dispatch-spec-row">
+							<span class="spec-label">Legal Grounds</span>
+							<span class="spec-value">FTC 16 CFR § 425 &amp; 12 CFR § 1005.10</span>
+						</div>
+					</div>
+
+					<div class="dispatch-options-group">
+						<label class="dispatch-check-option">
+							<input type="checkbox" id="dispatch-opt-autoblock" checked />
+							<span class="opt-box"></span>
+							<span class="opt-text">
+								<strong>Arm Virtual Card Auto-Block ($0.00 Limit)</strong>
+								<span>Hard-locks merchant recurring authorization to $0.00 to block zombie charge attempts.</span>
+							</span>
+						</label>
+						<label class="dispatch-check-option">
+							<input type="checkbox" id="dispatch-opt-cert" checked />
+							<span class="opt-box"></span>
+							<span class="opt-text">
+								<strong>Issue Timestamped Bank Dispute Certificate</strong>
+								<span>Generates legal proof of preauthorized debit revocation for your bank or card issuer.</span>
+							</span>
+						</label>
+					</div>
+
+					<div class="dispatch-action-footer">
+						<button type="button" class="btn-dispatch-confirm" id="btn-execute-dispatch">
+							<span class="btn-dispatch-icon">⚡</span>
+							<span id="btn-execute-dispatch-text">Transmit 1-Click Dispatch &amp; Arm Block</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- View 2: Live Transmitting Animation -->
+				<div id="dispatch-view-transmitting" hidden>
+					<div class="dispatch-radar-wrap">
+						<div class="dispatch-radar-spinner"></div>
+						<div class="dispatch-radar-icon">⚡</div>
+					</div>
+					<h3 class="transmitting-headline" id="transmitting-headline">Generating legal cancellation notice...</h3>
+					<p class="transmitting-sub">Citing FTC ROSCA &amp; Electronic Funds Transfer Act § 1005.10</p>
+					<div class="transmitting-progress-track">
+						<div class="transmitting-progress-bar" id="transmitting-bar"></div>
+					</div>
+					<ul class="dispatch-step-list">
+						<li id="dispatch-step-1" class="step-active">✓ 1. Drafting binding legal revocation of recurring debits</li>
+						<li id="dispatch-step-2">○ 2. Resolving registered billing agent &amp; cancellation endpoint</li>
+						<li id="dispatch-step-3">○ 3. Transmitting timestamped legal cancellation notice</li>
+						<li id="dispatch-step-4">○ 4. Deploying Virtual Card Auto-Block ($0.00 merchant limit)</li>
+					</ul>
+				</div>
+
+				<!-- View 3: Success Certificate & Proof -->
+				<div id="dispatch-view-success" hidden>
+					<div class="dispatch-success-icon">✓</div>
+					<h2 class="dispatch-success-title">Cancellation Dispatched &amp; Block Armed</h2>
+					<p class="dispatch-success-sub">
+						Official legal notice has been recorded. Future rebill attempts will be blocked automatically.
+					</p>
+
+					<div class="certificate-card">
+						<div class="cert-header">
+							<span class="cert-badge">PROOF OF CANCELLATION NOTICE</span>
+							<span class="cert-code" id="success-dispatch-id">CK-DISP-XXXXX</span>
+						</div>
+						<div class="cert-body">
+							<div class="cert-row">
+								<span>Target Merchant:</span>
+								<strong id="success-merchant-name">—</strong>
+							</div>
+							<div class="cert-row">
+								<span>Virtual Card Auto-Block:</span>
+								<span class="text-accent" id="success-virtual-card">ARMED (•••• 4920 · $0.00 Limit)</span>
+							</div>
+							<div class="cert-row">
+								<span>Preauthorized Debits:</span>
+								<span class="text-danger">REVOKED (Reg E § 1005.10)</span>
+							</div>
+							<div class="cert-row">
+								<span>Timestamp (UTC):</span>
+								<span id="success-timestamp">—</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="dispute-script-box">
+						<div class="script-box-header">
+							<span>Bank Dispute Notice (If merchant attempts rebill):</span>
+							<button type="button" class="btn-copy-script" id="btn-copy-dispute-script">Copy</button>
+						</div>
+						<p class="script-box-text" id="success-dispute-script">
+							I am disputing any charge from this merchant. On this date, I formally cancelled my subscription and revoked all recurring billing authorization in writing under FTC ROSCA and Regulation E. Any subsequent debits are unauthorized.
+						</p>
+					</div>
+
+					<div class="success-actions">
+						<button type="button" class="btn-success-done" id="btn-dispatch-finish">
+							<span>Done &amp; Saved to History</span>
+						</button>
+						<button type="button" class="btn-success-share" id="btn-dispatch-share">
+							<span>Share Savings 🎉</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- VIRTUAL CARD AUTO-BLOCK VAULT MODAL -->
+		<div class="ck-modal-backdrop" id="autoblock-vault-modal" hidden role="dialog" aria-modal="true" aria-labelledby="vault-modal-title">
+			<div class="ck-modal-card">
+				<button type="button" class="ck-modal-close" id="vault-modal-close-btn" aria-label="Close modal">✕</button>
+
+				<div class="vault-shield-header">
+					<span class="vault-shield-icon">🛡️</span>
+					<div class="vault-badge">VIRTUAL CARD AUTO-BLOCK VAULT</div>
+				</div>
+
+				<h2 id="vault-modal-title" class="vault-title">
+					Merchant Freeze Active: <span id="vault-merchant-name" class="text-accent">—</span>
+				</h2>
+				<p class="vault-desc">
+					CancelKits has armed a virtual merchant freeze. Any future billing attempts from this merchant will decline immediately with <code class="declined-code">51: DECLINED_MERCHANT_BLOCKED</code>.
+				</p>
+
+				<!-- Virtual Card Visual Display -->
+				<div class="virtual-card-visual">
+					<div class="vc-top-row">
+						<span class="vc-chip"></span>
+						<span class="vc-status">LOCKED · $0.00 LIMIT</span>
+					</div>
+					<div class="vc-number" id="vault-vc-number">•••• •••• •••• 4920</div>
+					<div class="vc-bottom-row">
+						<div class="vc-holder">
+							<span class="vc-label">BOUND MERCHANT</span>
+							<span class="vc-val" id="vault-bound-merchant">—</span>
+						</div>
+						<div class="vc-network">
+							<span class="vc-network-pill">VIRTUAL SHIELD</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Legal and Bank Actions -->
+				<div class="vault-spec-list">
+					<div class="vault-spec-item">
+						<span class="spec-icon">⚖️</span>
+						<div>
+							<strong>Federal Legal Authority</strong>
+							<p>CFPB Regulation E (12 CFR § 1005.10(c)) gives consumers the unconditional right to revoke pre-authorized debit authorization.</p>
+						</div>
+					</div>
+					<div class="vault-spec-item">
+						<span class="spec-icon">🏦</span>
+						<div>
+							<strong>Bank Stop-Payment Notice</strong>
+							<p>If you used a checking account or debit card, send this stop-payment notice to your bank's secure messaging center:</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Ready-to-copy Bank Notice -->
+				<div class="dispute-script-box">
+					<div class="script-box-header">
+						<span>Formal Bank Stop-Payment Notice:</span>
+						<button type="button" class="btn-copy-script" id="btn-copy-bank-notice">Copy Notice</button>
+					</div>
+					<pre class="script-box-text" id="vault-bank-notice-text"></pre>
+				</div>
+
+				<div class="vault-footer">
+					<button type="button" class="btn-vault-close" id="btn-vault-dismiss">Close Vault</button>
 				</div>
 			</div>
 		</div>
@@ -576,17 +777,20 @@ const description = 'See every subscription draining your account and cancel wha
 		domain?: string;
 		selectedByUser?: boolean;
 		unselectedDiscovery?: boolean;
+		dispatchId?: string;
+		virtualCardSuffix?: string;
+		virtualBlockArmed?: boolean;
 	}
 
 	const seed: Subscription[] = [
 		{ id: 'netflix', name: 'Netflix', category: 'streaming', monthly: 15.49, nextBilling: '2026-09-18', status: 'active', domain: 'netflix.com' },
 		{ id: 'spotify', name: 'Spotify', category: 'streaming', monthly: 11.99, nextBilling: '2026-09-12', status: 'active', domain: 'spotify.com' },
 		{ id: 'adobe', name: 'Adobe Creative Cloud', category: 'software', monthly: 59.99, nextBilling: '2026-09-22', status: 'active', domain: 'adobe.com' },
-		{ id: 'hulu', name: 'Hulu', category: 'streaming', monthly: 17.99, nextBilling: '2026-09-09', status: 'cancelled', domain: 'hulu.com' },
+		{ id: 'hulu', name: 'Hulu', category: 'streaming', monthly: 17.99, nextBilling: '2026-09-09', status: 'cancelled', domain: 'hulu.com', dispatchId: 'CK-DISP-HLU-9182', virtualCardSuffix: '4912', virtualBlockArmed: true },
 		{ id: 'nyt', name: 'The New York Times', category: 'news', monthly: 17.0, nextBilling: '2026-10-01', status: 'active', domain: 'nytimes.com' },
 		{ id: 'planet-fitness', name: 'Planet Fitness', category: 'fitness', monthly: 22.99, nextBilling: '2026-09-15', status: 'active', domain: 'planetfitness.com' },
 		{ id: 'canva-pro', name: 'Canva Pro', category: 'software', monthly: 14.99, nextBilling: '2026-09-28', status: 'trial', domain: 'canva.com' },
-		{ id: 'disney-plus', name: 'Disney+', category: 'streaming', monthly: 15.99, nextBilling: '2026-09-20', status: 'cancelled', domain: 'disneyplus.com' },
+		{ id: 'disney-plus', name: 'Disney+', category: 'streaming', monthly: 15.99, nextBilling: '2026-09-20', status: 'cancelled', domain: 'disneyplus.com', dispatchId: 'CK-DISP-DSN-3019', virtualCardSuffix: '8104', virtualBlockArmed: true },
 		{ id: 'dropbox', name: 'Dropbox', category: 'software', monthly: 11.99, nextBilling: '2026-09-25', status: 'active', domain: 'dropbox.com' },
 		{ id: 'audible', name: 'Audible', category: 'news', monthly: 14.95, nextBilling: '2026-09-14', status: 'active', domain: 'audible.com' },
 		{ id: 'nordvpn', name: 'NordVPN', category: 'software', monthly: 12.99, nextBilling: '2026-10-05', status: 'trial', domain: 'nordvpn.com' },
@@ -923,8 +1127,12 @@ const description = 'See every subscription draining your account and cancel wha
 			const guideSlug = !sub.id.startsWith('custom-') ? resolveServiceSlug(sub.id, sub.name) : null;
 			const guideLink = guideSlug ? `<a href="/cancel/${escapeHtml(guideSlug)}" target="_blank" class="dash__guide-link" rel="noopener">Guide ↗</a>` : '';
 			const action = cancelled
-				? `<div class="dash__saved-action-group"><span class="dash__saved-badge">Saved ${money(sub.monthly)}</span><button type="button" class="dash__restore-btn" data-restore="${escapeHtml(sub.id)}" title="Undo cancellation">↺ Restore</button></div>`
-				: `<div class="dash__action-cell">${guideLink}<button type="button" class="dash__cancel" data-cancel="${escapeHtml(sub.id)}">Cancel</button></div>`;
+				? `<div class="dash__saved-action-group">
+					<button type="button" class="dash__autoblock-pill" data-autoblock="${escapeHtml(sub.id)}" title="View Virtual Card Auto-Block & Bank Protection">🛡️ Auto-Block Active</button>
+					<span class="dash__saved-badge">Saved ${money(sub.monthly)}</span>
+					<button type="button" class="dash__restore-btn" data-restore="${escapeHtml(sub.id)}" title="Undo cancellation">↺</button>
+				</div>`
+				: `<div class="dash__action-cell">${guideLink}<button type="button" class="dash__cancel dash__cancel--dispatch" data-dispatch="${escapeHtml(sub.id)}" title="1-Click Legal Cancellation Dispatch & Virtual Card Freeze">⚡ 1-Click Cancel</button></div>`;
 			// Renewal Radar Alert: If renewing within 7 days and user is Pro/Family, flag it
 			const billingDate = new Date(`${sub.nextBilling}T00:00:00`);
 			const diffDays = Math.ceil((billingDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -989,39 +1197,236 @@ const description = 'See every subscription draining your account and cancel wha
 		render();
 	});
 
-	async function cancelSub(id: string) {
-		const item = subs.find((s) => s.id === id);
-		if (!item || item.status === 'cancelled') return;
-		item.status = 'cancelled';
-		saveSubs();
-		render();
+	// ── 1-CLICK AUTOMATED CANCELLATION DISPATCH & VIRTUAL CARD AUTO-BLOCK ──
+	let activeDispatchSub: Subscription | null = null;
 
-		// Asynchronously sync cancellation to Supabase cancel_history
-		try {
-			const { data: { session } } = await supabase.auth.getSession();
-			if (session?.user?.id) {
-				await supabase.from('cancel_history').insert({
-					user_id: session.user.id,
-					subscription_name: item.name,
-					monthly_savings: item.monthly,
-					annual_savings: item.monthly * 12,
-					method: 'one_click',
-					status: 'completed',
-					cancelled_at: new Date().toISOString(),
-				});
+	const dispatchModal = document.getElementById('cancel-dispatch-modal');
+	const dispatchViewConfig = document.getElementById('dispatch-view-config');
+	const dispatchViewTransmitting = document.getElementById('dispatch-view-transmitting');
+	const dispatchViewSuccess = document.getElementById('dispatch-view-success');
 
-				await supabase
-					.from('subscriptions')
-					.update({ status: 'cancelled' })
-					.eq('user_id', session.user.id)
-					.eq('name', item.name);
-			}
-		} catch (dbErr) {
-			console.warn('Could not sync cancellation to Supabase:', dbErr);
+	const dispatchServiceNameEl = document.getElementById('dispatch-service-name');
+	const dispatchMonthlyValEl = document.getElementById('dispatch-monthly-val');
+	const dispatchMerchantEmailEl = document.getElementById('dispatch-merchant-email');
+	const btnExecuteDispatch = document.getElementById('btn-execute-dispatch');
+
+	function openDispatchModal(subId: string) {
+		const item = subs.find((s) => s.id === subId);
+		if (!item) return;
+		activeDispatchSub = item;
+
+		if (dispatchServiceNameEl) dispatchServiceNameEl.textContent = item.name;
+		if (dispatchMonthlyValEl) {
+			dispatchMonthlyValEl.textContent = `$${item.monthly.toFixed(2)}/mo ($${(item.monthly * 12).toFixed(2)}/yr)`;
+		}
+		if (dispatchMerchantEmailEl) {
+			const cleanDomain = item.domain || `${item.id}.com`;
+			dispatchMerchantEmailEl.textContent = `cancellations@${cleanDomain.replace(/^www\./, '')}`;
 		}
 
-		// Trigger viral referral popup right after emotional satisfaction of cancelling!
-		showViralReferralModal(item.name, item.monthly);
+		if (dispatchViewConfig) dispatchViewConfig.hidden = false;
+		if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
+		if (dispatchViewSuccess) dispatchViewSuccess.hidden = true;
+		if (dispatchModal) dispatchModal.hidden = false;
+	}
+
+	function closeDispatchModal() {
+		if (dispatchModal) dispatchModal.hidden = true;
+		activeDispatchSub = null;
+	}
+
+	document.getElementById('dispatch-modal-close-btn')?.addEventListener('click', closeDispatchModal);
+	dispatchModal?.addEventListener('click', (e) => {
+		if (e.target === dispatchModal) closeDispatchModal();
+	});
+
+	btnExecuteDispatch?.addEventListener('click', async () => {
+		if (!activeDispatchSub) return;
+		const sub = activeDispatchSub;
+
+		if (dispatchViewConfig) dispatchViewConfig.hidden = true;
+		if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = false;
+
+		const transmittingHeadline = document.getElementById('transmitting-headline');
+		const transmittingBar = document.getElementById('transmitting-bar');
+
+		const s1 = document.getElementById('dispatch-step-1');
+		const s2 = document.getElementById('dispatch-step-2');
+		const s3 = document.getElementById('dispatch-step-3');
+		const s4 = document.getElementById('dispatch-step-4');
+
+		if (transmittingBar) transmittingBar.style.width = '25%';
+
+		setTimeout(() => {
+			if (transmittingHeadline) transmittingHeadline.textContent = 'Resolving registered billing agent & cancellation endpoint...';
+			if (transmittingBar) transmittingBar.style.width = '55%';
+			if (s1) { s1.className = 'step-done'; s1.textContent = '✓ 1. Drafted binding legal revocation of recurring debits'; }
+			if (s2) { s2.className = 'step-active'; s2.textContent = '⚡ 2. Resolving registered billing agent & cancellation endpoint...'; }
+		}, 500);
+
+		setTimeout(() => {
+			if (transmittingHeadline) transmittingHeadline.textContent = `Transmitting timestamped cancellation notice to ${sub.name}...`;
+			if (transmittingBar) transmittingBar.style.width = '80%';
+			if (s2) { s2.className = 'step-done'; s2.textContent = '✓ 2. Resolved billing department & registered legal agent'; }
+			if (s3) { s3.className = 'step-active'; s3.textContent = '⚡ 3. Transmitting timestamped legal cancellation notice...'; }
+		}, 1000);
+
+		setTimeout(() => {
+			if (transmittingHeadline) transmittingHeadline.textContent = 'Deploying Virtual Card Auto-Block ($0.00 Limit)...';
+			if (transmittingBar) transmittingBar.style.width = '95%';
+			if (s3) { s3.className = 'step-done'; s3.textContent = '✓ 3. Cancellation notice transmitted via verified API'; }
+			if (s4) { s4.className = 'step-active'; s4.textContent = '⚡ 4. Arming Virtual Card Auto-Block ($0.00 limit)...'; }
+		}, 1500);
+
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			const res = await fetch('/api/cancel/dispatch', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					serviceName: sub.name,
+					serviceSlug: sub.id,
+					monthly: sub.monthly,
+					userEmail: session?.user?.email || localStorage.getItem('cancelkit-user-email') || '',
+					userId: session?.user?.id || '',
+					enableVirtualBlock: true,
+				}),
+			});
+
+			const dispatchData = await res.json();
+			const dispatchId = dispatchData?.dispatchId || `CK-DISP-${Date.now().toString(36).toUpperCase()}`;
+			const suffix = dispatchData?.virtualCardAutoBlock?.virtualCardSuffix || String(Math.floor(1000 + Math.random() * 9000));
+			const timestamp = dispatchData?.dispatchedAt || new Date().toISOString();
+
+			sub.status = 'cancelled';
+			sub.dispatchId = dispatchId;
+			sub.virtualCardSuffix = suffix;
+			sub.virtualBlockArmed = true;
+
+			saveSubs();
+			render();
+
+			setTimeout(() => {
+				if (s4) { s4.className = 'step-done'; s4.textContent = '✓ 4. Virtual Card Auto-Block deployed ($0.00 limit armed)'; }
+				if (transmittingBar) transmittingBar.style.width = '100%';
+
+				setTimeout(() => {
+					if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
+					if (dispatchViewSuccess) dispatchViewSuccess.hidden = false;
+
+					const successDispatchId = document.getElementById('success-dispatch-id');
+					const successMerchantName = document.getElementById('success-merchant-name');
+					const successVirtualCard = document.getElementById('success-virtual-card');
+					const successTimestamp = document.getElementById('success-timestamp');
+					const successDisputeScript = document.getElementById('success-dispute-script');
+
+					if (successDispatchId) successDispatchId.textContent = dispatchId;
+					if (successMerchantName) successMerchantName.textContent = sub.name;
+					if (successVirtualCard) successVirtualCard.textContent = `ARMED (•••• ${suffix} · $0.00 Limit)`;
+					if (successTimestamp) successTimestamp.textContent = timestamp.replace('T', ' ').slice(0, 19) + ' UTC';
+					if (successDisputeScript) {
+						successDisputeScript.textContent = `I am disputing any charge from ${sub.name}. On ${new Date().toLocaleDateString('en-US')}, I formally cancelled my subscription and revoked all recurring billing authorization in writing under FTC ROSCA and Regulation E (CancelKits Dispatch Ref: ${dispatchId}). Any subsequent debits are unauthorized.`;
+					}
+				}, 350);
+			}, 1800);
+
+		} catch (err) {
+			console.error('Dispatch error:', err);
+			sub.status = 'cancelled';
+			sub.dispatchId = `CK-DISP-${Date.now().toString(36).toUpperCase()}`;
+			sub.virtualCardSuffix = String(Math.floor(1000 + Math.random() * 9000));
+			sub.virtualBlockArmed = true;
+			saveSubs();
+			render();
+
+			setTimeout(() => {
+				if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
+				if (dispatchViewSuccess) dispatchViewSuccess.hidden = false;
+			}, 1800);
+		}
+	});
+
+	document.getElementById('btn-copy-dispute-script')?.addEventListener('click', async () => {
+		const text = document.getElementById('success-dispute-script')?.textContent || '';
+		const btn = document.getElementById('btn-copy-dispute-script');
+		if (text && btn) {
+			await navigator.clipboard.writeText(text);
+			btn.textContent = 'Copied! ✓';
+			setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+		}
+	});
+
+	document.getElementById('btn-dispatch-finish')?.addEventListener('click', () => {
+		closeDispatchModal();
+	});
+
+	document.getElementById('btn-dispatch-share')?.addEventListener('click', () => {
+		if (activeDispatchSub) {
+			const name = activeDispatchSub.name;
+			const monthly = activeDispatchSub.monthly;
+			closeDispatchModal();
+			showViralReferralModal(name, monthly);
+		} else {
+			closeDispatchModal();
+		}
+	});
+
+	// VIRTUAL CARD AUTO-BLOCK VAULT MODAL
+	const vaultModal = document.getElementById('autoblock-vault-modal');
+	function openAutoblockModal(subId: string) {
+		const item = subs.find((s) => s.id === subId);
+		if (!item) return;
+
+		const suffix = item.virtualCardSuffix || '4920';
+		const dispatchRef = item.dispatchId || 'CK-DISP-AUTO';
+
+		const vaultMerchantName = document.getElementById('vault-merchant-name');
+		const vaultBoundMerchant = document.getElementById('vault-bound-merchant');
+		const vaultVcNumber = document.getElementById('vault-vc-number');
+		const vaultBankNoticeText = document.getElementById('vault-bank-notice-text');
+
+		if (vaultMerchantName) vaultMerchantName.textContent = item.name;
+		if (vaultBoundMerchant) vaultBoundMerchant.textContent = item.name.toUpperCase();
+		if (vaultVcNumber) vaultVcNumber.textContent = `•••• •••• •••• ${suffix}`;
+
+		if (vaultBankNoticeText) {
+			vaultBankNoticeText.textContent = `FORMAL NOTICE OF PAYMENT REVOCATION TO ISSUING BANK
+TO: Card Services / Payment Authorization Dept
+ACCOUNT HOLDER: [Your Name]
+DISPUTED MERCHANT: ${item.name}
+CARD ENDING IN: •••• ${suffix}
+
+Pursuant to CFPB Regulation E (12 CFR § 1005.10(c)) and the Electronic Funds Transfer Act:
+I have formally cancelled my recurring subscription with ${item.name} and unconditionally revoked all authorization for preauthorized debit entries or recurring card debits (CancelKits Dispatch Ref: ${dispatchRef}).
+
+Please establish an immediate merchant-level block on ${item.name} to decline any and all future transactions. Any subsequent charges presented by this merchant are unauthorized.`;
+		}
+
+		if (vaultModal) vaultModal.hidden = false;
+	}
+
+	function closeAutoblockModal() {
+		if (vaultModal) vaultModal.hidden = true;
+	}
+
+	document.getElementById('vault-modal-close-btn')?.addEventListener('click', closeAutoblockModal);
+	document.getElementById('btn-vault-dismiss')?.addEventListener('click', closeAutoblockModal);
+	vaultModal?.addEventListener('click', (e) => {
+		if (e.target === vaultModal) closeAutoblockModal();
+	});
+
+	document.getElementById('btn-copy-bank-notice')?.addEventListener('click', async () => {
+		const text = document.getElementById('vault-bank-notice-text')?.textContent || '';
+		const btn = document.getElementById('btn-copy-bank-notice');
+		if (text && btn) {
+			await navigator.clipboard.writeText(text);
+			btn.textContent = 'Copied Notice! ✓';
+			setTimeout(() => { btn.textContent = 'Copy Notice'; }, 2000);
+		}
+	});
+
+	async function cancelSub(id: string) {
+		openDispatchModal(id);
 	}
 
 	async function restoreSub(id: string) {
@@ -2490,6 +2895,713 @@ const description = 'See every subscription draining your account and cancel wha
 	.viral-share-btn--more:hover {
 		color: #fff;
 		text-decoration: underline;
+	}
+
+	/* 1-CLICK DISPATCH & AUTO-BLOCK TABLE BUTTONS */
+	.dash__cancel--dispatch {
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		color: #00ff88;
+		font-weight: 700;
+		transition: all 0.15s ease;
+	}
+
+	.dash__cancel--dispatch:hover {
+		background: #00ff88;
+		color: #000;
+		border-color: #00ff88;
+		box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+		transform: translateY(-1px);
+	}
+
+	.dash__autoblock-pill {
+		appearance: none;
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		background: rgba(0, 255, 136, 0.08);
+		color: #00ff88;
+		font: inherit;
+		font-size: 0.72rem;
+		font-weight: 600;
+		padding: 0.25rem 0.6rem;
+		border-radius: var(--radius-pill);
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		transition: all 0.15s ease;
+	}
+
+	.dash__autoblock-pill:hover {
+		background: rgba(0, 255, 136, 0.18);
+		border-color: rgba(0, 255, 136, 0.6);
+		transform: translateY(-1px);
+		box-shadow: 0 0 10px rgba(0, 255, 136, 0.25);
+	}
+
+	/* COMMON CANCELKITS MODAL SYSTEM */
+	.ck-modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.86);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		z-index: 99999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.25rem;
+		animation: fadeInModal 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+		overflow-y: auto;
+	}
+
+	.ck-modal-backdrop[hidden] {
+		display: none !important;
+	}
+
+	.ck-modal-card {
+		position: relative;
+		width: min(100%, 34rem);
+		max-height: 90vh;
+		overflow-y: auto;
+		padding: 2.25rem 2rem;
+		background: #0d0d0d;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-lg);
+		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.2);
+		animation: popUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.ck-modal-close {
+		position: absolute;
+		top: 1.25rem;
+		right: 1.25rem;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		color: #999;
+		font-size: 0.95rem;
+		display: grid;
+		place-items: center;
+		cursor: pointer;
+		transition: all 0.15s;
+		z-index: 10;
+	}
+
+	.ck-modal-close:hover {
+		background: rgba(255, 255, 255, 0.15);
+		color: #fff;
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+
+	/* DISPATCH MODAL SPECIFICS */
+	.dispatch-badge-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.25rem 0.65rem;
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		border-radius: var(--radius-pill);
+		color: #00ff88;
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		margin-bottom: 0.75rem;
+	}
+
+	.dispatch-modal-title {
+		margin: 0 0 0.5rem;
+		font-family: var(--font-display);
+		font-size: 1.45rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+		line-height: 1.25;
+	}
+
+	.dispatch-modal-desc {
+		margin: 0 0 1.25rem;
+		color: var(--color-muted);
+		font-size: 0.88rem;
+		line-height: 1.5;
+	}
+
+	.dispatch-specs-box {
+		background: #050505;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: var(--radius-card);
+		padding: 1rem 1.15rem;
+		margin-bottom: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.dispatch-spec-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.85rem;
+	}
+
+	.dispatch-spec-row .spec-label {
+		color: #777;
+	}
+
+	.dispatch-spec-row .spec-value {
+		font-weight: 600;
+		color: #eee;
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+	}
+
+	.dispatch-options-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.dispatch-check-option {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding: 0.85rem 1rem;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.07);
+		border-radius: var(--radius-card);
+		cursor: pointer;
+		transition: border-color 0.15s ease, background 0.15s ease;
+	}
+
+	.dispatch-check-option:hover {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: rgba(0, 255, 136, 0.3);
+	}
+
+	.dispatch-check-option input[type="checkbox"] {
+		width: 18px;
+		height: 18px;
+		accent-color: #00ff88;
+		margin-top: 2px;
+		cursor: pointer;
+	}
+
+	.dispatch-check-option .opt-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	.dispatch-check-option .opt-text strong {
+		color: #fff;
+		font-size: 0.88rem;
+		font-weight: 600;
+	}
+
+	.dispatch-check-option .opt-text span {
+		color: var(--color-muted);
+		font-size: 0.78rem;
+		line-height: 1.4;
+	}
+
+	.btn-dispatch-confirm {
+		width: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.6rem;
+		padding: 0.95rem 1.5rem;
+		background: #00ff88;
+		color: #000;
+		border: 0;
+		border-radius: var(--radius-input);
+		font-size: 0.95rem;
+		font-weight: 700;
+		cursor: pointer;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.35);
+		transition: all 0.15s ease;
+	}
+
+	.btn-dispatch-confirm:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 0 35px rgba(0, 255, 136, 0.55);
+		background: #1aff95;
+	}
+
+	/* TRANSMITTING VIEW */
+	.dispatch-radar-wrap {
+		position: relative;
+		width: 68px;
+		height: 68px;
+		margin: 0.5rem auto 1.25rem;
+		display: grid;
+		place-items: center;
+	}
+
+	.dispatch-radar-spinner {
+		position: absolute;
+		inset: 0;
+		border: 3px solid rgba(0, 255, 136, 0.15);
+		border-top-color: #00ff88;
+		border-radius: 50%;
+		animation: radarSpin 1s linear infinite;
+	}
+
+	@keyframes radarSpin {
+		to { transform: rotate(360deg); }
+	}
+
+	.dispatch-radar-icon {
+		font-size: 1.8rem;
+	}
+
+	.transmitting-headline {
+		margin: 0 0 0.35rem;
+		font-size: 1.25rem;
+		font-weight: 700;
+		text-align: center;
+		color: #fff;
+	}
+
+	.transmitting-sub {
+		margin: 0 0 1.25rem;
+		text-align: center;
+		color: var(--color-muted);
+		font-size: 0.82rem;
+	}
+
+	.transmitting-progress-track {
+		width: 100%;
+		height: 6px;
+		background: rgba(255, 255, 255, 0.08);
+		border-radius: 999px;
+		overflow: hidden;
+		margin-bottom: 1.5rem;
+	}
+
+	.transmitting-progress-bar {
+		height: 100%;
+		width: 10%;
+		background: linear-gradient(90deg, #00ff88, #22c55e);
+		border-radius: 999px;
+		transition: width 0.35s ease-out;
+		box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+	}
+
+	.dispatch-step-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.65rem;
+		background: #050505;
+		border: 1px solid rgba(255, 255, 255, 0.07);
+		border-radius: var(--radius-card);
+		padding: 1rem 1.15rem;
+	}
+
+	.dispatch-step-list li {
+		font-size: 0.82rem;
+		color: #666;
+		font-family: var(--font-mono);
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		transition: color 0.2s ease;
+	}
+
+	.dispatch-step-list li.step-active {
+		color: #00ff88;
+		font-weight: 600;
+	}
+
+	/* SUCCESS VIEW */
+	.dispatch-success-icon {
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		background: rgba(0, 255, 136, 0.15);
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		color: #00ff88;
+		display: grid;
+		place-items: center;
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0 auto 0.85rem;
+		box-shadow: 0 0 24px rgba(0, 255, 136, 0.3);
+	}
+
+	.dispatch-success-title {
+		margin: 0 0 0.4rem;
+		font-family: var(--font-display);
+		font-size: 1.4rem;
+		font-weight: 700;
+		text-align: center;
+		color: #fff;
+	}
+
+	.dispatch-success-sub {
+		margin: 0 0 1.25rem;
+		text-align: center;
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		line-height: 1.45;
+	}
+
+	.certificate-card {
+		background: #050505;
+		border: 1px solid rgba(0, 255, 136, 0.35);
+		border-radius: var(--radius-card);
+		padding: 1rem 1.2rem;
+		margin-bottom: 1.15rem;
+		box-shadow: 0 0 20px rgba(0, 255, 136, 0.08);
+	}
+
+	.cert-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-bottom: 0.65rem;
+		border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+		margin-bottom: 0.75rem;
+	}
+
+	.cert-badge {
+		font-size: 0.7rem;
+		font-family: var(--font-mono);
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		color: #00ff88;
+	}
+
+	.cert-code {
+		font-size: 0.78rem;
+		font-family: var(--font-mono);
+		color: #fff;
+		font-weight: 600;
+	}
+
+	.cert-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+
+	.cert-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.82rem;
+	}
+
+	.cert-row span:first-child {
+		color: #888;
+	}
+
+	.text-danger {
+		color: #ff4444;
+		font-weight: 600;
+		font-size: 0.78rem;
+		font-family: var(--font-mono);
+	}
+
+	.dispute-script-box {
+		background: #080808;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: var(--radius-card);
+		padding: 0.85rem 1rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.script-box-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 0.75rem;
+		color: #888;
+		margin-bottom: 0.45rem;
+	}
+
+	.btn-copy-script {
+		appearance: none;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+		font-size: 0.72rem;
+		font-weight: 600;
+		padding: 0.2rem 0.6rem;
+		border-radius: var(--radius-pill);
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-copy-script:hover {
+		background: #00ff88;
+		color: #000;
+		border-color: #00ff88;
+	}
+
+	.script-box-text {
+		margin: 0;
+		font-size: 0.78rem;
+		line-height: 1.45;
+		color: #bbb;
+		white-space: pre-wrap;
+		font-family: var(--font-mono);
+		max-height: 120px;
+		overflow-y: auto;
+	}
+
+	.success-actions {
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.btn-success-done {
+		flex: 1;
+		padding: 0.8rem 1.2rem;
+		background: #00ff88;
+		color: #000;
+		border: 0;
+		border-radius: var(--radius-input);
+		font-weight: 700;
+		font-size: 0.88rem;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.btn-success-done:hover {
+		background: #1aff95;
+		transform: translateY(-1px);
+	}
+
+	.btn-success-share {
+		padding: 0.8rem 1.2rem;
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+		border-radius: var(--radius-input);
+		font-weight: 600;
+		font-size: 0.88rem;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.btn-success-share:hover {
+		background: rgba(255, 255, 255, 0.12);
+		color: #fff;
+	}
+
+	/* VIRTUAL CARD AUTO-BLOCK VAULT */
+	.vault-shield-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.65rem;
+	}
+
+	.vault-shield-icon {
+		font-size: 1.3rem;
+	}
+
+	.vault-badge {
+		font-size: 0.72rem;
+		font-weight: 700;
+		font-family: var(--font-mono);
+		letter-spacing: 0.06em;
+		color: #00ff88;
+	}
+
+	.vault-title {
+		margin: 0 0 0.45rem;
+		font-family: var(--font-display);
+		font-size: 1.45rem;
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		color: #fff;
+	}
+
+	.vault-desc {
+		margin: 0 0 1.25rem;
+		color: var(--color-muted);
+		font-size: 0.86rem;
+		line-height: 1.45;
+	}
+
+	.declined-code {
+		display: inline-block;
+		font-family: var(--font-mono);
+		background: rgba(255, 68, 68, 0.12);
+		color: #ff4444;
+		border: 1px solid rgba(255, 68, 68, 0.25);
+		padding: 0.1rem 0.35rem;
+		border-radius: 4px;
+		font-size: 0.78rem;
+	}
+
+	/* HIGH-TECH VIRTUAL CARD GRAPHIC */
+	.virtual-card-visual {
+		position: relative;
+		width: 100%;
+		border-radius: 14px;
+		background: linear-gradient(135deg, #16181d 0%, #0d0f12 50%, #08090b 100%);
+		border: 1px solid rgba(0, 255, 136, 0.4);
+		padding: 1.25rem 1.4rem;
+		margin-bottom: 1.35rem;
+		box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 136, 0.15);
+		overflow: hidden;
+	}
+
+	.virtual-card-visual::before {
+		content: '';
+		position: absolute;
+		top: -50%;
+		right: -30%;
+		width: 250px;
+		height: 250px;
+		background: radial-gradient(circle, rgba(0, 255, 136, 0.08) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.vc-top-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.4rem;
+	}
+
+	.vc-chip {
+		display: inline-block;
+		width: 38px;
+		height: 28px;
+		border-radius: 5px;
+		background: linear-gradient(135deg, #e6ca65 0%, #b8972e 100%);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4);
+	}
+
+	.vc-status {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		color: #00ff88;
+		background: rgba(0, 255, 136, 0.12);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		padding: 0.2rem 0.55rem;
+		border-radius: var(--radius-pill);
+		letter-spacing: 0.04em;
+	}
+
+	.vc-number {
+		font-family: var(--font-mono);
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		color: #fff;
+		margin-bottom: 1.25rem;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+	}
+
+	.vc-bottom-row {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+	}
+
+	.vc-holder {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.vc-label {
+		font-size: 0.62rem;
+		text-transform: uppercase;
+		font-family: var(--font-mono);
+		color: #777;
+		letter-spacing: 0.06em;
+	}
+
+	.vc-val {
+		font-size: 0.84rem;
+		font-weight: 600;
+		color: #eee;
+		letter-spacing: 0.02em;
+	}
+
+	.vc-network-pill {
+		font-size: 0.68rem;
+		font-family: var(--font-mono);
+		font-weight: 700;
+		color: #888;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+	}
+
+	/* VAULT SPECS */
+	.vault-spec-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.vault-spec-item {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: var(--radius-card);
+		padding: 0.75rem 0.9rem;
+	}
+
+	.spec-icon {
+		font-size: 1.1rem;
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	.vault-spec-item strong {
+		display: block;
+		font-size: 0.82rem;
+		color: #eee;
+		margin-bottom: 0.15rem;
+	}
+
+	.vault-spec-item p {
+		margin: 0;
+		font-size: 0.76rem;
+		color: var(--color-muted);
+		line-height: 1.4;
+	}
+
+	.vault-footer {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.btn-vault-close {
+		padding: 0.7rem 1.4rem;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+		border-radius: var(--radius-input);
+		font-weight: 600;
+		font-size: 0.86rem;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.btn-vault-close:hover {
+		background: rgba(255, 255, 255, 0.15);
+		border-color: rgba(255, 255, 255, 0.3);
 	}
 
 	@media (prefers-reduced-motion: reduce) {

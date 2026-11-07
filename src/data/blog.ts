@@ -15,6 +15,10 @@ export const blogCategoryDescription: Record<BlogCategory, string> = {
 /** Posts to surface on every cancel guide for internal SEO linking. */
 export const cancelGuideBlogLinks = [
 	{
+		slug: 'ftc-click-to-cancel-rule-2026',
+		title: 'FTC "Click to Cancel" rule: your new legal rights (2026)',
+	},
+	{
 		slug: 'how-to-cancel-subscriptions-on-iphone',
 		title: 'How to cancel subscriptions on iPhone & iPad',
 	},

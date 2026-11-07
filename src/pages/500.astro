@@ -7,8 +7,6 @@ const description = "We're on it. Try again in a minute.";
 ---
 
 <BaseLayout {title} {description} noIndex>
-	<meta http-equiv="refresh" content="30" slot="head" />
-
 	<main class="err">
 		<a class="err__logo" href="/" aria-label="CancelKits home">
 			<img class="err__logo-icon" src="/favicon.svg" alt="" width="28" height="28" />
@@ -106,17 +104,27 @@ const description = "We're on it. Try again in a minute.";
 		if (textEl) textEl.textContent = String(remaining);
 	}
 
+	const retries = Number(sessionStorage.getItem('ck_500_retries') || '0');
+
 	const tick = window.setInterval(() => {
 		remaining -= 1;
 		updateRing();
 		if (remaining <= 0) {
 			clearInterval(tick);
-			window.location.reload();
+			if (retries < 2) {
+				sessionStorage.setItem('ck_500_retries', String(retries + 1));
+				window.location.reload();
+			} else {
+				sessionStorage.removeItem('ck_500_retries');
+				if (statusEl) statusEl.textContent = 'Auto-retry paused. Please click Try again or return Home.';
+				if (retryBtn instanceof HTMLButtonElement) retryBtn.focus();
+			}
 		}
 	}, 1000);
 
 	retryBtn?.addEventListener('click', () => {
 		clearInterval(tick);
+		sessionStorage.removeItem('ck_500_retries');
 		if (retryBtn instanceof HTMLButtonElement) {
 			retryBtn.innerHTML = '<span class="err__btn-icon">⏳</span> Retrying…';
 			retryBtn.disabled = true;

@@ -341,7 +341,7 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 			const emailQuery = emailParam ? `email=${encodeURIComponent(emailParam)}` : '';
 			const planQuery = isProOrFamily ? `plan=${effectivePlan}` : '';
 			const qs = [emailQuery, planQuery].filter(Boolean).join('&');
-			window.location.href = `/onboarding/results${qs ? `?${qs}` : ''}`;
+			window.location.href = `/onboarding/results/${qs ? `?${qs}` : ''}`;
 		}
 	}, 50);
 </script>

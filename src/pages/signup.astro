@@ -79,7 +79,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 			</div>
 
 			<p class="auth-footer-text">
-				Already have an account? <a href="/signin">Sign in</a>
+				Already have an account? <a href="/signin/">Sign in</a>
 			</p>
 		</div>
 	</main>
@@ -95,7 +95,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 			const { data: { session } } = await supabase.auth.getSession();
 			if (session) {
 				setAuthCookies(session.access_token, session.refresh_token, session.expires_in);
-				window.location.href = '/dashboard';
+				window.location.href = '/dashboard/';
 			}
 		} catch {
 			// Continue on sign up page if no active session
@@ -138,7 +138,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 		if (spinner) spinner.hidden = !loading;
 	}
 
-	const defaultNext = familyToken ? '/dashboard' : (searchParams.get('next') || '/onboarding');
+	const defaultNext = familyToken ? '/dashboard/' : (searchParams.get('next') || '/onboarding/connect/');
 
 	// OAuth: Google (Primary CTA)
 	googleBtn?.addEventListener('click', async () => {

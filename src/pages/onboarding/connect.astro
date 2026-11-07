@@ -482,7 +482,7 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 
 		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
 		const planQuery = effectivePlan !== 'free' ? `&plan=${effectivePlan}` : '';
-		window.location.href = `/onboarding/scanning?selected=1${emailQuery}${planQuery}`;
+		window.location.href = `/onboarding/scanning/?selected=1${emailQuery}${planQuery}`;
 	});
 
 	// OAuth Fallback Accordion
@@ -547,7 +547,7 @@ const TOP_SUBSCRIPTIONS: PredefinedSub[] = [
 	function scanningNext(provider: 'gmail' | 'outlook') {
 		const email = emailInput?.value.trim() || emailParam || localStorage.getItem('cancelkit-user-email') || '';
 		const emailQuery = email ? `&email=${encodeURIComponent(email)}` : '';
-		return `/onboarding/scanning?provider=${provider}${emailQuery}`;
+		return `/onboarding/scanning/?provider=${provider}${emailQuery}`;
 	}
 
 	async function connectOAuth(btn: HTMLButtonElement, provider: 'google' | 'azure', label: 'gmail' | 'outlook', scopes: string) {

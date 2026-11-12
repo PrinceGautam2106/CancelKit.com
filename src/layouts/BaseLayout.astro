@@ -163,6 +163,8 @@ const homeHreflang = [
 			(function() {
 				var CONSENT_KEY = 'cancelkit-cookie-consent';
 				function loadGA() {
+ if (!['cancelkits.com', 'www.cancelkits.com'].includes(location.hostname)) return;
+ document.cookie = 'ck-analytics-consent=accepted; Path=/; Max-Age=31536000; SameSite=Lax; Secure';
 					if (document.querySelector('script[src*="googletagmanager"]')) return;
 					var s = document.createElement('script');
 					s.async = true;
@@ -172,7 +174,7 @@ const homeHreflang = [
 					function gtag(){dataLayer.push(arguments);}
 					window.gtag = gtag;
 					gtag('js', new Date());
-					gtag('config', 'G-9DZNTBTWC7');
+					gtag('config', 'G-9DZNTBTWC7', { page_location: location.origin + location.pathname });
 				}
 				try {
 					if (localStorage.getItem(CONSENT_KEY) === 'accepted') loadGA();

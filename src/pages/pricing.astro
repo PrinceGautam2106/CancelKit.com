@@ -214,6 +214,7 @@ const tiers = [
 </BaseLayout>
 
 <script>
+import { trackKeyEvent } from "../lib/analytics";
 	const AVG_SUB_COST = 15;
 	const PRO_MONTHLY = 9;
 
@@ -344,7 +345,8 @@ const tiers = [
 						localStorage.setItem('cancelkit-pending-checkout-plan', tier);
 						localStorage.setItem('cancelkit-dashboard-connected', '1');
 					} catch {}
-					window.location.href = data.url;
+					if (res.ok && !data.sandbox && data.url) trackKeyEvent('checkout_started', data.url);
+ window.location.href = data.url;
 				} else {
 					alert(data?.error || 'Unable to open checkout. Please try again.');
 					btn.disabled = false;

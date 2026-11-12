@@ -15,17 +15,29 @@ import SeoContent from '../sections/SeoContent.astro';
 import { buildFaqPageSchema } from '../data/faqs';
 import { translations } from '../i18n/translations';
 
+const homeCopy = { ...translations.en,
+ hero_headline_1: 'Take control of unwanted subscriptions',
+ hero_headline_2: 'Cancel with a clear next step',
+ hero_sub: 'Find direct cancellation portals, prepare ready-to-send cancellation emails, and review renewals coming up in the next 7 days. You submit and confirm cancellation with your provider.',
+ features_title: 'Clear tools for cancelling and tracking renewals',
+ feature_one_click_title: 'Direct cancel portals',
+ feature_one_click_desc: 'Follow provider cancellation links and step-by-step guides. Review the provider confirmation to check your cancellation.',
+ feature_smart_scan_title: 'Ready-to-send cancellation emails',
+ feature_smart_scan_desc: 'Prepare a cancellation email, review the recipient and account details, then send it yourself. Sending a request is not confirmation of cancellation.',
+ feature_renewal_title: '7-day renewal radar',
+ feature_renewal_desc: 'Review tracked subscriptions renewing within the next 7 days. Email delivery depends on configured reminders and accurate renewal dates.',
+};
 const SEO = {
-	title: 'CancelKits — Cancel Subscriptions & Stop Recurring Charges Instantly',
+	title: 'CancelKits — Cancellation Portals, Email Templates & Renewal Alerts',
 	description:
-		'Find every forgotten subscription draining your money and cancel them in one click. Free 30-second audit — stop recurring charges with no credit card required.',
-	ogTitle: 'CancelKits — Cancel Any Subscription in One Click',
+		'Find cancellation portals, prepare cancellation emails, and review upcoming renewals. Follow provider steps and confirm cancellation yourself.',
+	ogTitle: 'CancelKits — Clear Steps to Cancel Subscriptions',
 	ogDescription:
-		'The average American wastes $219/month on forgotten subscriptions. CancelKits finds them all and helps you cancel instantly. Free to start — takes 30 seconds.',
+		'Direct cancellation portals, ready-to-send emails, and a seven-day renewal overview.',
 	ogImage: '/og/homepage.png',
-	twitterTitle: 'CancelKits — Kill Forgotten Subscriptions Instantly',
+	twitterTitle: 'CancelKits — Manage Unwanted Subscriptions',
 	twitterDescription:
-		'Find every subscription bleeding your bank account. Cancel what you do not need in one click. Free to start — no credit card needed.',
+		'Find provider cancellation steps and prepare your next cancellation request.',
 };
 
 const faqSchema = buildFaqPageSchema();
@@ -46,15 +58,15 @@ const faqSchema = buildFaqPageSchema();
 >
 	<Nav />
 	<main>
-		<Hero t={translations.en} />
+		<Hero t={homeCopy} />
 		<PressStrip />
-		<Features t={translations.en} />
-		<HowItWorks t={translations.en} />
-		<Pricing t={translations.en} />
+		<Features t={homeCopy} />
+		<HowItWorks t={homeCopy} />
+		<Pricing t={homeCopy} />
 		<TestimonialGrid limit={6} />
 		<SeoContent />
-		<FAQ t={translations.en} />
-		<CTABand t={translations.en} />
+		<FAQ t={homeCopy} />
+		<CTABand t={homeCopy} />
 	</main>
 	<Footer />
 </BaseLayout>

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { reportPurchase } from '../../lib/purchase-analytics';
 import crypto from 'node:crypto';
 import { supabase } from '../../lib/supabase';
 import { resend, EMAIL_DEFAULTS } from '../../lib/resend';
@@ -78,6 +79,18 @@ export const POST: APIRoute = async ({ request }) => {
 		}
 
 		switch (eventName) {
+   case 'order_created': {
+    if (import.meta.env.GA4_API_SECRET && LEMONSQUEEZY_WEBHOOK_SECRET && signature && attributes.test_mode === false && attributes.status === 'paid' && customData.analytics_consent === 'accepted' && customData.ga_client_id) {
+     // Durable claim prevents duplicate webhook deliveries from double-counting.
+     const id = `lemon:${data.id}`;
+     const { error } = await supabase.from('analytics_purchase_events').insert({ id });
+     if (!error) {
+      try { await reportPurchase(customData.ga_client_id, id, Number(attributes.total) / 100, String(attributes.currency).toUpperCase()); }
+      catch (error) { await supabase.from('analytics_purchase_events').delete().eq('id', id); throw error; }
+     } else if (error.code !== '23505') { throw error; }
+    }
+    break;
+   }
 			case 'subscription_created':
 			case 'subscription_resumed': {
 				const plan =

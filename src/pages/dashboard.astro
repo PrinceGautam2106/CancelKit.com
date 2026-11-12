@@ -128,7 +128,7 @@ const description = 'See every subscription draining your account and cancel wha
 						<span class="dash__upgrade-icon">🎉</span>
 						<div>
 							<strong>Welcome to CancelKits Pro!</strong>
-							<p>All 14 subscriptions unlocked. Instant 1-click cancellation and renewal radar active.</p>
+							<p>All 14 subscriptions unlocked. Cancellation guides and renewal radar available.</p>
 						</div>
 					</div>
 					<button type="button" class="dash__upgrade-close" id="dash-upgrade-close" aria-label="Close">✕</button>
@@ -238,7 +238,7 @@ const description = 'See every subscription draining your account and cancel wha
 								Upgrade to Pro to see all 14 subscriptions
 							</h3>
 							<p class="dash__gate-desc" id="dash-gate-desc">
-								Free plan only displays your top 5 subscriptions. Unlock all subscriptions, 1-click cancellations, and renewal radar alerts.
+								Free plan only displays your top 5 subscriptions. Unlock all subscriptions, cancellation guides, and renewal radar alerts.
 							</p>
 							<button type="button" class="dash__gate-upgrade-btn" id="dash-upgrade-btn">
 								<span class="btn-text">Upgrade to Pro ($9/mo) →</span>
@@ -357,206 +357,10 @@ const description = 'See every subscription draining your account and cancel wha
 			</div>
 		</div>
 
-		<!-- 1-CLICK AUTOMATED CANCELLATION DISPATCH MODAL -->
-		<div class="ck-modal-backdrop" id="cancel-dispatch-modal" hidden role="dialog" aria-modal="true" aria-labelledby="dispatch-modal-title">
-			<div class="ck-modal-card">
-				<button type="button" class="ck-modal-close" id="dispatch-modal-close-btn" aria-label="Close modal">✕</button>
-
-				<!-- View 1: Dispatch Confirmation -->
-				<div id="dispatch-view-config">
-					<div class="dispatch-badge-row">
-						<span class="dispatch-badge-pill">⚡ 1-Click Automated Legal Dispatch</span>
-					</div>
-					<h2 id="dispatch-modal-title" class="dispatch-modal-title">
-						Dispatch Cancellation: <span id="dispatch-service-name" class="text-accent">—</span>
-					</h2>
-					<p class="dispatch-modal-desc">
-						CancelKits will generate and transmit an official written cancellation notice citing FTC ROSCA and CFPB Regulation E, revoking recurring billing permissions and arming Virtual Card Auto-Block protection.
-					</p>
-
-					<div class="dispatch-specs-box">
-						<div class="dispatch-spec-row">
-							<span class="spec-label">Monthly Recovery</span>
-							<span class="spec-value text-accent" id="dispatch-monthly-val">$0.00/mo ($0.00/yr)</span>
-						</div>
-						<div class="dispatch-spec-row">
-							<span class="spec-label">Target Recipient</span>
-							<span class="spec-value" id="dispatch-merchant-email">Resolving contact...</span>
-						</div>
-						<div class="dispatch-spec-row">
-							<span class="spec-label">Legal Grounds</span>
-							<span class="spec-value">FTC 16 CFR § 425 &amp; 12 CFR § 1005.10</span>
-						</div>
-					</div>
-
-					<div class="dispatch-options-group">
-						<label class="dispatch-check-option">
-							<input type="checkbox" id="dispatch-opt-autoblock" checked />
-							<span class="opt-box"></span>
-							<span class="opt-text">
-								<strong>Arm Virtual Card Auto-Block ($0.00 Limit)</strong>
-								<span>Hard-locks merchant recurring authorization to $0.00 to block zombie charge attempts.</span>
-							</span>
-						</label>
-						<label class="dispatch-check-option">
-							<input type="checkbox" id="dispatch-opt-cert" checked />
-							<span class="opt-box"></span>
-							<span class="opt-text">
-								<strong>Issue Timestamped Bank Dispute Certificate</strong>
-								<span>Generates legal proof of preauthorized debit revocation for your bank or card issuer.</span>
-							</span>
-						</label>
-					</div>
-
-					<div class="dispatch-action-footer">
-						<button type="button" class="btn-dispatch-confirm" id="btn-execute-dispatch">
-							<span class="btn-dispatch-icon">⚡</span>
-							<span id="btn-execute-dispatch-text">Transmit 1-Click Dispatch &amp; Arm Block</span>
-						</button>
-					</div>
-				</div>
-
-				<!-- View 2: Live Transmitting Animation -->
-				<div id="dispatch-view-transmitting" hidden>
-					<div class="dispatch-radar-wrap">
-						<div class="dispatch-radar-spinner"></div>
-						<div class="dispatch-radar-icon">⚡</div>
-					</div>
-					<h3 class="transmitting-headline" id="transmitting-headline">Generating legal cancellation notice...</h3>
-					<p class="transmitting-sub">Citing FTC ROSCA &amp; Electronic Funds Transfer Act § 1005.10</p>
-					<div class="transmitting-progress-track">
-						<div class="transmitting-progress-bar" id="transmitting-bar"></div>
-					</div>
-					<ul class="dispatch-step-list">
-						<li id="dispatch-step-1" class="step-active">✓ 1. Drafting binding legal revocation of recurring debits</li>
-						<li id="dispatch-step-2">○ 2. Resolving registered billing agent &amp; cancellation endpoint</li>
-						<li id="dispatch-step-3">○ 3. Transmitting timestamped legal cancellation notice</li>
-						<li id="dispatch-step-4">○ 4. Deploying Virtual Card Auto-Block ($0.00 merchant limit)</li>
-					</ul>
-				</div>
-
-				<!-- View 3: Success Certificate & Proof -->
-				<div id="dispatch-view-success" hidden>
-					<div class="dispatch-success-icon">✓</div>
-					<h2 class="dispatch-success-title">Cancellation Dispatched &amp; Block Armed</h2>
-					<p class="dispatch-success-sub">
-						Official legal notice has been recorded. Future rebill attempts will be blocked automatically.
-					</p>
-
-					<div class="certificate-card">
-						<div class="cert-header">
-							<span class="cert-badge">PROOF OF CANCELLATION NOTICE</span>
-							<span class="cert-code" id="success-dispatch-id">CK-DISP-XXXXX</span>
-						</div>
-						<div class="cert-body">
-							<div class="cert-row">
-								<span>Target Merchant:</span>
-								<strong id="success-merchant-name">—</strong>
-							</div>
-							<div class="cert-row">
-								<span>Virtual Card Auto-Block:</span>
-								<span class="text-accent" id="success-virtual-card">ARMED (•••• 4920 · $0.00 Limit)</span>
-							</div>
-							<div class="cert-row">
-								<span>Preauthorized Debits:</span>
-								<span class="text-danger">REVOKED (Reg E § 1005.10)</span>
-							</div>
-							<div class="cert-row">
-								<span>Timestamp (UTC):</span>
-								<span id="success-timestamp">—</span>
-							</div>
-						</div>
-					</div>
-
-					<div class="dispute-script-box">
-						<div class="script-box-header">
-							<span>Bank Dispute Notice (If merchant attempts rebill):</span>
-							<button type="button" class="btn-copy-script" id="btn-copy-dispute-script">Copy</button>
-						</div>
-						<p class="script-box-text" id="success-dispute-script">
-							I am disputing any charge from this merchant. On this date, I formally cancelled my subscription and revoked all recurring billing authorization in writing under FTC ROSCA and Regulation E. Any subsequent debits are unauthorized.
-						</p>
-					</div>
-
-					<div class="success-actions">
-						<button type="button" class="btn-success-done" id="btn-dispatch-finish">
-							<span>Done &amp; Saved to History</span>
-						</button>
-						<button type="button" class="btn-success-share" id="btn-dispatch-share">
-							<span>Share Savings 🎉</span>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- VIRTUAL CARD AUTO-BLOCK VAULT MODAL -->
-		<div class="ck-modal-backdrop" id="autoblock-vault-modal" hidden role="dialog" aria-modal="true" aria-labelledby="vault-modal-title">
-			<div class="ck-modal-card">
-				<button type="button" class="ck-modal-close" id="vault-modal-close-btn" aria-label="Close modal">✕</button>
-
-				<div class="vault-shield-header">
-					<span class="vault-shield-icon">🛡️</span>
-					<div class="vault-badge">VIRTUAL CARD AUTO-BLOCK VAULT</div>
-				</div>
-
-				<h2 id="vault-modal-title" class="vault-title">
-					Merchant Freeze Active: <span id="vault-merchant-name" class="text-accent">—</span>
-				</h2>
-				<p class="vault-desc">
-					CancelKits has armed a virtual merchant freeze. Any future billing attempts from this merchant will decline immediately with <code class="declined-code">51: DECLINED_MERCHANT_BLOCKED</code>.
-				</p>
-
-				<!-- Virtual Card Visual Display -->
-				<div class="virtual-card-visual">
-					<div class="vc-top-row">
-						<span class="vc-chip"></span>
-						<span class="vc-status">LOCKED · $0.00 LIMIT</span>
-					</div>
-					<div class="vc-number" id="vault-vc-number">•••• •••• •••• 4920</div>
-					<div class="vc-bottom-row">
-						<div class="vc-holder">
-							<span class="vc-label">BOUND MERCHANT</span>
-							<span class="vc-val" id="vault-bound-merchant">—</span>
-						</div>
-						<div class="vc-network">
-							<span class="vc-network-pill">VIRTUAL SHIELD</span>
-						</div>
-					</div>
-				</div>
-
-				<!-- Legal and Bank Actions -->
-				<div class="vault-spec-list">
-					<div class="vault-spec-item">
-						<span class="spec-icon">⚖️</span>
-						<div>
-							<strong>Federal Legal Authority</strong>
-							<p>CFPB Regulation E (12 CFR § 1005.10(c)) gives consumers the unconditional right to revoke pre-authorized debit authorization.</p>
-						</div>
-					</div>
-					<div class="vault-spec-item">
-						<span class="spec-icon">🏦</span>
-						<div>
-							<strong>Bank Stop-Payment Notice</strong>
-							<p>If you used a checking account or debit card, send this stop-payment notice to your bank's secure messaging center:</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Ready-to-copy Bank Notice -->
-				<div class="dispute-script-box">
-					<div class="script-box-header">
-						<span>Formal Bank Stop-Payment Notice:</span>
-						<button type="button" class="btn-copy-script" id="btn-copy-bank-notice">Copy Notice</button>
-					</div>
-					<pre class="script-box-text" id="vault-bank-notice-text"></pre>
-				</div>
-
-				<div class="vault-footer">
-					<button type="button" class="btn-vault-close" id="btn-vault-dismiss">Close Vault</button>
-				</div>
-			</div>
-		</div>
+		<p class="dash__cancellation-notice" role="note">
+			Cancellation guides explain the steps to take with your provider. Opening a guide does not cancel a subscription or block payments.
+			If you previously used automated cancellation, verify your status with the provider.
+		</p>
 	</div>
 </BaseLayout>
 
@@ -621,7 +425,7 @@ const description = 'See every subscription draining your account and cancel wha
 				const desc = upgradeBanner.querySelector('p');
 				if (desc) desc.textContent = userPlan === 'family'
 					? 'All subscriptions unlocked, family household sharing active (up to 5 members).'
-					: 'All subscriptions unlocked. Instant 1-click cancellation and renewal radar active.';
+					: 'All subscriptions unlocked. Cancellation guides and renewal radar available.';
 				upgradeBanner.hidden = !isPaymentReturn;
 			}
 		}
@@ -1084,9 +888,9 @@ const description = 'See every subscription draining your account and cancel wha
 			const gateDesc = document.getElementById('dash-gate-desc');
 			if (gateDesc) {
 				if (surpriseCount > 0) {
-					gateDesc.innerHTML = `Our inbox scan discovered <strong style="color:#ff4444;">${surpriseCount} unselected recurring charges</strong> totaling <strong style="color:#ff4444;">${money(hiddenMonthly)}/mo (${money(hiddenAnnual)}/yr)</strong> that you did not select. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to reveal full details, access 1-click cancellations, and stop forgotten renewals.`;
+					gateDesc.innerHTML = `Our inbox scan discovered <strong style="color:#ff4444;">${surpriseCount} unselected recurring charges</strong> totaling <strong style="color:#ff4444;">${money(hiddenMonthly)}/mo (${money(hiddenAnnual)}/yr)</strong> that you did not select. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to reveal full details, access cancellation guides, and stop forgotten renewals.`;
 				} else {
-					gateDesc.innerHTML = `Your scan identified <strong>${hiddenRows.length} more active subscriptions</strong> quietly charging <strong style="color:#ff4444;">${money(hiddenMonthly)}/month</strong> (${money(hiddenAnnual)}/year). Free plan only includes your top 5 services. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to unlock all ${rows.length} subscriptions, 1-click cancellations, and automated renewal radar alerts.`;
+					gateDesc.innerHTML = `Your scan identified <strong>${hiddenRows.length} more active subscriptions</strong> quietly charging <strong style="color:#ff4444;">${money(hiddenMonthly)}/month</strong> (${money(hiddenAnnual)}/year). Free plan only includes your top 5 services. Upgrade to <strong>CancelKits Pro</strong> ($9/mo) to unlock all ${rows.length} subscriptions, cancellation guides, and automated renewal radar alerts.`;
 				}
 			}
 
@@ -1125,14 +929,13 @@ const description = 'See every subscription draining your account and cancel wha
 			const cancelled = sub.status === 'cancelled';
 			const icon = faviconUrl(sub.domain);
 			const guideSlug = !sub.id.startsWith('custom-') ? resolveServiceSlug(sub.id, sub.name) : null;
-			const guideLink = guideSlug ? `<a href="/cancel/${escapeHtml(guideSlug)}" target="_blank" class="dash__guide-link" rel="noopener">Guide ↗</a>` : '';
+			const guideLink = `<a href="${guideSlug ? `/cancel/${encodeURIComponent(guideSlug)}/` : '/cancel/'}" class="dash__guide-link">View cancellation steps →</a>`;
 			const action = cancelled
 				? `<div class="dash__saved-action-group">
-					<button type="button" class="dash__autoblock-pill" data-autoblock="${escapeHtml(sub.id)}" title="View Virtual Card Auto-Block & Bank Protection">🛡️ Auto-Block Active</button>
 					<span class="dash__saved-badge">Saved ${money(sub.monthly)}</span>
 					<button type="button" class="dash__restore-btn" data-restore="${escapeHtml(sub.id)}" title="Undo cancellation">↺</button>
 				</div>`
-				: `<div class="dash__action-cell">${guideLink}<button type="button" class="dash__cancel dash__cancel--dispatch" data-dispatch="${escapeHtml(sub.id)}" title="1-Click Legal Cancellation Dispatch & Virtual Card Freeze">⚡ 1-Click Cancel</button></div>`;
+				: `<div class="dash__action-cell">${guideLink}</div>`;
 			// Renewal Radar Alert: If renewing within 7 days and user is Pro/Family, flag it
 			const billingDate = new Date(`${sub.nextBilling}T00:00:00`);
 			const diffDays = Math.ceil((billingDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -1140,7 +943,7 @@ const description = 'See every subscription draining your account and cancel wha
 			const radarPill = isUpcomingRadar
 				? (userPlan !== 'free'
 					? `<span class="dash__radar-pill" style="display:inline-block; font-size:0.7rem; font-weight:600; color:#00ff88; background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.25); border-radius:4px; padding:0.1rem 0.35rem; margin-right:0.35rem;" title="Renewal Radar Alert: Auto-renews in ${diffDays} day${diffDays === 1 ? '' : 's'}">⚡ In ${diffDays}d</span>`
-					: `<a href="/pricing" class="dash__radar-pill" style="display:inline-block; font-size:0.7rem; font-weight:600; color:#f59e0b; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:4px; padding:0.1rem 0.35rem; margin-right:0.35rem; text-decoration:none;" title="Renews in ${diffDays} day${diffDays === 1 ? '' : 's'}. Upgrade to Pro for 1-click cancel before billing!">⚠️ In ${diffDays}d</a>`)
+					: `<a href="/pricing" class="dash__radar-pill" style="display:inline-block; font-size:0.7rem; font-weight:600; color:#f59e0b; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:4px; padding:0.1rem 0.35rem; margin-right:0.35rem; text-decoration:none;" title="Renews in ${diffDays} day${diffDays === 1 ? '' : 's'}. Upgrade to Pro for cancellation guidance before billing!">⚠️ In ${diffDays}d</a>`)
 				: '';
 
 			return `<tr class="${cancelled ? 'is-cancelled-row' : ''}">
@@ -1197,236 +1000,11 @@ const description = 'See every subscription draining your account and cancel wha
 		render();
 	});
 
-	// ── 1-CLICK AUTOMATED CANCELLATION DISPATCH & VIRTUAL CARD AUTO-BLOCK ──
-	let activeDispatchSub: Subscription | null = null;
-
-	const dispatchModal = document.getElementById('cancel-dispatch-modal');
-	const dispatchViewConfig = document.getElementById('dispatch-view-config');
-	const dispatchViewTransmitting = document.getElementById('dispatch-view-transmitting');
-	const dispatchViewSuccess = document.getElementById('dispatch-view-success');
-
-	const dispatchServiceNameEl = document.getElementById('dispatch-service-name');
-	const dispatchMonthlyValEl = document.getElementById('dispatch-monthly-val');
-	const dispatchMerchantEmailEl = document.getElementById('dispatch-merchant-email');
-	const btnExecuteDispatch = document.getElementById('btn-execute-dispatch');
-
-	function openDispatchModal(subId: string) {
-		const item = subs.find((s) => s.id === subId);
+	function cancelSub(id: string) {
+		const item = subs.find((sub) => sub.id === id);
 		if (!item) return;
-		activeDispatchSub = item;
-
-		if (dispatchServiceNameEl) dispatchServiceNameEl.textContent = item.name;
-		if (dispatchMonthlyValEl) {
-			dispatchMonthlyValEl.textContent = `$${item.monthly.toFixed(2)}/mo ($${(item.monthly * 12).toFixed(2)}/yr)`;
-		}
-		if (dispatchMerchantEmailEl) {
-			const cleanDomain = item.domain || `${item.id}.com`;
-			dispatchMerchantEmailEl.textContent = `cancellations@${cleanDomain.replace(/^www\./, '')}`;
-		}
-
-		if (dispatchViewConfig) dispatchViewConfig.hidden = false;
-		if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
-		if (dispatchViewSuccess) dispatchViewSuccess.hidden = true;
-		if (dispatchModal) dispatchModal.hidden = false;
-	}
-
-	function closeDispatchModal() {
-		if (dispatchModal) dispatchModal.hidden = true;
-		activeDispatchSub = null;
-	}
-
-	document.getElementById('dispatch-modal-close-btn')?.addEventListener('click', closeDispatchModal);
-	dispatchModal?.addEventListener('click', (e) => {
-		if (e.target === dispatchModal) closeDispatchModal();
-	});
-
-	btnExecuteDispatch?.addEventListener('click', async () => {
-		if (!activeDispatchSub) return;
-		const sub = activeDispatchSub;
-
-		if (dispatchViewConfig) dispatchViewConfig.hidden = true;
-		if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = false;
-
-		const transmittingHeadline = document.getElementById('transmitting-headline');
-		const transmittingBar = document.getElementById('transmitting-bar');
-
-		const s1 = document.getElementById('dispatch-step-1');
-		const s2 = document.getElementById('dispatch-step-2');
-		const s3 = document.getElementById('dispatch-step-3');
-		const s4 = document.getElementById('dispatch-step-4');
-
-		if (transmittingBar) transmittingBar.style.width = '25%';
-
-		setTimeout(() => {
-			if (transmittingHeadline) transmittingHeadline.textContent = 'Resolving registered billing agent & cancellation endpoint...';
-			if (transmittingBar) transmittingBar.style.width = '55%';
-			if (s1) { s1.className = 'step-done'; s1.textContent = '✓ 1. Drafted binding legal revocation of recurring debits'; }
-			if (s2) { s2.className = 'step-active'; s2.textContent = '⚡ 2. Resolving registered billing agent & cancellation endpoint...'; }
-		}, 500);
-
-		setTimeout(() => {
-			if (transmittingHeadline) transmittingHeadline.textContent = `Transmitting timestamped cancellation notice to ${sub.name}...`;
-			if (transmittingBar) transmittingBar.style.width = '80%';
-			if (s2) { s2.className = 'step-done'; s2.textContent = '✓ 2. Resolved billing department & registered legal agent'; }
-			if (s3) { s3.className = 'step-active'; s3.textContent = '⚡ 3. Transmitting timestamped legal cancellation notice...'; }
-		}, 1000);
-
-		setTimeout(() => {
-			if (transmittingHeadline) transmittingHeadline.textContent = 'Deploying Virtual Card Auto-Block ($0.00 Limit)...';
-			if (transmittingBar) transmittingBar.style.width = '95%';
-			if (s3) { s3.className = 'step-done'; s3.textContent = '✓ 3. Cancellation notice transmitted via verified API'; }
-			if (s4) { s4.className = 'step-active'; s4.textContent = '⚡ 4. Arming Virtual Card Auto-Block ($0.00 limit)...'; }
-		}, 1500);
-
-		try {
-			const { data: { session } } = await supabase.auth.getSession();
-			const res = await fetch('/api/cancel/dispatch', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					serviceName: sub.name,
-					serviceSlug: sub.id,
-					monthly: sub.monthly,
-					userEmail: session?.user?.email || localStorage.getItem('cancelkit-user-email') || '',
-					userId: session?.user?.id || '',
-					enableVirtualBlock: true,
-				}),
-			});
-
-			const dispatchData = await res.json();
-			const dispatchId = dispatchData?.dispatchId || `CK-DISP-${Date.now().toString(36).toUpperCase()}`;
-			const suffix = dispatchData?.virtualCardAutoBlock?.virtualCardSuffix || String(Math.floor(1000 + Math.random() * 9000));
-			const timestamp = dispatchData?.dispatchedAt || new Date().toISOString();
-
-			sub.status = 'cancelled';
-			sub.dispatchId = dispatchId;
-			sub.virtualCardSuffix = suffix;
-			sub.virtualBlockArmed = true;
-
-			saveSubs();
-			render();
-
-			setTimeout(() => {
-				if (s4) { s4.className = 'step-done'; s4.textContent = '✓ 4. Virtual Card Auto-Block deployed ($0.00 limit armed)'; }
-				if (transmittingBar) transmittingBar.style.width = '100%';
-
-				setTimeout(() => {
-					if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
-					if (dispatchViewSuccess) dispatchViewSuccess.hidden = false;
-
-					const successDispatchId = document.getElementById('success-dispatch-id');
-					const successMerchantName = document.getElementById('success-merchant-name');
-					const successVirtualCard = document.getElementById('success-virtual-card');
-					const successTimestamp = document.getElementById('success-timestamp');
-					const successDisputeScript = document.getElementById('success-dispute-script');
-
-					if (successDispatchId) successDispatchId.textContent = dispatchId;
-					if (successMerchantName) successMerchantName.textContent = sub.name;
-					if (successVirtualCard) successVirtualCard.textContent = `ARMED (•••• ${suffix} · $0.00 Limit)`;
-					if (successTimestamp) successTimestamp.textContent = timestamp.replace('T', ' ').slice(0, 19) + ' UTC';
-					if (successDisputeScript) {
-						successDisputeScript.textContent = `I am disputing any charge from ${sub.name}. On ${new Date().toLocaleDateString('en-US')}, I formally cancelled my subscription and revoked all recurring billing authorization in writing under FTC ROSCA and Regulation E (CancelKits Dispatch Ref: ${dispatchId}). Any subsequent debits are unauthorized.`;
-					}
-				}, 350);
-			}, 1800);
-
-		} catch (err) {
-			console.error('Dispatch error:', err);
-			sub.status = 'cancelled';
-			sub.dispatchId = `CK-DISP-${Date.now().toString(36).toUpperCase()}`;
-			sub.virtualCardSuffix = String(Math.floor(1000 + Math.random() * 9000));
-			sub.virtualBlockArmed = true;
-			saveSubs();
-			render();
-
-			setTimeout(() => {
-				if (dispatchViewTransmitting) dispatchViewTransmitting.hidden = true;
-				if (dispatchViewSuccess) dispatchViewSuccess.hidden = false;
-			}, 1800);
-		}
-	});
-
-	document.getElementById('btn-copy-dispute-script')?.addEventListener('click', async () => {
-		const text = document.getElementById('success-dispute-script')?.textContent || '';
-		const btn = document.getElementById('btn-copy-dispute-script');
-		if (text && btn) {
-			await navigator.clipboard.writeText(text);
-			btn.textContent = 'Copied! ✓';
-			setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-		}
-	});
-
-	document.getElementById('btn-dispatch-finish')?.addEventListener('click', () => {
-		closeDispatchModal();
-	});
-
-	document.getElementById('btn-dispatch-share')?.addEventListener('click', () => {
-		if (activeDispatchSub) {
-			const name = activeDispatchSub.name;
-			const monthly = activeDispatchSub.monthly;
-			closeDispatchModal();
-			showViralReferralModal(name, monthly);
-		} else {
-			closeDispatchModal();
-		}
-	});
-
-	// VIRTUAL CARD AUTO-BLOCK VAULT MODAL
-	const vaultModal = document.getElementById('autoblock-vault-modal');
-	function openAutoblockModal(subId: string) {
-		const item = subs.find((s) => s.id === subId);
-		if (!item) return;
-
-		const suffix = item.virtualCardSuffix || '4920';
-		const dispatchRef = item.dispatchId || 'CK-DISP-AUTO';
-
-		const vaultMerchantName = document.getElementById('vault-merchant-name');
-		const vaultBoundMerchant = document.getElementById('vault-bound-merchant');
-		const vaultVcNumber = document.getElementById('vault-vc-number');
-		const vaultBankNoticeText = document.getElementById('vault-bank-notice-text');
-
-		if (vaultMerchantName) vaultMerchantName.textContent = item.name;
-		if (vaultBoundMerchant) vaultBoundMerchant.textContent = item.name.toUpperCase();
-		if (vaultVcNumber) vaultVcNumber.textContent = `•••• •••• •••• ${suffix}`;
-
-		if (vaultBankNoticeText) {
-			vaultBankNoticeText.textContent = `FORMAL NOTICE OF PAYMENT REVOCATION TO ISSUING BANK
-TO: Card Services / Payment Authorization Dept
-ACCOUNT HOLDER: [Your Name]
-DISPUTED MERCHANT: ${item.name}
-CARD ENDING IN: •••• ${suffix}
-
-Pursuant to CFPB Regulation E (12 CFR § 1005.10(c)) and the Electronic Funds Transfer Act:
-I have formally cancelled my recurring subscription with ${item.name} and unconditionally revoked all authorization for preauthorized debit entries or recurring card debits (CancelKits Dispatch Ref: ${dispatchRef}).
-
-Please establish an immediate merchant-level block on ${item.name} to decline any and all future transactions. Any subsequent charges presented by this merchant are unauthorized.`;
-		}
-
-		if (vaultModal) vaultModal.hidden = false;
-	}
-
-	function closeAutoblockModal() {
-		if (vaultModal) vaultModal.hidden = true;
-	}
-
-	document.getElementById('vault-modal-close-btn')?.addEventListener('click', closeAutoblockModal);
-	document.getElementById('btn-vault-dismiss')?.addEventListener('click', closeAutoblockModal);
-	vaultModal?.addEventListener('click', (e) => {
-		if (e.target === vaultModal) closeAutoblockModal();
-	});
-
-	document.getElementById('btn-copy-bank-notice')?.addEventListener('click', async () => {
-		const text = document.getElementById('vault-bank-notice-text')?.textContent || '';
-		const btn = document.getElementById('btn-copy-bank-notice');
-		if (text && btn) {
-			await navigator.clipboard.writeText(text);
-			btn.textContent = 'Copied Notice! ✓';
-			setTimeout(() => { btn.textContent = 'Copy Notice'; }, 2000);
-		}
-	});
-
-	async function cancelSub(id: string) {
-		openDispatchModal(id);
+		const slug = !item.id.startsWith('custom-') ? resolveServiceSlug(item.id, item.name) : null;
+		window.location.assign(slug ? `/cancel/${encodeURIComponent(slug)}/` : '/cancel/');
 	}
 
 	async function restoreSub(id: string) {
@@ -3610,3 +3188,4 @@ Please establish an immediate merchant-level block on ${item.name} to decline an
 		}
 	}
 </style>
+

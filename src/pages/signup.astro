@@ -87,6 +87,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 </BaseLayout>
 
 <script>
+import { trackKeyEvent } from "../lib/analytics";
 	import { supabase, setAuthCookies } from '../lib/supabase';
 
 	// Client-side guard: redirect already logged-in users
@@ -230,6 +231,7 @@ const description = 'Start tracking and cancelling unwanted subscriptions in min
 
 			// If immediate session is created, handle family token or redirect
 			if (data.session) {
+ trackKeyEvent('signup_completed', data.session.user.id);
 				setAuthCookies(data.session.access_token, data.session.refresh_token, data.session.expires_in);
 
 				// Fire welcome & admin notification in background

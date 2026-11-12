@@ -53,6 +53,7 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 </BaseLayout>
 
 <script>
+import { trackKeyEvent } from "../../lib/analytics";
 	import { resolveServiceSlug } from '../../data/services';
 
 	type ScanSub = {
@@ -264,6 +265,7 @@ const description = 'Analyzing receipts and invoices for recurring subscriptions
 		})
 			.then((res) => res.json())
 			.then((data) => {
+				if (data?.ok && data.source === 'live_oauth') trackKeyEvent('scan_completed');
 				if (data?.ok && Array.isArray(data.subscriptions) && data.subscriptions.length > 0) {
 					activeSubs = data.subscriptions;
 					const newMonthly = data.monthlyTotal || Math.round(activeSubs.reduce((s: any, x: any) => s + x.monthly, 0) * 100) / 100;

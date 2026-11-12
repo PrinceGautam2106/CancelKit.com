@@ -365,6 +365,7 @@ const description = 'See every subscription draining your account and cancel wha
 </BaseLayout>
 
 <script>
+import { trackKeyEvent } from "../lib/analytics";
 	import { supabase, setAuthCookies, clearAuthCookies } from '../lib/supabase';
 	import { resolveServiceSlug } from '../data/services';
 
@@ -1116,7 +1117,8 @@ const description = 'See every subscription draining your account and cancel wha
 
 			const data = await res.json();
 			if (data?.url) {
-				window.location.href = data.url;
+				if (res.ok && !data.sandbox && data.url) trackKeyEvent('checkout_started', data.url);
+ window.location.href = data.url;
 			} else {
 				window.location.href = '/pricing';
 			}

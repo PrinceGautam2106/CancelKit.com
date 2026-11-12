@@ -8,7 +8,7 @@ import {
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
 	let siteUrl = 'https://cancelkits.com';
 
 	try {
@@ -68,6 +68,12 @@ export const POST: APIRoute = async ({ request }) => {
 
 		// Build custom metadata for webhook processing
 		const custom: Record<string, string> = { plan };
+  const gaCookie = cookies.get('_ga')?.value || '';
+  const clientId = gaCookie.match(/^GA\d+\.\d+\.(\d+\.\d+)$/)?.[1];
+  if (cookies.get('ck-analytics-consent')?.value === 'accepted' && clientId && ['cancelkits.com', 'www.cancelkits.com'].includes(new URL(request.url).hostname)) {
+   custom.ga_client_id = clientId;
+   custom.analytics_consent = 'accepted';
+  }
 		if (userId) custom.userId = String(userId);
 		if (referralCode) custom.referralCode = String(referralCode);
 

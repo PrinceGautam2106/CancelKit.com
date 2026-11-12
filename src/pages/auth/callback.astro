@@ -18,6 +18,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+import { trackKeyEvent } from "../../lib/analytics";
 	import { supabase, setAuthCookies } from '../../lib/supabase';
 
 	const titleEl = document.getElementById('callback-title');
@@ -69,6 +70,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 					// Notify new OAuth signup
 					const isNewUser = session.user?.created_at && (Date.now() - new Date(session.user.created_at).getTime() < 120000);
+ if (isNewUser && session.user?.email_confirmed_at) trackKeyEvent('signup_completed', session.user.id);
 					if (isNewUser) {
 						fetch('/api/send-email', {
 							method: 'POST',

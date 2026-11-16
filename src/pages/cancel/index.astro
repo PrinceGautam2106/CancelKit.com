@@ -14,7 +14,7 @@ import {
 const groups = getServicesByCategory();
 const title = 'Cancel Any Subscription — Step-by-Step Guides (2026) | CancelKits';
 const description =
-	'Direct cancellation walkthroughs for 50+ services including Netflix, Spotify, Adobe, Planet Fitness, and VPNs. Check difficulty, avoid dark patterns, or cancel with 1-click.';
+	'Cancellation guides for 72 services. Find web, iPhone and Android billing routes, official support options, refund guidance and confirmation checks.';
 
 const difficultyClass: Record<CancelDifficulty, string> = {
 	easy: 'is-easy',
@@ -34,7 +34,7 @@ const itemListSchema = {
 		'@type': 'ListItem',
 		position: index + 1,
 		name: `How to cancel ${service.name}`,
-		url: `https://cancelkits.com/cancel/${service.slug}`,
+		url: `https://cancelkits.com/cancel/${service.slug}/`,
 	})),
 };
 ---
@@ -149,16 +149,15 @@ const itemListSchema = {
 		<aside class="hub__cta">
 			<div class="hub__cta-glow" aria-hidden="true"></div>
 			<div class="hub__cta-inner">
-				<span class="hub__cta-tag">AUTOMATE CANCELLATION</span>
+				<span class="hub__cta-tag">MANAGE YOUR RENEWALS</span>
 				<h2>Tired of hunting through account pages?</h2>
-				<p>CancelKits securely scans for your recurring billing receipts and cancels unwanted subscriptions with one click.</p>
-				<a href="/start" class="hub__cta-btn">Start Free 14-Day Trial →</a>
-				<span class="hub__cta-sub">No credit card required · Scans in 30 seconds</span>
+				<p>CancelKits provides cancellation guidance and tools to help you manage renewals. Complete cancellation with the company that bills you and retain its confirmation.</p>
+				<a href="/signup/" class="hub__cta-btn">Explore CancelKits →</a>
+				<span class="hub__cta-sub">Complete cancellation with the billing provider.</span>
 			</div>
 		</aside>
 	</main>
 	<Footer />
-	<script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 </BaseLayout>
 
 <script>

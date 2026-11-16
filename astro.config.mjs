@@ -28,9 +28,8 @@ function canonicalSitemapSync() {
 					: path.join(targetDir, 'client');
 				const sitemap0 = path.join(clientDir, 'sitemap-0.xml');
 				const sitemapXml = path.join(clientDir, 'sitemap.xml');
-				if (fs.existsSync(sitemap0)) {
-					fs.copyFileSync(sitemap0, sitemapXml);
-				}
+				if (!fs.existsSync(sitemap0)) throw new Error('Generated sitemap-0.xml is missing');
+				fs.copyFileSync(sitemap0, sitemapXml);
 			},
 		},
 	};
@@ -40,7 +39,6 @@ function canonicalSitemapSync() {
 export default defineConfig({
 	integrations: [
 		mdx(),
-		canonicalSitemapSync(),
 		sitemap({
 			filter: (page) =>
 				!page.includes('/dashboard') &&
@@ -141,6 +139,7 @@ export default defineConfig({
 				return { ...item, changefreq: 'monthly', priority: 0.5 };
 			},
 		}),
+		canonicalSitemapSync(),
 	],
 	vite: {
 		plugins: [tailwindcss()],

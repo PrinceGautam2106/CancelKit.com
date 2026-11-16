@@ -1,0 +1,13 @@
+{
+  "description": "Canonical CancelKits hostname and HTTPS for browser requests",
+  "expression": "(http.host in {\"cancelkits.com\" \"www.cancelkits.com\"} and (http.host eq \"www.cancelkits.com\" or http.request.scheme eq \"http\") and http.request.method in {\"GET\" \"HEAD\"})",
+  "action": "redirect",
+  "action_parameters": {
+    "from_value": {
+      "status_code": 301,
+      "target_url": {"expression": "concat(\"https://cancelkits.com\", http.request.uri.path)"},
+      "preserve_query_string": true
+    }
+  },
+  "enabled": true
+}

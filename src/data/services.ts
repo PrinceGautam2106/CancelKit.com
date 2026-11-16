@@ -1909,7 +1909,7 @@ export function buildFaqs(service: Service) {
 		{
 			question: `Can I cancel ${name} with CancelKits?`,
 			answer: service.saveWithCancelKits
-				? `Yes. CancelKits can cancel ${name} for you in one click so you do not have to dig through account menus or phone trees.`
+				? `CancelKits provides guidance and request-preparation tools. Complete the provider’s cancellation process and save its confirmation.`
 				: `CancelKits can still track ${name} renewals and remind you before the next charge, even when the provider requires a manual step.`,
 		},
 	];

@@ -1,0 +1,1619 @@
+---
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+
+const pageTitle = "Free Subscription Cancellation Letter & Refund Email Generator (2026) | CancelKits";
+const pageDescription = "Generate a legally firm subscription cancellation email or auto-renewal refund request in seconds. Free templates for gyms, Adobe, trials, and recurring charges.";
+
+const webAppSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'WebApplication',
+	name: 'Subscription Cancellation Letter & Refund Email Generator',
+	applicationCategory: 'BusinessApplication',
+	operatingSystem: 'Web',
+	url: 'https://cancelkits.com/tools/cancellation-letter-generator/',
+	description: pageDescription,
+	offers: {
+		'@type': 'Offer',
+		price: '0',
+		priceCurrency: 'USD',
+	},
+	featureList: [
+		'Pre-built cancellation templates for 25+ services',
+		'Free trial refund request generator',
+		'FTC dark-pattern escalation letters',
+		'One-click copy, email, and print',
+		'100% client-side — zero data leaves your browser',
+	],
+};
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: [
+		{
+			'@type': 'Question',
+			name: 'Is this cancellation letter generator really free?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Yes, 100% free with no login required. The tool runs entirely in your browser — no data is sent to any server, no AI API calls are made, and no personal information is stored.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Can I use this to get a refund for an auto-renewal I didn\'t want?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Absolutely. Select the "Unwanted Auto-Renewal Refund" or "Forgotten Free Trial Refund" scenario. The generator creates a legally-grounded email citing FTC Click-to-Cancel rules and consumer protection statutes that companies are required to follow.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Does sending a cancellation email legally cancel my subscription?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Under the FTC\'s 2024 Click-to-Cancel rule (effective 2025), companies must provide cancellation methods that are as easy as signing up. A written email creates a timestamped paper trail. If the company ignores it, you have documented proof for a chargeback with your bank.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'What if the company ignores my cancellation email?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'If the company continues charging you after receiving your cancellation request: (1) File a chargeback/dispute with your bank or credit card, (2) File a complaint with the FTC at ReportFraud.ftc.gov, (3) Report to your state Attorney General\'s consumer protection division. Your emailed cancellation letter serves as timestamped evidence.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'How do I cancel Adobe Creative Cloud without paying the early termination fee?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Select "Adobe Creative Cloud" from the service list and choose the "Standard Immediate Cancellation" scenario. The generated letter specifically requests waiving the early termination fee by citing financial hardship or accidental plan selection — Adobe agents have documented authority to waive this fee when customers ask firmly.',
+			},
+		},
+	],
+};
+---
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalPath="/tools/cancellation-letter-generator/"
+	keywords="cancellation letter generator, cancel subscription email, refund email template, cancel auto-renewal, free trial refund request, cancel Adobe, cancel gym membership, cancel Netflix, cancel Spotify, subscription cancellation template, FTC click to cancel"
+	schemas={[webAppSchema, faqSchema]}
+>
+	<Nav />
+
+	<main class="clg-tool">
+		<!-- Hero Section -->
+		<header class="clg-hero">
+			<div class="clg-hero__badge">
+				<span class="badge-dot"></span>
+				<span>100% Free • No Login • Zero Data Leaves Your Browser</span>
+			</div>
+			<h1 class="clg-hero__title">
+				Subscription Cancellation Letter<br />& Refund Email Generator
+			</h1>
+			<p class="clg-hero__subtitle">
+				Generate a professionally worded cancellation email or auto-renewal refund request in seconds.
+				Pre-loaded templates for Adobe, Netflix, gyms, free trials, and 25+ high-friction services.
+			</p>
+		</header>
+
+		<!-- Quick-Select Preset Pills -->
+		<section class="preset-pills" aria-label="Quick template selection">
+			<button type="button" class="pill-btn" data-preset="adobe">Adobe Cancellation Letter</button>
+			<button type="button" class="pill-btn" data-preset="planet-fitness">Gym Cancellation Letter</button>
+			<button type="button" class="pill-btn" data-preset="netflix">Netflix Cancellation Letter</button>
+			<button type="button" class="pill-btn" data-preset="spotify">Spotify Cancellation Email</button>
+			<button type="button" class="pill-btn" data-preset="free-trial-generic">Free Trial Refund Email</button>
+			<button type="button" class="pill-btn" data-preset="sirius-xm">SiriusXM Cancellation</button>
+			<button type="button" class="pill-btn" data-preset="nyt">NYT Cancellation</button>
+		</section>
+
+		<!-- Tool Workspace -->
+		<section class="clg-workspace" id="generator">
+			<!-- Left Column: Form -->
+			<div class="clg-form-card">
+				<div class="form-card__header">
+					<h2>Build Your Letter</h2>
+					<p>Your data stays 100% in your browser. Nothing is stored or transmitted.</p>
+				</div>
+
+				<form id="clg-form" class="generator-form" onsubmit="return false;">
+					<!-- Service / Company Selector -->
+					<div class="form-divider"><span>Service / Company</span></div>
+
+					<div class="form-group">
+						<label for="service-select">Service or Company</label>
+						<select id="service-select" class="form-input"></select>
+					</div>
+
+					<div class="form-group" id="custom-company-wrap" style="display: none;">
+						<label for="custom-company">Custom Company Name</label>
+						<input type="text" id="custom-company" class="form-input" placeholder="e.g. Acme SaaS Inc." />
+					</div>
+
+					<div class="form-group" id="custom-email-wrap" style="display: none;">
+						<label for="custom-email">Support / Billing Email</label>
+						<input type="email" id="custom-email" class="form-input" placeholder="e.g. support@example.com" />
+					</div>
+
+					<!-- Pro Tip -->
+					<div class="pro-tip" id="pro-tip" style="display: none;">
+						<div class="pro-tip__badge">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+							<span>Pro Tip</span>
+						</div>
+						<p id="pro-tip-text"></p>
+					</div>
+
+					<!-- Letter Goal / Scenario -->
+					<div class="form-divider"><span>Letter Goal / Scenario</span></div>
+
+					<div class="scenario-cards" id="scenario-cards">
+						<label class="scenario-card is-selected">
+							<input type="radio" name="scenario" value="cancel" checked />
+							<div class="scenario-card__inner">
+								<strong>Standard Cancellation</strong>
+								<span>Stop auto-renewal immediately</span>
+							</div>
+						</label>
+						<label class="scenario-card">
+							<input type="radio" name="scenario" value="trial-refund" />
+							<div class="scenario-card__inner">
+								<strong>Free Trial Refund</strong>
+								<span>Charged within last 48 hours</span>
+							</div>
+						</label>
+						<label class="scenario-card">
+							<input type="radio" name="scenario" value="renewal-refund" />
+							<div class="scenario-card__inner">
+								<strong>Auto-Renewal Refund</strong>
+								<span>No reminder notice received</span>
+							</div>
+						</label>
+						<label class="scenario-card">
+							<input type="radio" name="scenario" value="escalation" />
+							<div class="scenario-card__inner">
+								<strong>Dark Pattern Escalation</strong>
+								<span>FTC / Consumer Rights citation</span>
+							</div>
+						</label>
+					</div>
+
+					<!-- Tone Selector -->
+					<div class="form-divider"><span>Tone</span></div>
+
+					<div class="tone-row">
+						<label class="tone-pill is-selected">
+							<input type="radio" name="tone" value="polite" checked />
+							<span>Polite & Standard</span>
+						</label>
+						<label class="tone-pill">
+							<input type="radio" name="tone" value="firm" />
+							<span>Firm & Formal</span>
+						</label>
+						<label class="tone-pill">
+							<input type="radio" name="tone" value="legal" />
+							<span>Legal / Escalation</span>
+						</label>
+					</div>
+
+					<!-- User Details -->
+					<div class="form-divider"><span>Your Details (Optional)</span></div>
+
+					<div class="form-group">
+						<label for="user-name">Full Name</label>
+						<input type="text" id="user-name" class="form-input" placeholder="e.g. Alex Johnson" />
+					</div>
+
+					<div class="form-group">
+						<label for="user-email">Account Email</label>
+						<input type="email" id="user-email" class="form-input" placeholder="e.g. alex@example.com" />
+					</div>
+
+					<div class="form-row">
+						<div class="form-group">
+							<label for="user-last4">Last 4 of Card</label>
+							<input type="text" id="user-last4" class="form-input" placeholder="e.g. 4242" maxlength="4" />
+						</div>
+						<div class="form-group">
+							<label for="charge-amount">Charge Amount</label>
+							<input type="text" id="charge-amount" class="form-input" placeholder="e.g. $14.99" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="charge-date">Charge Date</label>
+						<input type="date" id="charge-date" class="form-input" />
+					</div>
+				</form>
+			</div>
+
+			<!-- Right Column: Live Preview -->
+			<div class="clg-preview-card" id="preview">
+				<div class="preview-card__actions">
+					<div class="preview-status">
+						<span class="preview-status__dot"></span>
+						<span>Live Document Preview</span>
+					</div>
+					<div class="preview-buttons">
+						<button type="button" class="btn btn--copy" id="copy-btn">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+							<span id="copy-btn-text">Copy Letter</span>
+						</button>
+						<a class="btn btn--email" id="mailto-btn" href="#" target="_blank" rel="noopener">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+							<span>Open in Email</span>
+						</a>
+						<button type="button" class="btn btn--print" id="print-btn">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+							<span>Print / PDF</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Email Preview Sheet -->
+				<div class="email-sheet" id="email-sheet">
+					<div class="email-sheet__header">
+						<div class="email-field"><span class="email-label">To:</span> <span id="preview-to">[support@company.com]</span></div>
+						<div class="email-field"><span class="email-label">From:</span> <span id="preview-from">[Your Email Address]</span></div>
+						<div class="email-field"><span class="email-label">Subject:</span> <strong id="preview-subject">Subscription Cancellation Request</strong></div>
+					</div>
+					<div class="email-sheet__body" id="preview-body">
+						<!-- Dynamically generated -->
+					</div>
+				</div>
+
+				<!-- CTA Callout -->
+				<div class="cta-callout">
+					<h3>Tired of chasing hidden cancel buttons one by one?</h3>
+					<p>CancelKits scans your inbox in 30 seconds (read-only) to find every recurring subscription and helps you cancel them in one click.</p>
+					<a href="/start/" class="cta-callout__btn">Run Free 30-Second Subscription Audit →</a>
+				</div>
+			</div>
+		</section>
+
+		<!-- Toast -->
+		<div class="toast" id="toast" aria-live="polite" hidden>Copied to clipboard!</div>
+
+		<!-- SEO Educational Content Section -->
+		<section class="seo-content">
+			<div class="seo-content__inner">
+				<h2>How to Guarantee Your Cancellation Request Is Honored</h2>
+				<p class="seo-content__intro">
+					Companies count on you giving up. Use these four strategies to make sure your cancellation sticks — and get your money back if they keep charging.
+				</p>
+
+				<div class="tips-grid">
+					<div class="tip-card">
+						<div class="tip-num">1</div>
+						<h3>Create a Timestamped Paper Trail</h3>
+						<p>Always send your cancellation via email (not phone or chat). The email's sent-date timestamp is admissible proof if you need to file a dispute. Take a screenshot of the sent email for your records.</p>
+					</div>
+					<div class="tip-card">
+						<div class="tip-num">2</div>
+						<h3>Know Your Chargeback Leverage</h3>
+						<p>Under Regulation E (debit) and the Fair Credit Billing Act (credit cards), you have 60 days from the statement date to dispute unauthorized charges. Mention this in your letter — companies know chargebacks cost them $20–75 each in processing fees.</p>
+					</div>
+					<div class="tip-card">
+						<div class="tip-num">3</div>
+						<h3>Cite the FTC Click-to-Cancel Rule</h3>
+						<p>The FTC's 2024 "Click-to-Cancel" rule (effective 2025) requires companies to offer cancellation methods as easy as sign-up. If a company forces you through a phone call or hidden multi-step process, they may be in violation of federal law.</p>
+					</div>
+					<div class="tip-card">
+						<div class="tip-num">4</div>
+						<h3>Use a Virtual Card for Future Trials</h3>
+						<p>Services like Privacy.com or your bank's virtual card feature let you create single-use card numbers with spending limits. Even if you forget to cancel a trial, they can't charge a card that no longer works.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- FAQ Section -->
+		<section class="clg-faq" id="faq">
+			<h2>Frequently Asked Questions</h2>
+			<div class="faq-list">
+				<details class="faq-item">
+					<summary>Is this cancellation letter generator really free?</summary>
+					<p>Yes, 100% free with no login required. The tool runs entirely in your browser — no data is sent to any server, no AI API calls are made, and no personal information is stored. We built it as a free resource for consumers dealing with hard-to-cancel subscriptions.</p>
+				</details>
+				<details class="faq-item">
+					<summary>Can I use this to get a refund for an auto-renewal I didn't want?</summary>
+					<p>Absolutely. Select the "Unwanted Auto-Renewal Refund" or "Forgotten Free Trial Refund" scenario. The generator creates a legally-grounded email citing FTC Click-to-Cancel rules and consumer protection statutes that companies are required to follow. Many companies will issue a refund when presented with a well-written, legally-cited request.</p>
+				</details>
+				<details class="faq-item">
+					<summary>Does sending a cancellation email legally cancel my subscription?</summary>
+					<p>Under the FTC's 2024 Click-to-Cancel rule (effective 2025), companies must provide cancellation methods that are as easy as signing up. A written email creates a timestamped paper trail. If the company ignores it, you have documented proof for a chargeback with your bank or a complaint to the FTC at ReportFraud.ftc.gov.</p>
+				</details>
+				<details class="faq-item">
+					<summary>What if the company ignores my cancellation email?</summary>
+					<p>If the company continues charging you after receiving your cancellation request: (1) File a chargeback/dispute with your bank or credit card issuer — your emailed cancellation serves as evidence. (2) File a complaint with the FTC at ReportFraud.ftc.gov. (3) Report to your state Attorney General's consumer protection division. Most companies settle quickly when faced with chargeback fees and regulatory complaints.</p>
+				</details>
+				<details class="faq-item">
+					<summary>How do I cancel Adobe Creative Cloud without paying the early termination fee?</summary>
+					<p>Select "Adobe Creative Cloud" from the service dropdown and choose the "Standard Immediate Cancellation" scenario. The generated letter specifically requests waiving the early termination fee by citing financial hardship or accidental plan selection — Adobe agents have documented authority to waive this fee when customers ask firmly. You can also try Adobe's online chat and reference the FTC Click-to-Cancel rule.</p>
+				</details>
+			</div>
+		</section>
+	</main>
+
+	<Footer />
+</BaseLayout>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CANCELLATION LETTER GENERATOR — 100% CLIENT-SIDE ENGINE
+   ═══════════════════════════════════════════════════════════════ */
+
+interface ServicePreset {
+	name: string;
+	email: string;
+	tip: string;
+}
+
+const SERVICE_PRESETS: Record<string, ServicePreset> = {
+	'adobe': {
+		name: 'Adobe Creative Cloud',
+		email: 'customercare@adobe.com',
+		tip: 'Adobe often waives the 50% early cancellation fee if you cite financial hardship or accidental plan selection. Be firm but polite — their agents have authority to waive it.',
+	},
+	'planet-fitness': {
+		name: 'Planet Fitness',
+		email: 'info@planetfitness.com',
+		tip: 'Planet Fitness requires written notice via certified mail or in-person visit. This email creates your paper trail. For fastest results, also send a certified letter to your home club address.',
+	},
+	'la-fitness': {
+		name: 'LA Fitness',
+		email: 'memberservices@fitnessintl.com',
+		tip: 'LA Fitness requires written cancellation sent to their HQ or your home club via certified mail. Email first to create a timestamped record, then follow up with USPS Certified Mail.',
+	},
+	'netflix': {
+		name: 'Netflix',
+		email: 'info@mailer.netflix.com',
+		tip: 'Netflix cancellation is straightforward online (Account → Cancel Membership). Use this letter if you need a refund for an unwanted charge or want written confirmation.',
+	},
+	'spotify': {
+		name: 'Spotify',
+		email: 'support@spotify.com',
+		tip: 'Spotify can be cancelled in app settings. Use this letter for refund requests or if you were charged after thinking you cancelled. Spotify has issued refunds for accidental charges.',
+	},
+	'hulu': {
+		name: 'Hulu',
+		email: 'support@hulu.com',
+		tip: 'If you subscribed through Apple/Google, you must cancel through that platform instead. This letter is for direct Hulu subscriptions or refund requests.',
+	},
+	'disney-plus': {
+		name: 'Disney+',
+		email: 'support@disneyplus.com',
+		tip: 'Disney+ bundles (Disney+/Hulu/ESPN+) require cancelling through the billing provider. Check if yours is billed through Apple, Google, or directly.',
+	},
+	'amazon-prime': {
+		name: 'Amazon Prime',
+		email: 'cs-reply@amazon.com',
+		tip: 'Amazon offers a full refund if you haven\'t used Prime benefits since your last renewal. Even partial refunds are available based on usage. Mention this in your request.',
+	},
+	'audible': {
+		name: 'Audible',
+		email: 'social-support@audible.com',
+		tip: 'Audible retention offers typically include a discounted rate ($7.95/mo) or free months. If you just want to cancel, be firm. You keep your purchased audiobooks forever.',
+	},
+	'nyt': {
+		name: 'The New York Times',
+		email: 'help@nytimes.com',
+		tip: 'NYT often requires a phone call to cancel (a classic dark pattern). This email creates your paper trail. If they insist on a phone call, cite the FTC Click-to-Cancel rule.',
+	},
+	'linkedin-premium': {
+		name: 'LinkedIn Premium',
+		email: 'linkedin@e.linkedin.com',
+		tip: 'LinkedIn Premium can be cancelled in settings but won\'t refund partial months. Cancel before renewal to avoid charges. Free trial users: cancel before the trial ends.',
+	},
+	'canva-pro': {
+		name: 'Canva Pro',
+		email: 'support@canva.com',
+		tip: 'Canva Pro annual plans are non-refundable after 30 days per their policy. For monthly plans, cancel before the next billing cycle. Request a refund immediately if recently charged.',
+	},
+	'nordvpn': {
+		name: 'NordVPN',
+		email: 'support@nordvpn.com',
+		tip: 'NordVPN offers a 30-day money-back guarantee on all plans. If you\'re within 30 days, you should receive a full refund. Beyond 30 days, request cancellation of auto-renewal.',
+	},
+	'sirius-xm': {
+		name: 'SiriusXM',
+		email: 'customercare@siriusxm.com',
+		tip: 'SiriusXM is notorious for requiring phone cancellation and aggressive retention offers. This email creates a paper trail. If they won\'t process via email, cite the FTC Click-to-Cancel rule.',
+	},
+	'gym-generic': {
+		name: 'Gym Membership',
+		email: '[gym-support@email.com]',
+		tip: 'Most gyms require written notice via certified mail or in-person visit. Send this email AND a certified letter to your club address. Keep the USPS tracking receipt as proof.',
+	},
+	'anytime-fitness': {
+		name: 'Anytime Fitness',
+		email: 'info@anytimefitness.com',
+		tip: 'Anytime Fitness requires 30-day written notice. Some franchises accept email, but certified mail to your home club is recommended. Check your contract for the cancellation clause.',
+	},
+	'crunch-fitness': {
+		name: 'Crunch Fitness',
+		email: 'support@crunch.com',
+		tip: 'Crunch Fitness cancellation policies vary by location (franchise model). Contact your home club directly. Written notice via certified mail creates the strongest paper trail.',
+	},
+	'equinox': {
+		name: 'Equinox',
+		email: 'memberservices@equinox.com',
+		tip: 'Equinox typically requires 45-day written notice before your next billing date. Submit through their website and send this email as backup documentation.',
+	},
+	'peloton': {
+		name: 'Peloton',
+		email: 'support@onepeloton.com',
+		tip: 'Peloton All-Access membership requires cancellation through the app or website. Use this letter for refund requests or if the online process isn\'t working.',
+	},
+	'apple-one': {
+		name: 'Apple One / Apple Subscriptions',
+		email: 'reportaproblem@apple.com',
+		tip: 'Apple subscriptions must be cancelled through Settings → Apple ID → Subscriptions. For refunds, use reportaproblem.apple.com. Apple typically refunds within 48 hours if requested promptly.',
+	},
+	'free-trial-generic': {
+		name: 'Free Trial / SaaS Subscription',
+		email: '[support@company.com]',
+		tip: 'For free trial charges: request a refund within 48 hours of being charged. Most companies have a grace period. Mention that you intended to cancel before the trial ended.',
+	},
+	'saas-generic': {
+		name: 'SaaS / Software Subscription',
+		email: '[billing@company.com]',
+		tip: 'For annual SaaS plans, check the ToS for a refund window (many offer 14–30 days). For monthly plans, cancel before the next billing cycle to avoid further charges.',
+	},
+	'xbox-game-pass': {
+		name: 'Xbox Game Pass',
+		email: 'support@xbox.com',
+		tip: 'Xbox Game Pass can be cancelled through your Microsoft account. For refunds, use the Microsoft Order History page. Auto-renewal refunds are typically granted within 30 days.',
+	},
+	'youtube-premium': {
+		name: 'YouTube Premium',
+		email: 'yt-premium-support@google.com',
+		tip: 'YouTube Premium can be cancelled through Google account settings. For refunds, contact Google support through the YouTube app → Help → Email support.',
+	},
+	'custom': {
+		name: '',
+		email: '',
+		tip: '',
+	},
+};
+
+function getScenarioLabel(scenario: string): string {
+	switch (scenario) {
+		case 'cancel': return 'Subscription Cancellation Request';
+		case 'trial-refund': return 'Free Trial Refund Request — Accidental Charge';
+		case 'renewal-refund': return 'Auto-Renewal Refund Request — No Prior Notice';
+		case 'escalation': return 'Formal Cancellation Demand — Consumer Rights Escalation';
+		default: return 'Subscription Cancellation Request';
+	}
+}
+
+function generateBody(opts: {
+	company: string;
+	scenario: string;
+	tone: string;
+	userName: string;
+	userEmail: string;
+	last4: string;
+	chargeAmount: string;
+	chargeDate: string;
+}): string {
+	const { company, scenario, tone, userName, userEmail, last4, chargeAmount, chargeDate } = opts;
+	const name = userName || '[Your Full Name]';
+	const email = userEmail || '[Your Account Email]';
+	const card = last4 ? `ending in ${last4}` : '[card ending in XXXX]';
+	const amount = chargeAmount || '[Charge Amount]';
+	const date = chargeDate ? new Date(chargeDate + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '[Charge Date]';
+	const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+	const companyName = company || '[Company Name]';
+
+	const greeting = tone === 'legal'
+		? `To Whom It May Concern at ${companyName}:`
+		: tone === 'firm'
+			? `Dear ${companyName} Billing Department:`
+			: `Dear ${companyName} Support Team,`;
+
+	let body = '';
+
+	if (scenario === 'cancel') {
+		body = `${greeting}
+
+I am writing to formally request the immediate cancellation of my subscription/membership with ${companyName}.
+
+Account Details:
+• Account Holder: ${name}
+• Account Email: ${email}
+• Payment Method: ${card}
+
+Please process this cancellation effective immediately and confirm the following:
+1. My subscription has been cancelled and will not auto-renew
+2. No further charges will be made to my payment method
+3. Written confirmation of this cancellation sent to my email address
+
+${tone === 'legal' ? `Please be advised that I am aware of the Federal Trade Commission's "Click-to-Cancel" rule (16 CFR Part 425, effective 2025), which mandates that cancellation must be at least as easy as the sign-up process. Any failure to process this cancellation promptly may result in a formal complaint to the FTC at ReportFraud.ftc.gov and a chargeback dispute with my financial institution.
+
+Under the Electronic Fund Transfer Act (EFTA, 12 CFR § 1005.10(c)), I hereby revoke authorization for any future recurring charges to my account.` : tone === 'firm' ? `I expect this cancellation to be processed without requiring a phone call, in-person visit, or additional steps beyond this written request. Under the FTC's Click-to-Cancel rule, companies must provide cancellation methods as easy as sign-up.
+
+If this cancellation is not confirmed within 5 business days, I will file a chargeback with my bank and a complaint with the FTC.` : `I would appreciate a confirmation email once the cancellation has been processed. If there are any issues with this request, please let me know promptly.`}
+
+Thank you for your attention to this matter.
+
+Sincerely,
+${name}
+${email}
+Date: ${today}`;
+	}
+
+	else if (scenario === 'trial-refund') {
+		body = `${greeting}
+
+I am writing to request an immediate refund for a charge of ${amount} on ${date} to my payment method ${card}.
+
+I signed up for a free trial of ${companyName} and intended to cancel before the trial period ended. I was charged ${amount} without adequate notice that my trial was converting to a paid subscription.
+
+Account Details:
+• Account Holder: ${name}
+• Account Email: ${email}
+• Charge Amount: ${amount}
+• Charge Date: ${date}
+• Payment Method: ${card}
+
+I am requesting:
+1. A full refund of ${amount} to my original payment method
+2. Immediate cancellation of my subscription with no further charges
+3. Written confirmation of both the refund and cancellation
+
+${tone === 'legal' ? `Under the FTC's "Click-to-Cancel" rule and the Restore Online Shoppers' Confidence Act (ROSCA), companies must clearly disclose material terms before charging consumers and obtain express informed consent. The FTC has taken enforcement action against companies that fail to provide adequate trial-to-paid conversion notices.
+
+I reserve the right to file a chargeback dispute with my financial institution under Regulation E (debit cards) or the Fair Credit Billing Act (credit cards), and to report this matter to the FTC at ReportFraud.ftc.gov if this refund is not processed within 5 business days.` : tone === 'firm' ? `This charge was unexpected and I request it be reversed within 5 business days. If I do not receive a refund, I will pursue a chargeback with my bank and file a complaint with the FTC.
+
+Companies are required under the FTC's Click-to-Cancel rule to provide clear notice before converting free trials to paid subscriptions.` : `I believe this charge was an oversight as I intended to cancel before the trial ended. I would greatly appreciate your help in processing a refund.`}
+
+Thank you for your prompt attention to this matter.
+
+Sincerely,
+${name}
+${email}
+Date: ${today}`;
+	}
+
+	else if (scenario === 'renewal-refund') {
+		body = `${greeting}
+
+I am writing to request a refund for an auto-renewal charge of ${amount} on ${date} to my payment method ${card}.
+
+I did not receive adequate prior notice that my ${companyName} subscription was about to auto-renew. Had I been properly notified, I would have cancelled before the renewal date.
+
+Account Details:
+• Account Holder: ${name}
+• Account Email: ${email}
+• Charge Amount: ${amount}
+• Charge Date: ${date}
+• Payment Method: ${card}
+
+I am requesting:
+1. A full refund of ${amount} to my original payment method
+2. Immediate cancellation of my subscription — no further renewals
+3. Written confirmation of both the refund and cancellation
+
+${tone === 'legal' ? `Under the FTC's "Click-to-Cancel" rule (16 CFR Part 425) and the Restore Online Shoppers' Confidence Act (ROSCA, 15 U.S.C. § 8401 et seq.), businesses that charge consumers on a recurring basis must provide clear and conspicuous notice before each renewal charge, and must obtain express informed consent before charging.
+
+Failure to provide renewal notice violates FTC regulations and may constitute an unfair or deceptive practice under Section 5 of the FTC Act. I reserve the right to dispute this charge under the Fair Credit Billing Act and to file complaints with the FTC (ReportFraud.ftc.gov) and my state Attorney General's consumer protection division.
+
+I am requesting that this refund be processed within 5 business days.` : tone === 'firm' ? `I was not given adequate notice before this renewal charge, which I believe violates the FTC's requirements for negative option marketing. I expect a full refund within 5 business days.
+
+If this refund is not processed promptly, I will file a chargeback with my bank and a complaint with the FTC.` : `I did not intend to renew this subscription and was not aware the renewal was imminent. I would appreciate your help in processing a refund for this charge.`}
+
+Thank you for your assistance.
+
+Sincerely,
+${name}
+${email}
+Date: ${today}`;
+	}
+
+	else if (scenario === 'escalation') {
+		body = `${greeting}
+
+This is a formal demand for the immediate cancellation of my subscription and a full refund of recent charges.
+
+I have attempted to cancel my ${companyName} subscription through your standard channels and have encountered excessive obstacles, hidden cancellation processes, and/or deliberate friction designed to prevent cancellation. This practice constitutes a "dark pattern" under federal and state consumer protection law.
+
+Account Details:
+• Account Holder: ${name}
+• Account Email: ${email}
+• Payment Method: ${card}
+${chargeAmount ? `• Disputed Charge: ${amount} on ${date}` : ''}
+
+FORMAL DEMANDS:
+
+1. IMMEDIATE CANCELLATION of my subscription/membership, effective today
+2. FULL REFUND of ${amount !== '[Charge Amount]' ? amount : 'any charges incurred due to your company\'s failure to provide a simple cancellation mechanism'}
+3. REVOCATION OF BILLING AUTHORIZATION — I hereby revoke all authorization for future charges under the Electronic Fund Transfer Act (EFTA, 12 CFR § 1005.10(c))
+4. WRITTEN CONFIRMATION of cancellation and refund within 5 business days
+
+LEGAL BASIS:
+
+• FTC "Click-to-Cancel" Rule (16 CFR Part 425, effective 2025): Requires cancellation to be at least as easy as sign-up. Making cancellation harder than enrollment is a violation.
+• Restore Online Shoppers' Confidence Act (ROSCA, 15 U.S.C. § 8401): Prohibits charging consumers without clear disclosure and express informed consent.
+• FTC Act Section 5: Dark patterns in subscription cancellation constitute unfair or deceptive acts or practices.
+• State Consumer Protection Laws: Most states have additional protections against deceptive billing practices.
+
+IF THIS REQUEST IS NOT HONORED WITHIN 5 BUSINESS DAYS, I WILL:
+• File a chargeback/dispute with my financial institution
+• File a formal complaint with the FTC at ReportFraud.ftc.gov
+• File a complaint with my state Attorney General's consumer protection division
+• Report to the Better Business Bureau (BBB)
+
+This letter serves as formal written notice and will be retained as evidence for any future regulatory or legal proceedings.
+
+Sincerely,
+${name}
+${email}
+Date: ${today}`;
+	}
+
+	return body;
+}
+
+function initCLG() {
+	// Elements
+	const serviceSelect = document.getElementById('service-select') as HTMLSelectElement;
+	const customCompanyWrap = document.getElementById('custom-company-wrap') as HTMLElement;
+	const customCompanyInput = document.getElementById('custom-company') as HTMLInputElement;
+	const customEmailWrap = document.getElementById('custom-email-wrap') as HTMLElement;
+	const customEmailInput = document.getElementById('custom-email') as HTMLInputElement;
+	const proTip = document.getElementById('pro-tip') as HTMLElement;
+	const proTipText = document.getElementById('pro-tip-text') as HTMLElement;
+	const scenarioCards = document.getElementById('scenario-cards') as HTMLElement;
+	const userNameInput = document.getElementById('user-name') as HTMLInputElement;
+	const userEmailInput = document.getElementById('user-email') as HTMLInputElement;
+	const last4Input = document.getElementById('user-last4') as HTMLInputElement;
+	const chargeAmountInput = document.getElementById('charge-amount') as HTMLInputElement;
+	const chargeDateInput = document.getElementById('charge-date') as HTMLInputElement;
+
+	// Preview elements
+	const previewTo = document.getElementById('preview-to')!;
+	const previewFrom = document.getElementById('preview-from')!;
+	const previewSubject = document.getElementById('preview-subject')!;
+	const previewBody = document.getElementById('preview-body')!;
+
+	// Action buttons
+	const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
+	const copyBtnText = document.getElementById('copy-btn-text')!;
+	const mailtoBtn = document.getElementById('mailto-btn') as HTMLAnchorElement;
+	const printBtn = document.getElementById('print-btn') as HTMLButtonElement;
+	const toast = document.getElementById('toast') as HTMLElement;
+
+	// Populate service dropdown
+	const serviceOptions: { value: string; label: string }[] = [
+		{ value: 'adobe', label: 'Adobe Creative Cloud' },
+		{ value: 'netflix', label: 'Netflix' },
+		{ value: 'spotify', label: 'Spotify' },
+		{ value: 'hulu', label: 'Hulu' },
+		{ value: 'disney-plus', label: 'Disney+' },
+		{ value: 'amazon-prime', label: 'Amazon Prime' },
+		{ value: 'youtube-premium', label: 'YouTube Premium' },
+		{ value: 'apple-one', label: 'Apple One / Apple Subscriptions' },
+		{ value: 'audible', label: 'Audible' },
+		{ value: 'nyt', label: 'The New York Times' },
+		{ value: 'linkedin-premium', label: 'LinkedIn Premium' },
+		{ value: 'canva-pro', label: 'Canva Pro' },
+		{ value: 'nordvpn', label: 'NordVPN' },
+		{ value: 'sirius-xm', label: 'SiriusXM' },
+		{ value: 'xbox-game-pass', label: 'Xbox Game Pass' },
+		{ value: 'peloton', label: 'Peloton' },
+		{ value: 'planet-fitness', label: 'Planet Fitness' },
+		{ value: 'la-fitness', label: 'LA Fitness' },
+		{ value: 'anytime-fitness', label: 'Anytime Fitness' },
+		{ value: 'crunch-fitness', label: 'Crunch Fitness' },
+		{ value: 'equinox', label: 'Equinox' },
+		{ value: 'gym-generic', label: 'Other Gym / Health Club' },
+		{ value: 'free-trial-generic', label: 'Free Trial (Generic)' },
+		{ value: 'saas-generic', label: 'SaaS / Software (Generic)' },
+		{ value: 'custom', label: '✏️ Custom Company…' },
+	];
+
+	serviceOptions.forEach((opt) => {
+		const option = document.createElement('option');
+		option.value = opt.value;
+		option.textContent = opt.label;
+		serviceSelect.appendChild(option);
+	});
+
+	// Get current state
+	function getState() {
+		const serviceKey = serviceSelect.value;
+		const preset = SERVICE_PRESETS[serviceKey];
+		const isCustom = serviceKey === 'custom';
+
+		const company = isCustom
+			? (customCompanyInput.value.trim() || '')
+			: (preset?.name || '');
+
+		const recipientEmail = isCustom
+			? (customEmailInput.value.trim() || '')
+			: (preset?.email || '');
+
+		const scenario = (scenarioCards.querySelector('input[name="scenario"]:checked') as HTMLInputElement)?.value || 'cancel';
+		const tone = (document.querySelector('input[name="tone"]:checked') as HTMLInputElement)?.value || 'polite';
+
+		return {
+			serviceKey,
+			company,
+			recipientEmail,
+			scenario,
+			tone,
+			userName: userNameInput.value.trim(),
+			userEmail: userEmailInput.value.trim(),
+			last4: last4Input.value.trim(),
+			chargeAmount: chargeAmountInput.value.trim(),
+			chargeDate: chargeDateInput.value,
+			tip: preset?.tip || '',
+			isCustom,
+		};
+	}
+
+	function updatePreview() {
+		const state = getState();
+
+		// Show/hide custom fields
+		customCompanyWrap.style.display = state.isCustom ? 'block' : 'none';
+		customEmailWrap.style.display = state.isCustom ? 'block' : 'none';
+
+		// Pro tip
+		if (state.tip && !state.isCustom) {
+			proTip.style.display = 'block';
+			proTipText.textContent = state.tip;
+		} else {
+			proTip.style.display = 'none';
+		}
+
+		// Email preview
+		previewTo.textContent = state.recipientEmail || '[support@company.com]';
+		previewFrom.textContent = state.userEmail || '[Your Email Address]';
+		previewSubject.textContent = getScenarioLabel(state.scenario) + (state.company ? ` — ${state.company}` : '');
+
+		const bodyText = generateBody({
+			company: state.company,
+			scenario: state.scenario,
+			tone: state.tone,
+			userName: state.userName,
+			userEmail: state.userEmail,
+			last4: state.last4,
+			chargeAmount: state.chargeAmount,
+			chargeDate: state.chargeDate,
+		});
+
+		// Render body as formatted text
+		previewBody.innerHTML = '';
+		const pre = document.createElement('div');
+		pre.className = 'email-body-text';
+		pre.textContent = bodyText;
+		previewBody.appendChild(pre);
+
+		// Update mailto link
+		const subject = encodeURIComponent(getScenarioLabel(state.scenario) + (state.company ? ` — ${state.company}` : ''));
+		const mailtoBody = encodeURIComponent(bodyText);
+		const mailtoEmail = state.recipientEmail && !state.recipientEmail.startsWith('[')
+			? state.recipientEmail
+			: '';
+		mailtoBtn.href = `mailto:${mailtoEmail}?subject=${subject}&body=${mailtoBody}`;
+	}
+
+	// Radio card selection styling
+	scenarioCards.addEventListener('change', () => {
+		scenarioCards.querySelectorAll('.scenario-card').forEach((card) => {
+			const radio = card.querySelector('input[type="radio"]') as HTMLInputElement;
+			card.classList.toggle('is-selected', radio.checked);
+		});
+		updatePreview();
+	});
+
+	document.querySelectorAll('input[name="tone"]').forEach((radio) => {
+		radio.addEventListener('change', () => {
+			document.querySelectorAll('.tone-pill').forEach((pill) => {
+				const r = pill.querySelector('input[type="radio"]') as HTMLInputElement;
+				pill.classList.toggle('is-selected', r.checked);
+			});
+			updatePreview();
+		});
+	});
+
+	// Listen to all inputs
+	const allInputs = [serviceSelect, customCompanyInput, customEmailInput, userNameInput, userEmailInput, last4Input, chargeAmountInput, chargeDateInput];
+	allInputs.forEach((input) => {
+		if (input) {
+			input.addEventListener('input', updatePreview);
+			input.addEventListener('change', updatePreview);
+		}
+	});
+
+	// Copy button
+	copyBtn.addEventListener('click', () => {
+		const state = getState();
+		const subject = getScenarioLabel(state.scenario) + (state.company ? ` — ${state.company}` : '');
+		const bodyText = generateBody({
+			company: state.company,
+			scenario: state.scenario,
+			tone: state.tone,
+			userName: state.userName,
+			userEmail: state.userEmail,
+			last4: state.last4,
+			chargeAmount: state.chargeAmount,
+			chargeDate: state.chargeDate,
+		});
+		const fullText = `Subject: ${subject}\n\n${bodyText}`;
+		navigator.clipboard.writeText(fullText).then(() => {
+			copyBtnText.textContent = 'Copied!';
+			toast.hidden = false;
+			setTimeout(() => {
+				copyBtnText.textContent = 'Copy Letter';
+				toast.hidden = true;
+			}, 2000);
+		});
+	});
+
+	// Print button
+	printBtn.addEventListener('click', () => window.print());
+
+	// Preset pill buttons (quick-select)
+	document.querySelectorAll<HTMLButtonElement>('.pill-btn[data-preset]').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const preset = btn.dataset.preset;
+			if (!preset) return;
+
+			// Set the service
+			serviceSelect.value = preset;
+			serviceSelect.dispatchEvent(new Event('change'));
+
+			// If it's a trial-related preset, select the trial-refund scenario
+			if (preset === 'free-trial-generic') {
+				const trialRadio = scenarioCards.querySelector('input[value="trial-refund"]') as HTMLInputElement;
+				if (trialRadio) {
+					trialRadio.checked = true;
+					trialRadio.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			}
+
+			// Scroll to the generator
+			const target = document.getElementById('generator');
+			if (target) {
+				target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		});
+	});
+
+	// Handle URL hash presets (e.g., #adobe)
+	function handleHash() {
+		const hash = window.location.hash.replace('#', '');
+		if (hash && SERVICE_PRESETS[hash]) {
+			serviceSelect.value = hash;
+			serviceSelect.dispatchEvent(new Event('change'));
+		}
+	}
+	handleHash();
+	window.addEventListener('hashchange', handleHash);
+
+	// Initial render
+	updatePreview();
+}
+
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initCLG);
+} else {
+	initCLG();
+}
+</script>
+
+<style>
+	/* ═══════════════════════════════════════════════════════════
+	   CANCELLATION LETTER GENERATOR STYLES
+	   ═══════════════════════════════════════════════════════════ */
+
+	.clg-tool {
+		background: #050505;
+		color: #fff;
+		min-height: 100vh;
+		padding: 5rem 1.25rem 6rem;
+		max-width: 82rem;
+		margin: 0 auto;
+	}
+
+	/* Hero */
+	.clg-hero {
+		text-align: center;
+		max-width: 50rem;
+		margin: 0 auto 2.5rem;
+	}
+
+	.clg-hero__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.35rem 0.95rem;
+		border-radius: var(--radius-pill);
+		background: rgba(0, 255, 136, 0.08);
+		border: 1px solid rgba(0, 255, 136, 0.25);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--color-accent);
+		margin-bottom: 1.25rem;
+	}
+
+	.badge-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 8px var(--color-accent);
+	}
+
+	.clg-hero__title {
+		font-family: var(--font-display);
+		font-size: clamp(1.9rem, 4vw, 3.25rem);
+		font-weight: 700;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+		margin-bottom: 1rem;
+	}
+
+	.clg-hero__subtitle {
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+		max-width: 40rem;
+		margin: 0 auto;
+	}
+
+	/* Preset Pills */
+	.preset-pills {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.65rem;
+		margin-bottom: 3.5rem;
+		max-width: 56rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.pill-btn {
+		padding: 0.5rem 1rem;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid var(--color-border);
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+		white-space: nowrap;
+	}
+
+	.pill-btn:hover {
+		color: #fff;
+		background: rgba(0, 255, 136, 0.08);
+		border-color: rgba(0, 255, 136, 0.3);
+	}
+
+	/* Workspace Grid */
+	.clg-workspace {
+		display: grid;
+		grid-template-columns: 1fr 1.3fr;
+		gap: 2.5rem;
+		align-items: start;
+	}
+
+	@media (max-width: 64rem) {
+		.clg-workspace {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Form Card */
+	.clg-form-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 2rem;
+	}
+
+	.form-card__header h2 {
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.form-card__header p {
+		color: var(--color-faint);
+		font-size: 0.85rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.generator-form {
+		display: grid;
+		gap: 1.15rem;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+	}
+
+	.form-group label {
+		font-size: 0.82rem;
+		font-weight: 600;
+		color: #ccc;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.form-input {
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-sm);
+		padding: 0.75rem 0.95rem;
+		color: #fff;
+		font-size: 0.92rem;
+		transition: all 0.2s;
+	}
+
+	.form-input:focus {
+		outline: none;
+		border-color: var(--color-accent);
+		box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.15);
+	}
+
+	.form-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+
+	@media (max-width: 30rem) {
+		.form-row {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.form-divider {
+		display: flex;
+		align-items: center;
+		margin: 0.75rem 0 0.25rem;
+	}
+
+	.form-divider span {
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	/* Pro Tip */
+	.pro-tip {
+		background: rgba(0, 255, 136, 0.06);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		border-radius: var(--radius-card);
+		padding: 1rem 1.25rem;
+	}
+
+	.pro-tip__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: var(--color-accent);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin-bottom: 0.5rem;
+	}
+
+	.pro-tip p {
+		color: #bbb;
+		font-size: 0.88rem;
+		line-height: 1.55;
+		margin: 0;
+	}
+
+	/* Scenario Cards */
+	.scenario-cards {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+	}
+
+	@media (max-width: 30rem) {
+		.scenario-cards {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.scenario-card {
+		cursor: pointer;
+		display: block;
+	}
+
+	.scenario-card input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.scenario-card__inner {
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-card);
+		padding: 1rem 1.15rem;
+		transition: all 0.2s;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.scenario-card__inner strong {
+		font-size: 0.9rem;
+		color: #fff;
+	}
+
+	.scenario-card__inner span {
+		font-size: 0.8rem;
+		color: var(--color-muted);
+	}
+
+	.scenario-card:hover .scenario-card__inner {
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.scenario-card.is-selected .scenario-card__inner {
+		border-color: var(--color-accent);
+		background: rgba(0, 255, 136, 0.06);
+		box-shadow: 0 0 0 1px rgba(0, 255, 136, 0.15);
+	}
+
+	/* Tone Selector */
+	.tone-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+	}
+
+	.tone-pill {
+		cursor: pointer;
+		display: block;
+	}
+
+	.tone-pill input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.tone-pill span {
+		display: inline-block;
+		padding: 0.5rem 1rem;
+		border-radius: var(--radius-pill);
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		color: var(--color-muted);
+		font-size: 0.85rem;
+		font-weight: 500;
+		transition: all 0.2s;
+	}
+
+	.tone-pill:hover span {
+		border-color: rgba(255, 255, 255, 0.2);
+		color: #fff;
+	}
+
+	.tone-pill.is-selected span {
+		border-color: var(--color-accent);
+		color: #fff;
+		background: rgba(0, 255, 136, 0.08);
+	}
+
+	/* Preview Card */
+	.clg-preview-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 2rem;
+		position: sticky;
+		top: 6rem;
+	}
+
+	.preview-card__actions {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.preview-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+	}
+
+	.preview-status__dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		animation: pulse-dot 2s ease-in-out infinite;
+	}
+
+	@keyframes pulse-dot {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.4; }
+	}
+
+	.preview-buttons {
+		display: flex;
+		gap: 0.65rem;
+		flex-wrap: wrap;
+	}
+
+	.btn {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.5rem 0.9rem;
+		border-radius: var(--radius-pill);
+		font-size: 0.82rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.btn--copy {
+		background: #1c1c1c;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+	}
+
+	.btn--copy:hover {
+		background: #252525;
+	}
+
+	.btn--email {
+		background: #1c1c1c;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: #fff;
+	}
+
+	.btn--email:hover {
+		background: #252525;
+	}
+
+	.btn--print {
+		background: var(--color-accent);
+		color: #000;
+		border: 1px solid var(--color-accent);
+	}
+
+	.btn--print:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+	}
+
+	/* Email Sheet (letter preview) */
+	.email-sheet {
+		background: #fff;
+		color: #111;
+		border-radius: var(--radius-card);
+		overflow: hidden;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+
+	.email-sheet__header {
+		background: #f8f9fa;
+		padding: 1.25rem 1.5rem;
+		border-bottom: 1px solid #e5e7eb;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.email-field {
+		font-size: 0.88rem;
+		color: #555;
+	}
+
+	.email-label {
+		font-weight: 600;
+		color: #333;
+		display: inline-block;
+		min-width: 4.5rem;
+	}
+
+	.email-sheet__body {
+		padding: 1.75rem 1.5rem 2rem;
+		min-height: 20rem;
+	}
+
+	.email-body-text {
+		white-space: pre-wrap;
+		word-break: break-word;
+		font-family: var(--font-body);
+		font-size: 0.92rem;
+		line-height: 1.65;
+		color: #222;
+	}
+
+	/* CTA Callout */
+	.cta-callout {
+		margin-top: 2rem;
+		background: linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(5, 5, 5, 0.95) 100%);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		border-radius: var(--radius-card);
+		padding: 1.75rem;
+		text-align: center;
+	}
+
+	.cta-callout h3 {
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		letter-spacing: -0.02em;
+	}
+
+	.cta-callout p {
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.55;
+		margin-bottom: 1.25rem;
+	}
+
+	.cta-callout__btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.75rem 1.75rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-accent);
+		color: #000;
+		font-size: 0.95rem;
+		font-weight: 700;
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+
+	.cta-callout__btn:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.35);
+	}
+
+	/* Toast */
+	.toast {
+		position: fixed;
+		bottom: 2rem;
+		left: 50%;
+		transform: translateX(-50%);
+		background: var(--color-accent);
+		color: #000;
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--radius-pill);
+		font-weight: 600;
+		font-size: 0.88rem;
+		z-index: 100;
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+		animation: toast-in 0.3s ease;
+	}
+
+	.toast[hidden] {
+		display: none;
+	}
+
+	@keyframes toast-in {
+		from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+		to { opacity: 1; transform: translateX(-50%) translateY(0); }
+	}
+
+	/* SEO Content Section */
+	.seo-content {
+		margin-top: 6rem;
+		border-top: 1px solid var(--color-border);
+		padding-top: 5rem;
+	}
+
+	.seo-content__inner {
+		max-width: 56rem;
+		margin: 0 auto;
+	}
+
+	.seo-content h2 {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		text-align: center;
+		margin-bottom: 1rem;
+		letter-spacing: -0.02em;
+	}
+
+	.seo-content__intro {
+		text-align: center;
+		color: var(--color-muted);
+		font-size: 1rem;
+		line-height: 1.6;
+		margin-bottom: 3rem;
+		max-width: 40rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.tips-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem;
+	}
+
+	@media (max-width: 40rem) {
+		.tips-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.tip-card {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.75rem;
+	}
+
+	.tip-num {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: var(--color-accent);
+		color: #000;
+		font-weight: 700;
+		display: grid;
+		place-items: center;
+		margin-bottom: 1rem;
+		font-size: 0.9rem;
+	}
+
+	.tip-card h3 {
+		font-family: var(--font-display);
+		font-size: 1.1rem;
+		margin-bottom: 0.5rem;
+		letter-spacing: -0.01em;
+	}
+
+	.tip-card p {
+		color: var(--color-muted);
+		font-size: 0.9rem;
+		line-height: 1.55;
+	}
+
+	/* FAQ */
+	.clg-faq {
+		margin-top: 5rem;
+		max-width: 50rem;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.clg-faq h2 {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		text-align: center;
+		margin-bottom: 2rem;
+		letter-spacing: -0.02em;
+	}
+
+	.faq-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.faq-item {
+		background: #0d0d0d;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-card);
+		padding: 1.25rem 1.5rem;
+	}
+
+	.faq-item summary {
+		font-weight: 600;
+		font-size: 1rem;
+		cursor: pointer;
+		user-select: none;
+		list-style: none;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.faq-item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.faq-item summary::after {
+		content: '+';
+		font-family: var(--font-mono);
+		font-size: 1.25rem;
+		color: var(--color-accent);
+		flex-shrink: 0;
+		transition: transform 0.2s;
+	}
+
+	.faq-item[open] summary::after {
+		content: '−';
+	}
+
+	.faq-item p {
+		margin-top: 0.75rem;
+		color: var(--color-muted);
+		line-height: 1.6;
+		font-size: 0.92rem;
+	}
+
+	/* ═══════════ PRINT STYLES ═══════════ */
+	@media print {
+		body {
+			background: #fff !important;
+			color: #000 !important;
+		}
+
+		nav, footer, .clg-hero, .clg-form-card, .preview-card__actions,
+		.seo-content, .clg-faq, .cta-callout, .preset-pills, .toast,
+		.nav-header, .cancelkit-footer, .mobile-menu {
+			display: none !important;
+		}
+
+		.clg-tool {
+			padding: 0 !important;
+			margin: 0 !important;
+			max-width: none !important;
+		}
+
+		.clg-workspace {
+			display: block !important;
+		}
+
+		.clg-preview-card {
+			position: static !important;
+			border: none !important;
+			padding: 0 !important;
+			background: transparent !important;
+		}
+
+		.email-sheet {
+			box-shadow: none !important;
+			border-radius: 0 !important;
+		}
+
+		.email-sheet__header {
+			background: #f0f0f0 !important;
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+
+		.email-sheet__body {
+			font-size: 11pt !important;
+			line-height: 1.5 !important;
+		}
+	}
+</style>

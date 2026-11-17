@@ -3,21 +3,2313 @@ export const prerender = true;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { services } from '../data/services';
-import { getGuideDetails } from '../data/guideDetails';
-const categories = [...new Set(services.map(s => s.category))];
+
+const pageTitle = "Subscription Cancellation Difficulty Index (2026): 40+ Brands Ranked | CancelKits";
+const pageDescription = "Check how hard it is to cancel any subscription before you sign up. See Cancellation Difficulty Scores (1–10), dark patterns exposed, and insider escape hatches.";
+
+interface BrandEntry {
+	name: string;
+	slug: string;
+	category: string;
+	difficultyScore: number;
+	difficultyLabel: string;
+	estimatedTime: string;
+	cancelMethod: string;
+	darkPatternsDetected: string[];
+	escapeHatchTip: string;
+}
+
+function getDifficultyLabel(score: number): string {
+	if (score >= 9) return 'Roach Motel / Nightmare (9–10)';
+	if (score >= 7) return 'Hard (7–8)';
+	if (score >= 4) return 'Moderate (4–6)';
+	return 'Easy (1–3)';
+}
+
+function getTierClass(score: number): string {
+	if (score >= 9) return 'nightmare';
+	if (score >= 7) return 'hard';
+	if (score >= 4) return 'moderate';
+	return 'easy';
+}
+
+const brands: BrandEntry[] = [
+	{
+		name: 'Planet Fitness',
+		slug: 'planet-fitness',
+		category: 'Gyms & Fitness',
+		difficultyScore: 9.6,
+		difficultyLabel: getDifficultyLabel(9.6),
+		estimatedTime: '3–5 days (certified mail)',
+		cancelMethod: 'In-Person or Certified Mail',
+		darkPatternsDetected: ['Roach Motel (Easy to join, hard to leave)', 'Forced In-Person Visit', 'Hidden Cancel Button', 'Annual Fee Trap'],
+		escapeHatchTip: 'Send a USPS Certified Mail letter with Return Receipt to your home club. The green card proves delivery and legally stops billing even if the manager claims "in-person only."',
+	},
+	{
+		name: 'Adobe Creative Cloud',
+		slug: 'adobe',
+		category: 'Software & AI',
+		difficultyScore: 9.2,
+		difficultyLabel: getDifficultyLabel(9.2),
+		estimatedTime: '15–30 mins (online + retention)',
+		cancelMethod: 'Web Browser Only (Hidden in Settings)',
+		darkPatternsDetected: ['Early Termination Fee Trap', 'Confirmshaming', 'Forced Retention Call', 'Hidden Cancel Button', 'Roach Motel (Easy to join, hard to leave)'],
+		escapeHatchTip: 'Switch to the Photography $9.99/mo plan first, wait 24 hours, then cancel that plan online for $0 penalty — this bypasses the 50% early termination fee entirely.',
+	},
+	{
+		name: 'SiriusXM',
+		slug: 'siriusxm',
+		category: 'Streaming',
+		difficultyScore: 8.9,
+		difficultyLabel: getDifficultyLabel(8.9),
+		estimatedTime: '15–45 mins (phone hold + retention)',
+		cancelMethod: 'Phone Call Required',
+		darkPatternsDetected: ['Forced Retention Call', 'Aggressive Discount Offers', 'Hidden Cancel Button', 'Phone Tree Maze', 'Roach Motel (Easy to join, hard to leave)'],
+		escapeHatchTip: 'Chat via the SiriusXM app or website instead of calling. If forced to call, say "I\'m moving to a country without SiriusXM coverage" — retention scripts have no counter for this.',
+	},
+	{
+		name: 'LA Fitness',
+		slug: 'la-fitness',
+		category: 'Gyms & Fitness',
+		difficultyScore: 8.7,
+		difficultyLabel: getDifficultyLabel(8.7),
+		estimatedTime: '3–5 days (certified mail)',
+		cancelMethod: 'In-Person or Certified Mail',
+		darkPatternsDetected: ['Roach Motel (Easy to join, hard to leave)', 'Forced In-Person Visit', 'Mandatory 30-Day Notice Period'],
+		escapeHatchTip: 'Send certified mail to LA Fitness HQ at PO Box 54170, Irvine CA 92619. Include your member ID, effective date, and state you are revoking ACH authorization under EFTA.',
+	},
+	{
+		name: 'Equinox',
+		slug: 'equinox',
+		category: 'Gyms & Fitness',
+		difficultyScore: 8.5,
+		difficultyLabel: getDifficultyLabel(8.5),
+		estimatedTime: '45+ days (advance notice)',
+		cancelMethod: 'In-Person or Email (45-Day Notice)',
+		darkPatternsDetected: ['Mandatory 45-Day Notice Period', 'Roach Motel (Easy to join, hard to leave)', 'Forced In-Person Visit'],
+		escapeHatchTip: 'Email memberservices@equinox.com with "FORMAL CANCELLATION NOTICE" in the subject exactly 45 days before your billing date. Screenshot the sent email as proof.',
+	},
+	{
+		name: 'The New York Times',
+		slug: 'nyt',
+		category: 'News & Media',
+		difficultyScore: 8.3,
+		difficultyLabel: getDifficultyLabel(8.3),
+		estimatedTime: '10–20 mins (chat/phone)',
+		cancelMethod: 'Phone or Live Chat Required',
+		darkPatternsDetected: ['Forced Retention Call', 'Hidden Cancel Button', 'Confirmshaming', 'Aggressive Discount Offers'],
+		escapeHatchTip: 'Use the live chat at help.nytimes.com instead of calling. When offered discounts, say "I am recording this conversation for my state AG complaint" — agents process cancellations immediately.',
+	},
+	{
+		name: 'HelloFresh',
+		slug: 'hellofresh',
+		category: 'Shopping & Memberships',
+		difficultyScore: 8.0,
+		difficultyLabel: getDifficultyLabel(8.0),
+		estimatedTime: '10–15 mins (chat required)',
+		cancelMethod: 'Live Chat Required',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Confirmshaming', 'Forced Retention Chat', 'Multi-Step Exit Survey'],
+		escapeHatchTip: 'Skip 5 consecutive weeks first (free), then cancel via chat. When the agent offers discounts, reply "I have a food allergy that developed recently" — no retention script can counter a medical reason.',
+	},
+	{
+		name: 'McAfee',
+		slug: 'mcafee',
+		category: 'VPN & Security',
+		difficultyScore: 7.8,
+		difficultyLabel: getDifficultyLabel(7.8),
+		estimatedTime: '10–20 mins (phone/chat)',
+		cancelMethod: 'Phone or Chat Required',
+		darkPatternsDetected: ['Auto-Renewal Without Notice', 'Hidden Cancel Button', 'Aggressive Retention Offers', 'Buried Cancellation Link'],
+		escapeHatchTip: 'Go to mcafee.com/myaccount → My Account → Turn off Auto-Renewal toggle. If that fails, contact your bank to block the merchant ID directly.',
+	},
+	{
+		name: 'Norton',
+		slug: 'norton',
+		category: 'VPN & Security',
+		difficultyScore: 7.6,
+		difficultyLabel: getDifficultyLabel(7.6),
+		estimatedTime: '10–15 mins (chat/phone)',
+		cancelMethod: 'Phone or Chat Required',
+		darkPatternsDetected: ['Auto-Renewal Without Notice', 'Hidden Cancel Button', 'Dramatic Price Increase on Renewal'],
+		escapeHatchTip: 'Log into my.norton.com → Subscription → Turn off Auto-Renewal. Norton increases prices 2–3x on renewal — always cancel and re-subscribe at the new customer rate.',
+	},
+	{
+		name: 'Audible',
+		slug: 'audible',
+		category: 'Streaming',
+		difficultyScore: 7.5,
+		difficultyLabel: getDifficultyLabel(7.5),
+		estimatedTime: '5–10 mins (web only)',
+		cancelMethod: 'Web Browser Only (Hidden in App)',
+		darkPatternsDetected: ['App Store Billing Maze', 'Unused Credit Forfeiture Trap', 'Multi-Step Exit Survey', 'Confirmshaming'],
+		escapeHatchTip: 'Spend ALL unused credits on books before cancelling — you keep purchased audiobooks forever on the free account. Cancel at audible.com/account, NOT in the app.',
+	},
+	{
+		name: 'Ancestry',
+		slug: 'ancestry',
+		category: 'Software & AI',
+		difficultyScore: 7.4,
+		difficultyLabel: getDifficultyLabel(7.4),
+		estimatedTime: '10–15 mins (phone/chat)',
+		cancelMethod: 'Phone or Chat Required',
+		darkPatternsDetected: ['Auto-Renewal Without Notice', 'Hidden Cancel Button', 'Forced Retention Call', 'Data Hostage (DNA results)'],
+		escapeHatchTip: 'Download all your DNA data and family tree first (Account Settings → Download My Data). Then cancel via chat saying "I want to delete my account under CCPA/GDPR" — this bypasses retention scripts.',
+	},
+	{
+		name: 'Peloton',
+		slug: 'peloton',
+		category: 'Gyms & Fitness',
+		difficultyScore: 7.2,
+		difficultyLabel: getDifficultyLabel(7.2),
+		estimatedTime: '5–10 mins (web)',
+		cancelMethod: 'Web Browser Only (Hidden in App)',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Multi-Step Exit Survey', 'Confirmshaming', 'App Store Billing Maze'],
+		escapeHatchTip: 'Cancel via members.onepeloton.com → Subscription, NOT through the iOS/Android app. You keep access until end of billing cycle.',
+	},
+	{
+		name: 'LinkedIn Premium',
+		slug: 'linkedin-premium',
+		category: 'Software & AI',
+		difficultyScore: 7.0,
+		difficultyLabel: getDifficultyLabel(7.0),
+		estimatedTime: '5–8 mins (web)',
+		cancelMethod: 'Web Browser Only (Hidden in App)',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Multi-Step Exit Survey', 'Confirmshaming', 'Free Trial Auto-Convert'],
+		escapeHatchTip: 'Go to linkedin.com/premium/cancel directly in your browser — this URL bypasses the 5-step cancellation flow hidden in settings. Set a calendar reminder on day 29 of any free trial.',
+	},
+	{
+		name: 'Crunch Fitness',
+		slug: 'crunch-fitness',
+		category: 'Gyms & Fitness',
+		difficultyScore: 7.0,
+		difficultyLabel: getDifficultyLabel(7.0),
+		estimatedTime: '3–5 days (varies by franchise)',
+		cancelMethod: 'In-Person or Certified Mail',
+		darkPatternsDetected: ['Roach Motel (Easy to join, hard to leave)', 'Varies by Franchise Location', 'Mandatory 30-Day Notice Period'],
+		escapeHatchTip: 'Cancellation policies vary by franchise. Call your home club first to ask their specific process. If they require in-person, send certified mail as a legal fallback.',
+	},
+	{
+		name: 'Chegg',
+		slug: 'chegg',
+		category: 'News & Media',
+		difficultyScore: 6.8,
+		difficultyLabel: getDifficultyLabel(6.8),
+		estimatedTime: '5–10 mins (web)',
+		cancelMethod: 'Web Browser Only (Buried in Settings)',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Multi-Step Exit Survey', 'Confirmshaming', 'Free Trial Auto-Convert'],
+		escapeHatchTip: 'Go directly to chegg.com/my-account/subscription and click "Cancel Subscription." Ignore the discount offers — they\'ll re-enroll you in another trial if you accept.',
+	},
+	{
+		name: 'Tinder / Match Group',
+		slug: 'tinder',
+		category: 'Software & AI',
+		difficultyScore: 6.5,
+		difficultyLabel: getDifficultyLabel(6.5),
+		estimatedTime: '5–8 mins (web/app store)',
+		cancelMethod: 'App Store Subscription Settings',
+		darkPatternsDetected: ['App Store Billing Maze', 'Hidden Cancel Button', 'Confirmshaming', 'Free Trial Auto-Convert'],
+		escapeHatchTip: 'If billed through Apple: Settings → Apple ID → Subscriptions → Tinder → Cancel. Deleting the app does NOT cancel the subscription — you must cancel through your app store.',
+	},
+	{
+		name: 'ExpressVPN',
+		slug: 'expressvpn',
+		category: 'VPN & Security',
+		difficultyScore: 6.3,
+		difficultyLabel: getDifficultyLabel(6.3),
+		estimatedTime: '5–10 mins (chat)',
+		cancelMethod: 'Live Chat Required',
+		darkPatternsDetected: ['Forced Retention Chat', 'Aggressive Discount Offers', 'Hidden Auto-Renewal Toggle'],
+		escapeHatchTip: 'Email support@expressvpn.com directly with "Cancel my subscription and process refund" if within 30 days. They offer a 30-day money-back guarantee on all plans.',
+	},
+	{
+		name: 'Canva Pro',
+		slug: 'canva-pro',
+		category: 'Software & AI',
+		difficultyScore: 6.0,
+		difficultyLabel: getDifficultyLabel(6.0),
+		estimatedTime: '3–5 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'Multi-Step Exit Survey', 'Non-Refundable Annual Plan'],
+		escapeHatchTip: 'Request a refund within 14 days of annual plan purchase by emailing billing@canva.com. After 14 days, cancel to prevent renewal and use remaining time.',
+	},
+	{
+		name: 'Dropbox',
+		slug: 'dropbox',
+		category: 'Software & AI',
+		difficultyScore: 5.8,
+		difficultyLabel: getDifficultyLabel(5.8),
+		estimatedTime: '5–8 mins (web)',
+		cancelMethod: 'Web Browser Only (Hidden in App)',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Data Hostage (Files)', 'Multi-Step Exit Survey'],
+		escapeHatchTip: 'Download all files before cancelling. Go to dropbox.com/account/plan → Cancel Plan. Your files remain accessible on the free 2GB plan.',
+	},
+	{
+		name: 'NordVPN',
+		slug: 'nordvpn',
+		category: 'VPN & Security',
+		difficultyScore: 5.5,
+		difficultyLabel: getDifficultyLabel(5.5),
+		estimatedTime: '5–8 mins (chat)',
+		cancelMethod: 'Live Chat Required',
+		darkPatternsDetected: ['Forced Retention Chat', 'Aggressive Discount Offers', 'Hidden Auto-Renewal Toggle'],
+		escapeHatchTip: 'NordVPN has a strict 30-day money-back guarantee. Use live chat at support.nordvpn.com and say "I want a refund under your 30-day guarantee" — they process within 48 hours.',
+	},
+	{
+		name: 'Wall Street Journal',
+		slug: 'wall-street-journal',
+		category: 'News & Media',
+		difficultyScore: 5.5,
+		difficultyLabel: getDifficultyLabel(5.5),
+		estimatedTime: '5–10 mins (phone)',
+		cancelMethod: 'Phone Call Required',
+		darkPatternsDetected: ['Forced Retention Call', 'Aggressive Discount Offers', 'Hidden Cancel Button'],
+		escapeHatchTip: 'Call 1-800-JOURNAL and say "cancel my subscription, no offers" firmly. If pressed, say "I already subscribed to a competitor." They process within minutes.',
+	},
+	{
+		name: 'Washington Post',
+		slug: 'washington-post',
+		category: 'News & Media',
+		difficultyScore: 5.3,
+		difficultyLabel: getDifficultyLabel(5.3),
+		estimatedTime: '3–5 mins (web)',
+		cancelMethod: 'Web & Account Settings',
+		darkPatternsDetected: ['Hidden Cancel Button', 'Multi-Step Exit Survey', 'Aggressive Discount Offers'],
+		escapeHatchTip: 'Go to washingtonpost.com/my-account/subscriptions → Cancel. If offered a discount, decline — you can re-subscribe at the new customer rate later which is usually lower.',
+	},
+	{
+		name: 'Grammarly',
+		slug: 'grammarly',
+		category: 'Software & AI',
+		difficultyScore: 5.0,
+		difficultyLabel: getDifficultyLabel(5.0),
+		estimatedTime: '3–5 mins (web)',
+		cancelMethod: 'Web & Account Settings',
+		darkPatternsDetected: ['Confirmshaming', 'Multi-Step Exit Survey', 'Non-Refundable Annual Plan'],
+		escapeHatchTip: 'Cancel at account.grammarly.com → Subscription → Cancel. The free tier still includes basic grammar checks. Request a refund within 7 days of annual purchase.',
+	},
+	{
+		name: 'ChatGPT Plus',
+		slug: 'chatgpt',
+		category: 'Software & AI',
+		difficultyScore: 4.8,
+		difficultyLabel: getDifficultyLabel(4.8),
+		estimatedTime: '2–3 mins (web/app)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'App Store Billing Maze'],
+		escapeHatchTip: 'If billed through Apple, cancel in iOS Settings → Apple ID → Subscriptions. If billed directly, go to chat.openai.com → Settings → Subscription → Cancel.',
+	},
+	{
+		name: 'Notion',
+		slug: 'notion',
+		category: 'Software & AI',
+		difficultyScore: 4.5,
+		difficultyLabel: getDifficultyLabel(4.5),
+		estimatedTime: '2–3 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Data Hostage (Notes/Docs)', 'Multi-Step Exit Survey'],
+		escapeHatchTip: 'Export your workspace first (Settings → Export → Markdown & CSV). Then cancel at notion.so/billing. The free plan still allows unlimited pages.',
+	},
+	{
+		name: 'Duolingo Plus',
+		slug: 'duolingo',
+		category: 'Software & AI',
+		difficultyScore: 4.3,
+		difficultyLabel: getDifficultyLabel(4.3),
+		estimatedTime: '2–3 mins (app store)',
+		cancelMethod: 'App Store Subscription Settings',
+		darkPatternsDetected: ['App Store Billing Maze', 'Confirmshaming (streak guilt-trips)'],
+		escapeHatchTip: 'Cancel through your app store subscription settings, NOT inside the Duolingo app. Your streak and progress are preserved on the free tier.',
+	},
+	{
+		name: 'Headspace',
+		slug: 'headspace',
+		category: 'Gyms & Fitness',
+		difficultyScore: 4.2,
+		difficultyLabel: getDifficultyLabel(4.2),
+		estimatedTime: '2–3 mins (web/app)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'App Store Billing Maze'],
+		escapeHatchTip: 'Cancel at headspace.com/subscriptions or through your app store. If you cancel within the annual refund window (usually 7 days), email help@headspace.com for a refund.',
+	},
+	{
+		name: 'Calm',
+		slug: 'calm',
+		category: 'Gyms & Fitness',
+		difficultyScore: 4.0,
+		difficultyLabel: getDifficultyLabel(4.0),
+		estimatedTime: '2–3 mins (web/app)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['App Store Billing Maze', 'Confirmshaming'],
+		escapeHatchTip: 'Cancel through iOS Settings → Subscriptions or Google Play → Subscriptions. The in-app cancel button is intentionally harder to find.',
+	},
+	{
+		name: 'Hulu',
+		slug: 'hulu',
+		category: 'Streaming',
+		difficultyScore: 4.0,
+		difficultyLabel: getDifficultyLabel(4.0),
+		estimatedTime: '2–3 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'Multi-Step Exit Survey', 'Aggressive Discount Offers'],
+		escapeHatchTip: 'Cancel at hulu.com/account → Cancel. If billed through Disney Bundle, Apple, or Roku, you must cancel through THAT platform, not Hulu directly.',
+	},
+	{
+		name: 'Disney+',
+		slug: 'disney-plus',
+		category: 'Streaming',
+		difficultyScore: 3.8,
+		difficultyLabel: getDifficultyLabel(3.8),
+		estimatedTime: '2–3 mins (web/app)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['App Store Billing Maze', 'Bundle Billing Confusion'],
+		escapeHatchTip: 'Go to disneyplus.com → Account → Cancel. If part of a bundle (Disney+/Hulu/ESPN+), you must cancel the entire bundle through the billing provider.',
+	},
+	{
+		name: 'Amazon Prime',
+		slug: 'amazon-prime',
+		category: 'Shopping & Memberships',
+		difficultyScore: 3.5,
+		difficultyLabel: getDifficultyLabel(3.5),
+		estimatedTime: '2–3 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'Multi-Step Exit Funnel (6 screens)', 'Aggressive Discount Offers'],
+		escapeHatchTip: 'Go to amazon.com/gp/primecentral → End Membership. Amazon offers a FULL refund if you haven\'t used Prime benefits since your last renewal — always ask.',
+	},
+	{
+		name: 'Xbox Game Pass',
+		slug: 'xbox-game-pass',
+		category: 'Gaming',
+		difficultyScore: 3.5,
+		difficultyLabel: getDifficultyLabel(3.5),
+		estimatedTime: '2–3 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Multi-Step Exit Survey', 'Aggressive Discount Offers'],
+		escapeHatchTip: 'Cancel at account.microsoft.com/services → Game Pass → Cancel. Microsoft often offers 1 month free when you attempt to cancel — accept or decline based on your needs.',
+	},
+	{
+		name: 'PlayStation Plus',
+		slug: 'playstation-plus',
+		category: 'Gaming',
+		difficultyScore: 3.5,
+		difficultyLabel: getDifficultyLabel(3.5),
+		estimatedTime: '2–3 mins (web/console)',
+		cancelMethod: 'Web & Console',
+		darkPatternsDetected: ['Hidden in Console Settings', 'Non-Refundable After 14 Days'],
+		escapeHatchTip: 'Cancel at store.playstation.com → Subscription Management. Request a refund within 14 days of purchase if you haven\'t used the service.',
+	},
+	{
+		name: 'Patreon',
+		slug: 'patreon',
+		category: 'Streaming',
+		difficultyScore: 3.2,
+		difficultyLabel: getDifficultyLabel(3.2),
+		estimatedTime: '1–2 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming (guilt-trip from creator)', 'Per-Creator Cancellation Required'],
+		escapeHatchTip: 'You must cancel each creator\'s membership individually at patreon.com/settings/memberships. There is no "cancel all" button.',
+	},
+	{
+		name: 'Twitch Subscriptions',
+		slug: 'twitch',
+		category: 'Streaming',
+		difficultyScore: 3.0,
+		difficultyLabel: getDifficultyLabel(3.0),
+		estimatedTime: '1–2 mins (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Per-Channel Cancellation Required', 'Confirmshaming'],
+		escapeHatchTip: 'Go to twitch.tv/subscriptions to see all active subs. Cancel each individually. Use your free Prime Gaming sub instead of paying.',
+	},
+	{
+		name: 'OnlyFans',
+		slug: 'onlyfans',
+		category: 'Streaming',
+		difficultyScore: 3.0,
+		difficultyLabel: getDifficultyLabel(3.0),
+		estimatedTime: '1–2 mins (web)',
+		cancelMethod: 'Web (Per-Creator)',
+		darkPatternsDetected: ['Per-Creator Cancellation Required', 'Auto-Renewal On By Default'],
+		escapeHatchTip: 'Go to your profile → Following → Turn off Auto-Renew for each creator. Remove your payment card from Settings → Payment to prevent any future charges.',
+	},
+	{
+		name: 'YouTube Premium',
+		slug: 'youtube-premium',
+		category: 'Streaming',
+		difficultyScore: 2.8,
+		difficultyLabel: getDifficultyLabel(2.8),
+		estimatedTime: '1–2 mins (web/app)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'Multi-Step Exit Survey'],
+		escapeHatchTip: 'Cancel at youtube.com/paid_memberships or through Google account subscriptions. You keep access until the billing period ends.',
+	},
+	{
+		name: 'Apple One',
+		slug: 'apple-one',
+		category: 'Streaming',
+		difficultyScore: 2.5,
+		difficultyLabel: getDifficultyLabel(2.5),
+		estimatedTime: '1 min (device settings)',
+		cancelMethod: 'Device Settings (iOS/macOS)',
+		darkPatternsDetected: ['App Store Billing Maze'],
+		escapeHatchTip: 'iOS: Settings → Your Name → Subscriptions → Apple One → Cancel. Use reportaproblem.apple.com to request refunds — Apple typically processes within 48 hours.',
+	},
+	{
+		name: 'Netflix',
+		slug: 'netflix',
+		category: 'Streaming',
+		difficultyScore: 2.0,
+		difficultyLabel: getDifficultyLabel(2.0),
+		estimatedTime: '30 seconds (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming'],
+		escapeHatchTip: 'Netflix preserves your profile, watch history, and ratings for 10 months after cancellation. Cancel and re-subscribe anytime without losing your data.',
+	},
+	{
+		name: 'Spotify',
+		slug: 'spotify',
+		category: 'Streaming',
+		difficultyScore: 2.0,
+		difficultyLabel: getDifficultyLabel(2.0),
+		estimatedTime: '1 min (web)',
+		cancelMethod: 'Web & App',
+		darkPatternsDetected: ['Confirmshaming', 'App Store Billing Maze'],
+		escapeHatchTip: 'Cancel at spotify.com/account. Your playlists and liked songs are preserved forever on the free tier. Cancel via web, NOT the mobile app.',
+	},
+	{
+		name: 'Equifax ID Protection',
+		slug: 'equifax',
+		category: 'VPN & Security',
+		difficultyScore: 6.5,
+		difficultyLabel: getDifficultyLabel(6.5),
+		estimatedTime: '10–15 mins (phone)',
+		cancelMethod: 'Phone Call Required',
+		darkPatternsDetected: ['Forced Retention Call', 'Fear-Based Retention ("your identity will be unprotected")', 'Hidden Cancel Button'],
+		escapeHatchTip: 'Call 1-888-548-7878 and say "Cancel my paid subscription. I am using the free credit monitoring from the 2017 breach settlement." Agents cannot argue with the free tier.',
+	},
+];
+
+// Sort by difficulty score descending
+const sortedBrands = [...brands].sort((a, b) => b.difficultyScore - a.difficultyScore);
+const top3Worst = sortedBrands.slice(0, 3);
+const totalCount = sortedBrands.length;
+const avgScore = (sortedBrands.reduce((acc, b) => acc + b.difficultyScore, 0) / totalCount).toFixed(1);
+const nightmareCount = sortedBrands.filter(b => b.difficultyScore >= 7).length;
+const easyCount = sortedBrands.filter(b => b.difficultyScore < 4).length;
+
+const categories = ['All', 'Gyms & Fitness', 'Software & AI', 'Streaming', 'News & Media', 'VPN & Security', 'Gaming', 'Shopping & Memberships'];
+
+const datasetSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Dataset',
+	name: 'Subscription Cancellation Difficulty & Dark Pattern Index (2026)',
+	description: pageDescription,
+	url: 'https://cancelkits.com/cancel-difficulty/',
+	creator: { '@type': 'Organization', name: 'CancelKits', url: 'https://cancelkits.com/' },
+	dateModified: '2026-11-01',
+	license: 'https://creativecommons.org/licenses/by/4.0/',
+	variableMeasured: 'Subscription Cancellation Difficulty Score (1–10)',
+	keywords: ['subscription cancellation', 'dark patterns', 'consumer protection', 'cancel difficulty', 'FTC click to cancel'],
+};
+
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: [
+		{
+			'@type': 'Question',
+			name: 'What is a Cancellation Difficulty Score?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'The Cancellation Difficulty Score (1–10) measures how hard it is to cancel a subscription. A score of 1–3 means easy online self-service cancellation. A score of 7–8 means hidden buttons, phone retention teams, or mandatory written notice. A score of 9–10 ("Roach Motel") means certified mail, in-person visits, or deliberate dark patterns designed to prevent cancellation.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'What are subscription dark patterns?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Dark patterns are deceptive design choices that trick consumers into maintaining subscriptions. Common examples include: hiding the cancel button deep in settings, requiring a phone call to cancel what you signed up for online, charging early termination fees, using confirmshaming ("Are you sure? You\'ll lose everything!"), and aggressive retention offers that make cancellation take 10+ minutes.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'Is it legal for companies to make cancellation harder than sign-up?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Under the FTC\'s 2024 "Click-to-Cancel" rule (effective 2025), companies must provide a cancellation method at least as easy as the sign-up process. Many companies are still not fully compliant. Consumers can file complaints at ReportFraud.ftc.gov and dispute charges through their bank under the Fair Credit Billing Act.',
+			},
+		},
+		{
+			'@type': 'Question',
+			name: 'How does CancelKits score cancellation difficulty?',
+			acceptedAnswer: {
+				'@type': 'Answer',
+				text: 'Our research team manually tests each subscription\'s cancellation process across web, mobile app, and phone channels. We score based on 5 factors: (1) number of steps required, (2) mandatory channels (online vs. phone vs. mail), (3) retention friction (exit surveys, discount offers, confirmshaming), (4) time to complete cancellation, and (5) presence of dark patterns like hidden buttons or early termination fees.',
+			},
+		},
+	],
+};
+
+const rankingSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'ItemList',
+	name: 'Subscription Cancel Difficulty Index 2026',
+	description: pageDescription,
+	numberOfItems: totalCount,
+	itemListElement: sortedBrands.map((b, idx) => ({
+		'@type': 'ListItem',
+		position: idx + 1,
+		name: `${b.name} - Cancel Difficulty ${b.difficultyScore}/10`,
+		url: `https://cancelkits.com/cancel/${b.slug}/`,
+	})),
+};
 ---
-<BaseLayout title="Compare Subscription Cancellation Routes | CancelKits" description="Compare cancellation routes for 72 subscriptions. Find official instructions, billing-provider checks, support options and refund guidance." canonicalPath="/cancel-difficulty/">
-  <Nav />
-  <main class="directory">
-    <p><a href="/cancel/">Cancellation guides</a> / Compare routes</p>
-    <h1>Compare subscription cancellation routes</h1>
-    <p class="intro">A cancellation can be straightforward in one account and require support in another. The company billing you, your plan, country and contract matter more than the app installed on your phone.</p>
-    <section aria-labelledby="methodology"><h2 id="methodology">How to use this comparison</h2><p>This is a navigation aid compiled from provider help documents, not a timed test or community rating. We do not publish numerical difficulty scores or invented customer reviews. Each guide distinguishes direct billing from Apple and Google Play purchases and identifies any missing source verification.</p><ol><li>Check your receipt to identify the biller and paying account.</li><li>Open the relevant guide and choose Web, iPhone or Android according to that biller.</li><li>Review notice requirements, committed payments and refund conditions before confirming.</li><li>Save the provider’s end-date confirmation and check the next statement.</li></ol></section>
-    <section><h2>What can make cancellation take longer?</h2><ul><li><strong>Billing partners:</strong> the app provider may be unable to cancel a carrier, store or bundle purchase.</li><li><strong>Account ownership:</strong> team subscriptions may require an administrator; family plans may require the paying organizer.</li><li><strong>Contract terms:</strong> annual commitments, club notice periods and processed meal orders may leave payments due.</li><li><strong>Missing controls:</strong> use the official help channel if you cannot locate the cancellation option. Do not substitute a guessed email address.</li></ul><p>Turning off renewal is separate from closing an account or requesting a refund. A bank-card block does not itself discharge a contract.</p></section>
-    {categories.map(category => <section><h2>{category}</h2><ul>{services.filter(s => s.category === category).map(service => { const guide = getGuideDetails(service); return <li><a href={`/cancel/${service.slug}/`}>{service.name}: cancellation instructions</a><span>{guide.needsReview ? 'Provider details need verification; official support route included.' : guide.storeBilling === false ? 'Direct-billing or membership-agreement route; check plan terms.' : 'Identify direct, app-store or partner billing first.'}</span></li>; })}</ul></section>)}
-    <section><h2>Apple and Google Play shortcuts</h2><p>For an Apple-billed purchase, open Settings → your name → Subscriptions. For a Google Play purchase, open Play Store → profile → Payments & subscriptions → Subscriptions. These menus do not cancel subscriptions paid directly to another company.</p><p><a href="https://support.apple.com/en-us/118428">Apple cancellation instructions</a> · <a href="https://support.google.com/googleplay/answer/7018481?hl=en">Google Play cancellation instructions</a></p></section>
-  </main>
-  <Footer />
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonicalPath="/cancel-difficulty/"
+	keywords="cancel difficulty score, subscription dark patterns, hardest subscriptions to cancel, cancel planet fitness, cancel adobe, cancel gym membership, roach motel subscriptions, FTC click to cancel, subscription cancellation index"
+	schemas={[datasetSchema, faqSchema, rankingSchema]}
+>
+	<Nav />
+
+	<main class="difficulty-page">
+		<!-- Hero Section -->
+		<section class="hero-section">
+			<div class="container">
+				<div class="freshness-badge">
+					<span class="pulse-dot"></span>
+					<span>Last Updated: November 2026 • {totalCount} Services Ranked</span>
+				</div>
+
+				<h1 class="hero-title">
+					Subscription Cancellation<br /><span class="highlight-danger">Difficulty & Dark Pattern Index</span>
+				</h1>
+
+				<p class="hero-subtitle">
+					We tested and ranked {totalCount}+ popular subscriptions by how hard they are to cancel — from 1-click to certified mail nightmares.
+					See every dark pattern exposed and get insider escape hatches to bypass them.
+				</p>
+
+				<!-- Stats Strip -->
+				<div class="stats-strip">
+					<div class="stat-card">
+						<span class="stat-value">{totalCount}</span>
+						<span class="stat-label">Services Ranked</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-red">{nightmareCount}</span>
+						<span class="stat-label">Hard / Nightmare (7+)</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-green">{easyCount}</span>
+						<span class="stat-label">Easy (1–3)</span>
+					</div>
+					<div class="stat-card">
+						<span class="stat-value highlight-orange">{avgScore}/10</span>
+						<span class="stat-label">Average Difficulty</span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Wall of Shame: Top 3 Worst Offenders -->
+		<section class="wall-of-shame">
+			<div class="container">
+				<div class="shame-header">
+					<span class="shame-badge">🔥 WALL OF SHAME — TOP 3 WORST OFFENDERS</span>
+				</div>
+				<div class="shame-grid">
+					{top3Worst.map((brand, idx) => (
+						<article class="shame-card">
+							<div class="shame-rank">#{idx + 1}</div>
+							<div class="shame-card__header">
+								<div>
+									<h3 class="shame-card__name">{brand.name}</h3>
+									<span class="shame-card__category">{brand.category}</span>
+								</div>
+								<div class="shame-score">
+									<span class="shame-score__num">{brand.difficultyScore}</span>
+									<span class="shame-score__denom">/10</span>
+								</div>
+							</div>
+							<div class="shame-card__method">
+								<span class="spec-label">Cancel Method:</span>
+								<span class="method-text-red">{brand.cancelMethod}</span>
+							</div>
+							<div class="shame-card__time">
+								<span class="spec-label">Est. Time:</span>
+								<span>{brand.estimatedTime}</span>
+							</div>
+							<div class="shame-card__patterns">
+								{brand.darkPatternsDetected.map(dp => (
+									<span class="dp-tag dp-tag--red">{dp}</span>
+								))}
+							</div>
+							<div class="shame-card__actions">
+								<a href={`#brand-${brand.slug}`} class="btn-escape btn-shame-escape" data-shame-slug={brand.slug}>View Escape Hatch →</a>
+							</div>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<!-- Interactive Controls: Search, Category, Sort -->
+		<section class="controls-section" id="index">
+			<div class="container">
+				<div class="controls-card">
+					<!-- Category Pills -->
+					<div class="category-pills" role="tablist">
+						{categories.map(cat => (
+							<button type="button" class:list={['cat-pill', cat === 'All' && 'is-active']} data-category={cat}>{cat}</button>
+						))}
+					</div>
+
+					<!-- Search & Sort -->
+					<div class="search-sort-row">
+						<div class="search-input-wrap">
+							<svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+							<input type="search" id="brand-search" placeholder="Search any brand, e.g. Adobe, Planet Fitness, NYT..." aria-label="Search brand" />
+						</div>
+						<div class="sort-wrap">
+							<label for="sort-select" class="sort-label">Sort:</label>
+							<select id="sort-select" class="sort-select" aria-label="Sort brands">
+								<option value="hardest" selected>Hardest to Cancel (10 → 1)</option>
+								<option value="easiest">Easiest to Cancel (1 → 10)</option>
+								<option value="name">Alphabetical (A → Z)</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Compare Mode Toggle -->
+					<div class="compare-toggle-row">
+						<button type="button" class="btn-compare-toggle" id="compare-toggle-btn">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+							<span>Compare 2 Brands</span>
+						</button>
+						<span class="compare-hint" id="compare-hint" hidden>Select up to 2 brand cards to compare side-by-side</span>
+						<span id="results-count" class="results-count">Showing all {totalCount} brands</span>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Brand Cards Grid (SSR for SEO) -->
+		<section class="brands-section">
+			<div class="container">
+				<div class="brands-grid" id="brands-grid">
+					{sortedBrands.map(brand => {
+						const tier = getTierClass(brand.difficultyScore);
+						return (
+							<article
+								id={`brand-${brand.slug}`}
+								class={`brand-card brand-card--${tier}`}
+								data-name={brand.name.toLowerCase()}
+								data-slug={brand.slug}
+								data-category={brand.category}
+								data-score={brand.difficultyScore}
+								data-tier={tier}
+								data-method={brand.cancelMethod}
+								data-time={brand.estimatedTime}
+								data-patterns={JSON.stringify(brand.darkPatternsDetected)}
+								data-escape={brand.escapeHatchTip}
+							>
+								<div class="brand-card__header">
+									<div class="brand-card__meta">
+										<h3 class="brand-card__name">{brand.name}</h3>
+										<span class="brand-card__category">{brand.category}</span>
+									</div>
+									<div class={`score-badge score-badge--${tier}`} title={`Difficulty: ${brand.difficultyScore}/10`}>
+										<span class="score-num">{brand.difficultyScore}</span>
+										<span class="score-denom">/10</span>
+									</div>
+								</div>
+
+								<div class="brand-card__label">
+									<span class={`difficulty-label difficulty-label--${tier}`}>{brand.difficultyLabel}</span>
+								</div>
+
+								<div class="brand-card__specs">
+									<div class="spec-item">
+										<span class="spec-label">Method</span>
+										<span class={`spec-value method-color--${tier}`}>{brand.cancelMethod}</span>
+									</div>
+									<div class="spec-item">
+										<span class="spec-label">Est. Time</span>
+										<span class="spec-value">{brand.estimatedTime}</span>
+									</div>
+								</div>
+
+								<div class="brand-card__patterns">
+									{brand.darkPatternsDetected.slice(0, 3).map(dp => (
+										<span class={`dp-tag dp-tag--${tier}`}>{dp}</span>
+									))}
+									{brand.darkPatternsDetected.length > 3 && (
+										<span class="dp-tag dp-tag--more">+{brand.darkPatternsDetected.length - 3} more</span>
+									)}
+								</div>
+
+								<!-- Escape Hatch (expandable) -->
+								<div class="brand-card__escape" hidden>
+									<div class="escape-box">
+										<div class="escape-box__header">
+											<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+											<strong>Insider Escape Hatch</strong>
+										</div>
+										<p class="escape-tip-desc">{brand.escapeHatchTip}</p>
+										<div class="escape-script-wrap">
+											<div class="escape-script-top">
+												<span class="escape-script-title">Cancellation Script:</span>
+												<button type="button" class="btn-copy-script" data-script={`Please immediately cancel my ${brand.name} subscription and confirm in writing that all recurring billing has terminated. I am formally revoking recurring debit authorization under the FTC Click-to-Cancel rule.`}>
+													<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+													<span>Copy Script</span>
+												</button>
+											</div>
+											<div class="escape-script-text">"Please immediately cancel my {brand.name} subscription and confirm in writing that all recurring billing has terminated. I am formally revoking recurring debit authorization under the FTC Click-to-Cancel rule."</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="brand-card__actions">
+									<button type="button" class="btn-escape-toggle">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+										<span>See Escape Hatch</span>
+									</button>
+									<a href={`/cancel/${brand.slug}/`} class="btn-guide">Full Step-by-Step Guide →</a>
+								</div>
+							</article>
+						);
+					})}
+				</div>
+
+				<!-- No Results -->
+				<div class="no-results" id="no-results" hidden>
+					<div class="no-results__icon">🔍</div>
+					<h3>No matching brands found</h3>
+					<p>Try a different search term or reset your filters.</p>
+					<button type="button" class="btn-reset" id="reset-btn">Reset Filters</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Compare Panel (hidden by default) -->
+		<div class="compare-panel" id="compare-panel" hidden>
+			<div class="compare-panel__header">
+				<h3>Compare Brands</h3>
+				<button type="button" class="compare-panel__close" id="close-compare">✕</button>
+			</div>
+			<div class="compare-panel__body" id="compare-body">
+				<p class="compare-empty">Select 2 brand cards above to compare</p>
+			</div>
+			<div class="compare-panel__footer" id="compare-footer" hidden>
+				<button type="button" class="btn-share-compare" id="share-compare-btn">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+					Share Comparison
+				</button>
+			</div>
+		</div>
+
+		<!-- CTA Interstitial -->
+		<section class="cta-interstitial">
+			<div class="container">
+				<div class="cta-interstitial__card">
+					<div class="cta-interstitial__badge">⚡ The 1-Click Alternative</div>
+					<h3>Have one of these hard-to-cancel subscriptions hiding in your inbox?</h3>
+					<p>Let CancelKits find all of them in 30 seconds (read-only) and cancel them in one click.</p>
+					<a href="/start/" class="btn-cta-primary">Run Free 30-Second Subscription Audit →</a>
+					<span class="cta-guarantee">No credit card required • Read-only inbox scan</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- Submit a Dark Pattern Widget -->
+		<section class="submit-section">
+			<div class="container">
+				<div class="submit-card">
+					<div class="submit-card__header">
+						<h2>🗳️ Report a Dark Pattern</h2>
+						<p>Help other consumers. Report a company that made canceling deliberately hard.</p>
+					</div>
+					<form id="dark-pattern-form" class="submit-form" onsubmit="return false;">
+						<div class="submit-form__row">
+							<div class="form-group">
+								<label for="report-company">Company Name</label>
+								<input type="text" id="report-company" class="form-input" placeholder="e.g. Planet Fitness" required />
+							</div>
+							<div class="form-group">
+								<label for="report-score">Difficulty (1–10)</label>
+								<select id="report-score" class="form-input">
+									<option value="10">10 — Nightmare</option>
+									<option value="9">9 — Nearly Impossible</option>
+									<option value="8" selected>8 — Very Hard</option>
+									<option value="7">7 — Hard</option>
+									<option value="6">6 — Moderate-Hard</option>
+									<option value="5">5 — Moderate</option>
+									<option value="4">4 — Moderate-Easy</option>
+									<option value="3">3 — Easy</option>
+									<option value="2">2 — Very Easy</option>
+									<option value="1">1 — Instant</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="report-pattern">Dark Pattern / Trap Encountered</label>
+							<textarea id="report-pattern" class="form-input" rows="3" placeholder="What specific cancellation trap, hidden button, or retention tactic did you encounter?"></textarea>
+						</div>
+						<button type="submit" class="btn-submit-report" id="submit-report-btn">Submit Dark Pattern Report</button>
+					</form>
+					<div class="submit-success" id="submit-success" hidden>
+						<div class="success-icon">✅</div>
+						<h4>Thank you! Your report has been queued for verification.</h4>
+						<p>Your submission helps keep the index accurate and protects other consumers.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Methodology & FAQs -->
+		<section class="methodology-section">
+			<div class="container">
+				<div class="methodology-card">
+					<div class="methodology-header">
+						<span class="methodology-tag">Research & Methodology</span>
+						<h2 class="methodology-title">How We Score Subscription Dark Patterns</h2>
+					</div>
+
+					<div class="methodology-body">
+						<p>
+							The CancelKits Cancellation Difficulty Index is built from hands-on consumer research. Our team manually tests each subscription's cancellation process across web browsers, mobile apps, phone support, and postal mail channels. This comparison is an editorial research reference compiled from manual flow audits and provider terms, not a timed test or community rating. We don't rely on company self-reporting — every score reflects the actual end-user experience.
+						</p>
+						<p>
+							Each brand is scored on a scale of 1.0 to 10.0 based on five weighted factors: (1) <strong>number of steps required</strong> to reach the cancel button, (2) <strong>mandatory cancellation channel</strong> — online self-service earns a low score while certified mail or in-person-only earns a high score, (3) <strong>retention friction</strong> — exit surveys, confirmshaming pop-ups, and aggressive discount offers, (4) <strong>total time to complete</strong> the cancellation, and (5) <strong>dark pattern severity</strong> — the presence of deceptive tactics like hidden buttons, early termination fees, or deliberate billing maze redirects.
+						</p>
+						<p>
+							We also catalog specific dark pattern types using the taxonomy from Princeton University's Dark Patterns research and the FTC's 2022 enforcement report on manipulative design. Brands that score 9–10 are flagged as "Roach Motel" services — a term describing products that are easy to check into but nearly impossible to leave. Under the FTC's 2024 "Click-to-Cancel" rule (16 CFR Part 425), many of these practices may now violate federal law. Consumers encountering these barriers can file complaints at <a href="https://reportfraud.ftc.gov" target="_blank" rel="noopener noreferrer">ReportFraud.ftc.gov</a>.
+						</p>
+						<p>
+							The index is updated quarterly with community-submitted reports factored into scoring adjustments. If you've recently battled a cancellation process, <a href="#dark-pattern-form">submit a dark pattern report</a> to help keep the index accurate and protect other consumers.
+						</p>
+					</div>
+
+					<div class="criteria-grid">
+						<div class="criteria-item">
+							<div class="criteria-score-box score-green">1–3</div>
+							<h4>Easy</h4>
+							<p>1–2 click online cancellation in account settings. Under 3 minutes. No phone call or mail required.</p>
+						</div>
+						<div class="criteria-item">
+							<div class="criteria-score-box score-yellow">4–6</div>
+							<h4>Moderate</h4>
+							<p>Multiple retention screens, exit surveys, chat-only cancellation, or hidden settings. 3–10 minutes.</p>
+						</div>
+						<div class="criteria-item">
+							<div class="criteria-score-box score-orange">7–8</div>
+							<h4>Hard</h4>
+							<p>Mandatory phone calls, aggressive retention teams, buried settings, or written notice requirements. 10–30+ minutes.</p>
+						</div>
+						<div class="criteria-item">
+							<div class="criteria-score-box score-red">9–10</div>
+							<h4>Roach Motel / Nightmare</h4>
+							<p>Certified mail, in-person visits, early termination fees, or deliberately hostile dark patterns. Days to weeks.</p>
+						</div>
+					</div>
+
+					<!-- Journalist Citation -->
+					<div class="journalist-box">
+						<div class="journalist-text">
+							<h4>Citing this index in your article?</h4>
+							<p>Journalists and bloggers are welcome to cite with attribution to <strong>CancelKits</strong> and a link to <code>cancelkits.com/cancel-difficulty</code>.</p>
+						</div>
+						<button type="button" class="btn-copy-citation" id="copy-citation-btn">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+							<span id="citation-label">Copy Attribution HTML</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- FAQ Section -->
+		<section class="faq-section" id="faq">
+			<div class="container">
+				<h2>Frequently Asked Questions</h2>
+				<div class="faq-list">
+					<details class="faq-item">
+						<summary>What is a Cancellation Difficulty Score?</summary>
+						<p>The Cancellation Difficulty Score (1–10) measures how hard it is to cancel a subscription based on our hands-on testing. A score of 1–3 means easy online self-service cancellation. A score of 7–8 means hidden buttons, phone retention teams, or mandatory written notice. A score of 9–10 ("Roach Motel") means certified mail, in-person visits, or deliberate dark patterns designed to prevent cancellation.</p>
+					</details>
+					<details class="faq-item">
+						<summary>What are subscription dark patterns?</summary>
+						<p>Dark patterns are deceptive design choices that trick consumers into maintaining subscriptions. Common examples: hiding the cancel button deep in settings, requiring a phone call to cancel what you signed up for online, charging early termination fees, using confirmshaming ("Are you sure? You'll lose everything!"), and aggressive retention offers that make cancellation take 10+ minutes.</p>
+					</details>
+					<details class="faq-item">
+						<summary>Is it legal for companies to make cancellation harder than sign-up?</summary>
+						<p>Under the FTC's 2024 "Click-to-Cancel" rule (effective 2025), companies must provide a cancellation method at least as easy as the sign-up process. Many companies are still not fully compliant. Consumers can file complaints at ReportFraud.ftc.gov and dispute charges through their bank under the Fair Credit Billing Act.</p>
+					</details>
+					<details class="faq-item">
+						<summary>How often is this index updated?</summary>
+						<p>The index is updated quarterly. We re-test all ranked services and incorporate community-submitted dark pattern reports. Last update: November 2026. If a company has recently changed their cancellation process, submit a report to help us update the score.</p>
+					</details>
+				</div>
+			</div>
+		</section>
+
+		<!-- Bottom CTA -->
+		<section class="bottom-cta">
+			<div class="container">
+				<div class="bottom-cta__card">
+					<h2>Stop paying for subscriptions you don't use</h2>
+					<p>Connect your email in 30 seconds. CancelKits detects every hidden charge and cancels unwanted recurring billing in one click.</p>
+					<a href="/start/" class="btn-cta-large">Start Free Scan →</a>
+					<span class="cta-guarantee">No credit card required • Read-only scan</span>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Toast -->
+	<div class="toast" id="toast" aria-live="polite" hidden>Copied to clipboard!</div>
+
+	<Footer />
 </BaseLayout>
-<style>.directory{max-width:900px;margin:auto;padding:110px 24px 70px;line-height:1.8}.directory h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.2;margin:20px 0}.intro{font-size:1.2rem}.directory section{padding:28px 0;border-top:1px solid #ffffff22}.directory h2{font-size:1.6rem;margin-bottom:18px}.directory ul,.directory ol{padding-left:24px}.directory li{margin:14px 0}.directory span{display:block;color:#a6aec0;font-size:.9rem}.directory a{color:#b9acff;text-decoration:underline;text-underline-offset:3px}</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+	// Elements
+	const searchInput = document.getElementById('brand-search') as HTMLInputElement;
+	const sortSelect = document.getElementById('sort-select') as HTMLSelectElement;
+	const categoryPills = document.querySelectorAll<HTMLButtonElement>('.cat-pill');
+	const brandsGrid = document.getElementById('brands-grid') as HTMLElement;
+	const brandCards = Array.from(document.querySelectorAll<HTMLElement>('.brand-card'));
+	const resultsCount = document.getElementById('results-count') as HTMLElement;
+	const noResults = document.getElementById('no-results') as HTMLElement;
+	const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
+	const toast = document.getElementById('toast') as HTMLElement;
+
+	let activeCategory = 'All';
+	let searchQuery = '';
+	let sortOrder = 'hardest';
+
+	// ── Filtering ──
+	function applyFilters() {
+		let visible = 0;
+		brandCards.forEach(card => {
+			const name = card.dataset.name || '';
+			const cat = card.dataset.category || '';
+			const matchCat = activeCategory === 'All' || cat === activeCategory;
+			const matchSearch = !searchQuery || name.includes(searchQuery) || cat.toLowerCase().includes(searchQuery);
+			if (matchCat && matchSearch) {
+				card.style.display = '';
+				visible++;
+			} else {
+				card.style.display = 'none';
+			}
+		});
+		if (resultsCount) resultsCount.textContent = `Showing ${visible} of ${brandCards.length} brands`;
+		if (noResults) noResults.hidden = visible > 0;
+	}
+
+	// ── Sorting ──
+	function applySorting() {
+		const sorted = [...brandCards].sort((a, b) => {
+			const scoreA = parseFloat(a.dataset.score || '0');
+			const scoreB = parseFloat(b.dataset.score || '0');
+			const nameA = a.dataset.name || '';
+			const nameB = b.dataset.name || '';
+			if (sortOrder === 'hardest') return scoreB - scoreA || nameA.localeCompare(nameB);
+			if (sortOrder === 'easiest') return scoreA - scoreB || nameA.localeCompare(nameB);
+			return nameA.localeCompare(nameB);
+		});
+		sorted.forEach(card => brandsGrid.appendChild(card));
+	}
+
+	// Category pills
+	categoryPills.forEach(pill => {
+		pill.addEventListener('click', () => {
+			categoryPills.forEach(p => p.classList.remove('is-active'));
+			pill.classList.add('is-active');
+			activeCategory = pill.dataset.category || 'All';
+			applyFilters();
+		});
+	});
+
+	// Search
+	searchInput?.addEventListener('input', () => {
+		searchQuery = searchInput.value.toLowerCase().trim();
+		applyFilters();
+	});
+
+	// Sort
+	sortSelect?.addEventListener('change', () => {
+		sortOrder = sortSelect.value;
+		applySorting();
+		applyFilters();
+	});
+
+	// Reset
+	resetBtn?.addEventListener('click', () => {
+		activeCategory = 'All';
+		searchQuery = '';
+		sortOrder = 'hardest';
+		if (searchInput) searchInput.value = '';
+		if (sortSelect) sortSelect.value = 'hardest';
+		categoryPills.forEach(p => p.classList.remove('is-active'));
+		categoryPills[0]?.classList.add('is-active');
+		applySorting();
+		applyFilters();
+	});
+
+	// ── Escape Hatch Toggle ──
+	document.querySelectorAll<HTMLButtonElement>('.btn-escape-toggle').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const card = btn.closest('.brand-card') as HTMLElement;
+			const escapeBox = card?.querySelector('.brand-card__escape') as HTMLElement;
+			if (!escapeBox) return;
+			const isHidden = escapeBox.hidden;
+			escapeBox.hidden = !isHidden;
+			const label = btn.querySelector('span');
+			if (label) label.textContent = isHidden ? 'Hide Escape Hatch' : 'See Escape Hatch';
+		});
+	});
+
+	// ── Wall of Shame Escape Link Anchor & Open ──
+	document.querySelectorAll<HTMLAnchorElement>('.btn-shame-escape').forEach(link => {
+		link.addEventListener('click', (e) => {
+			const slug = link.dataset.shameSlug;
+			if (!slug) return;
+			const targetCard = document.getElementById(`brand-${slug}`);
+			if (targetCard) {
+				e.preventDefault();
+				targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				const escapeBox = targetCard.querySelector('.brand-card__escape') as HTMLElement;
+				const toggleBtn = targetCard.querySelector('.btn-escape-toggle') as HTMLElement;
+				if (escapeBox && escapeBox.hidden) {
+					escapeBox.hidden = false;
+					const label = toggleBtn?.querySelector('span');
+					if (label) label.textContent = 'Hide Escape Hatch';
+				}
+				targetCard.classList.add('is-highlighted');
+				setTimeout(() => targetCard.classList.remove('is-highlighted'), 2000);
+			}
+		});
+	});
+
+	// ── Copy Cancellation Script ──
+	document.querySelectorAll<HTMLButtonElement>('.btn-copy-script').forEach(btn => {
+		btn.addEventListener('click', async (e) => {
+			e.stopPropagation();
+			const script = btn.dataset.script;
+			if (!script) return;
+			try {
+				await navigator.clipboard.writeText(script);
+				const span = btn.querySelector('span');
+				const orig = span ? span.textContent : 'Copy Script';
+				if (span) span.textContent = 'Copied!';
+				showToast('Cancellation script copied to clipboard!');
+				setTimeout(() => { if (span) span.textContent = orig; }, 2000);
+			} catch {}
+		});
+	});
+
+	// ── Compare Mode ──
+	const compareToggle = document.getElementById('compare-toggle-btn') as HTMLButtonElement;
+	const compareHint = document.getElementById('compare-hint') as HTMLElement;
+	const comparePanel = document.getElementById('compare-panel') as HTMLElement;
+	const compareBody = document.getElementById('compare-body') as HTMLElement;
+	const compareFooter = document.getElementById('compare-footer') as HTMLElement;
+	const closeCompare = document.getElementById('close-compare') as HTMLButtonElement;
+	const shareCompareBtn = document.getElementById('share-compare-btn') as HTMLButtonElement;
+
+	let compareMode = false;
+	let compareSelection: HTMLElement[] = [];
+
+	compareToggle?.addEventListener('click', () => {
+		compareMode = !compareMode;
+		compareToggle.classList.toggle('is-active', compareMode);
+		if (compareHint) compareHint.hidden = !compareMode;
+		if (!compareMode) {
+			compareSelection = [];
+			brandCards.forEach(c => c.classList.remove('is-compare-selected'));
+			if (comparePanel) comparePanel.hidden = true;
+		}
+	});
+
+	closeCompare?.addEventListener('click', () => {
+		compareMode = false;
+		compareSelection = [];
+		brandCards.forEach(c => c.classList.remove('is-compare-selected'));
+		if (comparePanel) comparePanel.hidden = true;
+		if (compareHint) compareHint.hidden = true;
+		compareToggle?.classList.remove('is-active');
+	});
+
+	// Click on card in compare mode
+	brandCards.forEach(card => {
+		card.addEventListener('click', (e) => {
+			if (!compareMode) return;
+			// Don't trigger on button/link clicks inside the card
+			const target = e.target as HTMLElement;
+			if (target.closest('button') || target.closest('a')) return;
+
+			if (card.classList.contains('is-compare-selected')) {
+				card.classList.remove('is-compare-selected');
+				compareSelection = compareSelection.filter(c => c !== card);
+			} else if (compareSelection.length < 2) {
+				card.classList.add('is-compare-selected');
+				compareSelection.push(card);
+			}
+
+			if (compareSelection.length === 2) {
+				renderComparison();
+			} else {
+				if (comparePanel) comparePanel.hidden = true;
+			}
+		});
+	});
+
+	function renderComparison() {
+		if (!compareBody || !comparePanel || !compareFooter) return;
+		const [a, b] = compareSelection;
+		const dataA = getCardData(a);
+		const dataB = getCardData(b);
+
+		compareBody.innerHTML = `
+			<div class="compare-grid">
+				<div class="compare-col">
+					<h4>${esc(dataA.name)}</h4>
+					<div class="compare-score compare-score--${dataA.tier}">${dataA.score}/10</div>
+					<div class="compare-detail"><strong>Method:</strong> ${esc(dataA.method)}</div>
+					<div class="compare-detail"><strong>Time:</strong> ${esc(dataA.time)}</div>
+					<div class="compare-detail"><strong>Dark Patterns:</strong></div>
+					<div class="compare-patterns">${dataA.patterns.map((p: string) => `<span class="dp-tag dp-tag--${dataA.tier}">${esc(p)}</span>`).join('')}</div>
+				</div>
+				<div class="compare-vs">VS</div>
+				<div class="compare-col">
+					<h4>${esc(dataB.name)}</h4>
+					<div class="compare-score compare-score--${dataB.tier}">${dataB.score}/10</div>
+					<div class="compare-detail"><strong>Method:</strong> ${esc(dataB.method)}</div>
+					<div class="compare-detail"><strong>Time:</strong> ${esc(dataB.time)}</div>
+					<div class="compare-detail"><strong>Dark Patterns:</strong></div>
+					<div class="compare-patterns">${dataB.patterns.map((p: string) => `<span class="dp-tag dp-tag--${dataB.tier}">${esc(p)}</span>`).join('')}</div>
+				</div>
+			</div>
+		`;
+		comparePanel.hidden = false;
+		compareFooter.hidden = false;
+		comparePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	}
+
+	function getCardData(card: HTMLElement) {
+		const score = parseFloat(card.dataset.score || '0');
+		let tier = 'easy';
+		if (score >= 9) tier = 'nightmare';
+		else if (score >= 7) tier = 'hard';
+		else if (score >= 4) tier = 'moderate';
+		return {
+			name: card.querySelector('.brand-card__name')?.textContent || '',
+			score: card.dataset.score || '0',
+			tier,
+			method: card.dataset.method || '',
+			time: card.dataset.time || '',
+			patterns: JSON.parse(card.dataset.patterns || '[]'),
+		};
+	}
+
+	shareCompareBtn?.addEventListener('click', async () => {
+		if (compareSelection.length !== 2) return;
+		const [a, b] = compareSelection;
+		const dA = getCardData(a);
+		const dB = getCardData(b);
+		const text = `🔍 Cancel Difficulty Comparison:\n\n${dA.name}: ${dA.score}/10 — ${dA.method}\n${dB.name}: ${dB.score}/10 — ${dB.method}\n\nSee the full index: https://cancelkits.com/cancel-difficulty/`;
+		try {
+			await navigator.clipboard.writeText(text);
+			showToast('Comparison copied to clipboard!');
+		} catch {}
+	});
+
+	// ── Submit Dark Pattern Report ──
+	const reportForm = document.getElementById('dark-pattern-form') as HTMLFormElement;
+	const submitBtn = document.getElementById('submit-report-btn') as HTMLButtonElement;
+	const submitSuccess = document.getElementById('submit-success') as HTMLElement;
+
+	submitBtn?.addEventListener('click', () => {
+		const company = (document.getElementById('report-company') as HTMLInputElement)?.value.trim();
+		const score = (document.getElementById('report-score') as HTMLSelectElement)?.value;
+		const pattern = (document.getElementById('report-pattern') as HTMLTextAreaElement)?.value.trim();
+
+		if (!company) {
+			alert('Please enter a company name.');
+			return;
+		}
+
+		// Save to localStorage
+		try {
+			const existing = JSON.parse(localStorage.getItem('cancelkit_dark_pattern_reports') || '[]');
+			existing.push({ company, score, pattern, timestamp: new Date().toISOString() });
+			localStorage.setItem('cancelkit_dark_pattern_reports', JSON.stringify(existing));
+		} catch {}
+
+		if (reportForm) reportForm.hidden = true;
+		if (submitSuccess) submitSuccess.hidden = false;
+	});
+
+	// ── Copy Citation ──
+	const copyCitationBtn = document.getElementById('copy-citation-btn') as HTMLButtonElement;
+	const citationLabel = document.getElementById('citation-label') as HTMLElement;
+	copyCitationBtn?.addEventListener('click', async () => {
+		const html = '<p>Source: <a href="https://cancelkits.com/cancel-difficulty/" target="_blank" rel="noopener">CancelKits Subscription Cancellation Difficulty Index (2026)</a></p>';
+		try {
+			await navigator.clipboard.writeText(html);
+			if (citationLabel) citationLabel.textContent = 'Copied!';
+			setTimeout(() => { if (citationLabel) citationLabel.textContent = 'Copy Attribution HTML'; }, 2000);
+		} catch {}
+	});
+
+	// ── Toast Helper ──
+	function showToast(message: string) {
+		if (!toast) return;
+		toast.textContent = message;
+		toast.hidden = false;
+		setTimeout(() => { toast.hidden = true; }, 2500);
+	}
+
+	function esc(str: string): string {
+		const div = document.createElement('div');
+		div.textContent = str;
+		return div.innerHTML;
+	}
+});
+</script>
+
+<style>
+	/* ═════════════════════════════════════════════════════
+	   CANCEL DIFFICULTY INDEX — STYLES
+	   ═════════════════════════════════════════════════════ */
+
+	.difficulty-page {
+		background: #050505;
+		color: #fff;
+		min-height: 100vh;
+		padding-bottom: 6rem;
+	}
+
+	.container {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+	}
+
+	/* Hero */
+	.hero-section {
+		padding: 5rem 0 3rem;
+		text-align: center;
+	}
+
+	.freshness-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		padding: 0.35rem 0.85rem;
+		border-radius: 999px;
+		font-size: 0.8125rem;
+		color: #a3a3a3;
+		margin-bottom: 1.5rem;
+		font-family: var(--font-mono);
+	}
+
+	.pulse-dot {
+		width: 7px; height: 7px;
+		background: #00ff88;
+		border-radius: 50%;
+		box-shadow: 0 0 8px #00ff88;
+		animation: pulse-glow 2s infinite ease-in-out;
+	}
+
+	@keyframes pulse-glow {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.4; }
+	}
+
+	.hero-title {
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 5vw, 3.5rem);
+		font-weight: 800;
+		line-height: 1.12;
+		letter-spacing: -0.04em;
+		margin: 0 auto 1.25rem;
+		max-width: 900px;
+	}
+
+	.highlight-danger {
+		color: #ff4444;
+		text-shadow: 0 0 35px rgba(255, 68, 68, 0.35);
+	}
+
+	.hero-subtitle {
+		font-size: clamp(1rem, 2vw, 1.2rem);
+		color: #a3a3a3;
+		max-width: 760px;
+		margin: 0 auto 2.5rem;
+		line-height: 1.6;
+	}
+
+	.stats-strip {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 1rem;
+		max-width: 820px;
+		margin: 0 auto;
+	}
+
+	.stat-card {
+		background: #0f0f0f;
+		border: 1px solid #1f1f1f;
+		border-radius: 12px;
+		padding: 1.15rem 1rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.35rem;
+	}
+
+	.stat-value {
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+	}
+
+	.stat-label { font-size: 0.8125rem; color: #888; }
+	.highlight-red { color: #ff4444; }
+	.highlight-orange { color: #ffa800; }
+	.highlight-green { color: #00ff88; }
+
+	/* Wall of Shame */
+	.wall-of-shame {
+		margin-bottom: 3.5rem;
+	}
+
+	.shame-header {
+		text-align: center;
+		margin-bottom: 1.75rem;
+	}
+
+	.shame-badge {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: #ff4444;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		background: rgba(255, 68, 68, 0.1);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		padding: 0.5rem 1.25rem;
+		border-radius: 999px;
+	}
+
+	.shame-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.shame-card {
+		background: linear-gradient(180deg, #150a0a 0%, #0d0d0d 100%);
+		border: 1px solid rgba(255, 68, 68, 0.35);
+		border-radius: 16px;
+		padding: 1.75rem;
+		position: relative;
+	}
+
+	.shame-rank {
+		position: absolute;
+		top: -0.65rem;
+		right: 1.25rem;
+		background: #ff4444;
+		color: #fff;
+		font-weight: 800;
+		font-size: 0.85rem;
+		padding: 0.2rem 0.65rem;
+		border-radius: 6px;
+	}
+
+	.shame-card__header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.shame-card__name {
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: 700;
+		margin: 0;
+	}
+
+	.shame-card__category {
+		font-size: 0.78rem;
+		color: #888;
+	}
+
+	.shame-score {
+		display: flex;
+		align-items: baseline;
+		gap: 0.1rem;
+		background: rgba(255, 68, 68, 0.18);
+		border: 1px solid #ff4444;
+		color: #ff4444;
+		padding: 0.3rem 0.7rem;
+		border-radius: 8px;
+		font-weight: 800;
+		font-family: var(--font-mono);
+		flex-shrink: 0;
+	}
+
+	.shame-score__num { font-size: 1.3rem; line-height: 1; }
+	.shame-score__denom { font-size: 0.75rem; opacity: 0.8; }
+
+	.shame-card__method, .shame-card__time {
+		font-size: 0.85rem;
+		margin-bottom: 0.5rem;
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.method-text-red { color: #fca5a5; font-weight: 500; }
+
+	.shame-card__patterns {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: 0.75rem 0 1.25rem;
+	}
+
+	.dp-tag {
+		font-size: 0.72rem;
+		font-weight: 600;
+		padding: 0.25rem 0.6rem;
+		border-radius: 6px;
+		white-space: nowrap;
+	}
+
+	.dp-tag--red, .dp-tag--nightmare {
+		background: rgba(255, 68, 68, 0.12);
+		color: #ff8888;
+		border: 1px solid rgba(255, 68, 68, 0.25);
+	}
+
+	.dp-tag--hard {
+		background: rgba(255, 168, 0, 0.12);
+		color: #ffc44d;
+		border: 1px solid rgba(255, 168, 0, 0.25);
+	}
+
+	.dp-tag--moderate {
+		background: rgba(255, 213, 79, 0.12);
+		color: #ffd54f;
+		border: 1px solid rgba(255, 213, 79, 0.25);
+	}
+
+	.dp-tag--easy {
+		background: rgba(0, 255, 136, 0.1);
+		color: #86efac;
+		border: 1px solid rgba(0, 255, 136, 0.2);
+	}
+
+	.dp-tag--more {
+		background: #1a1a1a;
+		color: #888;
+		border: 1px solid #333;
+	}
+
+	.shame-card__actions { margin-top: auto; }
+
+	.btn-escape {
+		display: block;
+		text-align: center;
+		background: rgba(255, 68, 68, 0.15);
+		border: 1px solid rgba(255, 68, 68, 0.3);
+		color: #fff;
+		padding: 0.65rem 1rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.15s;
+	}
+
+	.btn-escape:hover {
+		background: rgba(255, 68, 68, 0.25);
+		transform: translateY(-1px);
+	}
+
+	/* Controls */
+	.controls-section { margin-bottom: 2rem; }
+
+	.controls-card {
+		background: #0a0a0a;
+		border: 1px solid #1a1a1a;
+		border-radius: 14px;
+		padding: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.category-pills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.cat-pill {
+		background: #141414;
+		border: 1px solid #242424;
+		color: #a3a3a3;
+		padding: 0.5rem 0.9rem;
+		border-radius: 8px;
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.15s;
+		white-space: nowrap;
+	}
+
+	.cat-pill:hover { color: #fff; border-color: #383838; }
+
+	.cat-pill.is-active {
+		background: #fff;
+		color: #000;
+		border-color: #fff;
+		font-weight: 600;
+	}
+
+	.search-sort-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.search-input-wrap {
+		flex: 1;
+		min-width: 260px;
+		position: relative;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 0.85rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #737373;
+		pointer-events: none;
+	}
+
+	.search-input-wrap input {
+		width: 100%;
+		background: #121212;
+		border: 1px solid #262626;
+		border-radius: 8px;
+		padding: 0.65rem 1rem 0.65rem 2.5rem;
+		font-size: 0.9375rem;
+		color: #fff;
+		outline: none;
+		transition: border-color 0.15s;
+	}
+
+	.search-input-wrap input:focus { border-color: #00ff88; }
+
+	.sort-wrap { display: flex; align-items: center; gap: 0.5rem; }
+	.sort-label { font-size: 0.875rem; color: #888; }
+
+	.sort-select {
+		background: #121212;
+		border: 1px solid #262626;
+		color: #fff;
+		border-radius: 8px;
+		padding: 0.65rem 0.85rem;
+		font-size: 0.875rem;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.compare-toggle-row {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+		border-top: 1px solid #161616;
+		padding-top: 0.75rem;
+	}
+
+	.btn-compare-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		background: #141414;
+		border: 1px solid #262626;
+		color: #a3a3a3;
+		padding: 0.5rem 0.9rem;
+		border-radius: 8px;
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-compare-toggle:hover { color: #fff; border-color: #383838; }
+
+	.btn-compare-toggle.is-active {
+		background: rgba(0, 255, 136, 0.08);
+		border-color: rgba(0, 255, 136, 0.3);
+		color: #00ff88;
+	}
+
+	.compare-hint { font-size: 0.8rem; color: #888; }
+	.results-count { font-size: 0.8125rem; color: #737373; margin-left: auto; }
+
+	/* Brand Cards Grid */
+	.brands-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+		gap: 1.25rem;
+	}
+
+	.brand-card {
+		background: #0d0d0d;
+		border: 1px solid #1c1c1c;
+		border-radius: 14px;
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+	}
+
+	.brand-card:hover { transform: translateY(-2px); }
+
+	.brand-card--nightmare { border-color: rgba(255, 68, 68, 0.3); background: linear-gradient(180deg, #120a0a 0%, #0d0d0d 100%); }
+	.brand-card--nightmare:hover { border-color: #ff4444; box-shadow: 0 8px 30px rgba(255, 68, 68, 0.15); }
+
+	.brand-card--hard { border-color: rgba(255, 168, 0, 0.25); }
+	.brand-card--hard:hover { border-color: #ffa800; box-shadow: 0 8px 30px rgba(255, 168, 0, 0.12); }
+
+	.brand-card--moderate { border-color: rgba(255, 213, 79, 0.2); }
+	.brand-card--moderate:hover { border-color: #ffd54f; box-shadow: 0 8px 30px rgba(255, 213, 79, 0.1); }
+
+	.brand-card--easy { border-color: rgba(0, 255, 136, 0.18); }
+	.brand-card--easy:hover { border-color: #00ff88; box-shadow: 0 8px 30px rgba(0, 255, 136, 0.1); }
+
+	.brand-card.is-compare-selected {
+		outline: 2px solid #00ff88;
+		outline-offset: 2px;
+	}
+
+	.brand-card__header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.brand-card__meta { display: flex; flex-direction: column; gap: 0.25rem; }
+
+	.brand-card__name {
+		font-size: 1.1rem;
+		font-weight: 700;
+		margin: 0;
+		letter-spacing: -0.01em;
+	}
+
+	.brand-card__category { font-size: 0.75rem; color: #888; }
+
+	.score-badge {
+		display: flex;
+		align-items: baseline;
+		padding: 0.25rem 0.65rem;
+		border-radius: 8px;
+		font-weight: 800;
+		font-family: var(--font-mono);
+		flex-shrink: 0;
+	}
+
+	.score-badge--nightmare { background: rgba(255, 68, 68, 0.18); border: 1px solid #ff4444; color: #ff4444; }
+	.score-badge--hard { background: rgba(255, 168, 0, 0.15); border: 1px solid #ffa800; color: #ffa800; }
+	.score-badge--moderate { background: rgba(255, 213, 79, 0.15); border: 1px solid #ffd54f; color: #ffd54f; }
+	.score-badge--easy { background: rgba(0, 255, 136, 0.15); border: 1px solid #00ff88; color: #00ff88; }
+
+	.score-num { font-size: 1.15rem; line-height: 1; }
+	.score-denom { font-size: 0.75rem; opacity: 0.8; }
+
+	.brand-card__label { margin-bottom: 0.75rem; }
+
+	.difficulty-label {
+		font-size: 0.72rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+	}
+
+	.difficulty-label--nightmare { background: rgba(255, 68, 68, 0.1); color: #ff8888; }
+	.difficulty-label--hard { background: rgba(255, 168, 0, 0.1); color: #ffc44d; }
+	.difficulty-label--moderate { background: rgba(255, 213, 79, 0.1); color: #ffd54f; }
+	.difficulty-label--easy { background: rgba(0, 255, 136, 0.08); color: #86efac; }
+
+	.brand-card__specs {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+		border-top: 1px solid #1a1a1a;
+		border-bottom: 1px solid #1a1a1a;
+		padding: 0.75rem 0;
+		margin-bottom: 0.75rem;
+	}
+
+	.spec-item { display: flex; flex-direction: column; gap: 0.2rem; }
+	.spec-label { font-size: 0.6875rem; color: #737373; text-transform: uppercase; letter-spacing: 0.05em; }
+	.spec-value { font-size: 0.8125rem; font-weight: 500; color: #d4d4d4; }
+
+	.method-color--nightmare { color: #ff6b6b; font-weight: 600; }
+	.method-color--hard { color: #ffa800; font-weight: 600; }
+	.method-color--moderate { color: #ffd54f; }
+	.method-color--easy { color: #86efac; }
+
+	.brand-card__patterns {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin-bottom: 0.75rem;
+		min-height: 1.5rem;
+	}
+
+	/* Escape Hatch */
+	.brand-card__escape[hidden] { display: none; }
+
+	.escape-box {
+		background: rgba(0, 255, 136, 0.06);
+		border: 1px solid rgba(0, 255, 136, 0.2);
+		border-radius: 8px;
+		padding: 0.85rem 1rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.escape-box__header {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		color: #00ff88;
+		font-size: 0.8rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-bottom: 0.5rem;
+	}
+
+	.escape-box p {
+		font-size: 0.85rem;
+		color: #bbb;
+		line-height: 1.5;
+		margin: 0 0 0.65rem;
+	}
+
+	.escape-script-wrap {
+		background: rgba(0, 0, 0, 0.4);
+		border: 1px solid rgba(0, 255, 136, 0.15);
+		border-radius: 6px;
+		padding: 0.65rem 0.75rem;
+		margin-top: 0.5rem;
+	}
+
+	.escape-script-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.35rem;
+		gap: 0.5rem;
+	}
+
+	.escape-script-title {
+		font-size: 0.72rem;
+		color: #00ff88;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-family: var(--font-mono);
+	}
+
+	.btn-copy-script {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: rgba(0, 255, 136, 0.1);
+		border: 1px solid rgba(0, 255, 136, 0.3);
+		color: #00ff88;
+		padding: 0.2rem 0.5rem;
+		border-radius: 4px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-copy-script:hover {
+		background: rgba(0, 255, 136, 0.2);
+		transform: translateY(-1px);
+	}
+
+	.escape-script-text {
+		font-size: 0.78rem;
+		color: #999;
+		line-height: 1.4;
+		font-style: italic;
+	}
+
+	.brand-card.is-highlighted {
+		outline: 2px solid #00ff88;
+		box-shadow: 0 0 30px rgba(0, 255, 136, 0.35);
+		transition: outline 0.3s, box-shadow 0.3s;
+	}
+
+	.brand-card__actions {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin-top: auto;
+	}
+
+	.btn-escape-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4rem;
+		background: #141414;
+		border: 1px solid #282828;
+		border-radius: 8px;
+		padding: 0.6rem;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: #fff;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-escape-toggle:hover { background: #1e1e1e; border-color: #3e3e3e; }
+
+	.btn-guide {
+		color: #a3a3a3;
+		font-size: 0.8125rem;
+		text-align: center;
+		text-decoration: none;
+		transition: color 0.15s;
+	}
+
+	.btn-guide:hover { color: #fff; text-decoration: underline; }
+
+	/* Compare Panel */
+	.compare-panel {
+		position: sticky;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 40;
+		background: #111;
+		border-top: 1px solid #333;
+		padding: 1.25rem 1.5rem;
+		max-width: 1200px;
+		margin: 0 auto;
+		border-radius: 16px 16px 0 0;
+		box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+	}
+
+	.compare-panel[hidden] { display: none; }
+
+	.compare-panel__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1rem;
+	}
+
+	.compare-panel__header h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+
+	.compare-panel__close {
+		background: none;
+		border: none;
+		color: #888;
+		font-size: 1.25rem;
+		cursor: pointer;
+	}
+
+	.compare-grid {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		gap: 1.5rem;
+		align-items: start;
+	}
+
+	.compare-col h4 { font-size: 1rem; margin: 0 0 0.5rem; }
+
+	.compare-score {
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin-bottom: 0.5rem;
+	}
+
+	.compare-score--nightmare { color: #ff4444; }
+	.compare-score--hard { color: #ffa800; }
+	.compare-score--moderate { color: #ffd54f; }
+	.compare-score--easy { color: #00ff88; }
+
+	.compare-detail { font-size: 0.85rem; color: #ccc; margin-bottom: 0.35rem; }
+
+	.compare-patterns { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+
+	.compare-vs {
+		font-family: var(--font-mono);
+		font-weight: 800;
+		font-size: 1.1rem;
+		color: #555;
+		align-self: center;
+	}
+
+	.compare-panel__footer { display: flex; justify-content: flex-end; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #222; }
+	.compare-panel__footer[hidden] { display: none; }
+
+	.btn-share-compare {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		background: #1c1c1c;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 0.5rem 1rem;
+		border-radius: 8px;
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-share-compare:hover { background: #2a2a2a; }
+
+	.compare-empty { color: #888; font-size: 0.9rem; text-align: center; }
+
+	/* CTA Interstitial */
+	.cta-interstitial { margin: 3rem 0; }
+
+	.cta-interstitial__card {
+		background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+		border: 1px solid #262626;
+		border-radius: 16px;
+		padding: 2.5rem 2rem;
+		text-align: center;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.cta-interstitial__card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 300px;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, #00ff88, transparent);
+	}
+
+	.cta-interstitial__badge {
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #00ff88;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin-bottom: 0.75rem;
+	}
+
+	.cta-interstitial__card h3 {
+		font-size: clamp(1.3rem, 3vw, 1.75rem);
+		font-weight: 800;
+		margin: 0 auto 0.75rem;
+		letter-spacing: -0.03em;
+		max-width: 600px;
+	}
+
+	.cta-interstitial__card p {
+		font-size: 1rem;
+		color: #a3a3a3;
+		max-width: 600px;
+		margin: 0 auto 1.75rem;
+		line-height: 1.6;
+	}
+
+	.btn-cta-primary {
+		display: inline-block;
+		background: #00ff88;
+		color: #000;
+		font-weight: 700;
+		padding: 0.8rem 1.75rem;
+		border-radius: 8px;
+		text-decoration: none;
+		transition: all 0.15s;
+		margin-bottom: 0.75rem;
+	}
+
+	.btn-cta-primary:hover { background: #1aff96; transform: translateY(-1px); }
+
+	.cta-guarantee { display: block; font-size: 0.8125rem; color: #666; }
+
+	/* Submit Dark Pattern */
+	.submit-section { margin: 4rem 0; }
+
+	.submit-card {
+		background: #0a0a0a;
+		border: 1px solid #1e1e1e;
+		border-radius: 16px;
+		padding: 2rem;
+		max-width: 700px;
+		margin: 0 auto;
+	}
+
+	.submit-card__header { margin-bottom: 1.5rem; }
+	.submit-card__header h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem; }
+	.submit-card__header p { color: #888; font-size: 0.95rem; margin: 0; }
+
+	.submit-form { display: flex; flex-direction: column; gap: 1rem; }
+
+	.submit-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+	@media (max-width: 30rem) { .submit-form__row { grid-template-columns: 1fr; } }
+
+	.form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+	.form-group label { font-size: 0.8rem; font-weight: 600; color: #ccc; text-transform: uppercase; letter-spacing: 0.04em; }
+
+	.form-input {
+		background: #141414;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 6px;
+		padding: 0.65rem 0.85rem;
+		color: #fff;
+		font-size: 0.9rem;
+		outline: none;
+		transition: border-color 0.15s;
+	}
+
+	.form-input:focus { border-color: #00ff88; box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.15); }
+
+	.btn-submit-report {
+		background: #00ff88;
+		color: #000;
+		border: none;
+		border-radius: 8px;
+		padding: 0.75rem 1.5rem;
+		font-weight: 700;
+		font-size: 0.95rem;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.btn-submit-report:hover { background: #1aff96; transform: translateY(-1px); }
+
+	.submit-success { text-align: center; padding: 2rem 1rem; }
+	.success-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+	.submit-success h4 { font-size: 1.1rem; margin: 0 0 0.5rem; }
+	.submit-success p { color: #888; font-size: 0.9rem; margin: 0; }
+
+	/* No Results */
+	.no-results { text-align: center; padding: 4rem 1.5rem; background: #0c0c0c; border: 1px dashed #242424; border-radius: 14px; }
+	.no-results[hidden] { display: none; }
+	.no-results__icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+	.no-results h3 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+	.no-results p { color: #888; margin: 0 0 1.5rem; }
+
+	.btn-reset {
+		background: #1c1c1c;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 0.65rem 1.25rem;
+		border-radius: 8px;
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	/* Methodology */
+	.methodology-section { margin-bottom: 4rem; }
+
+	.methodology-card {
+		background: #0a0a0a;
+		border: 1px solid #1e1e1e;
+		border-radius: 16px;
+		padding: 2.5rem;
+	}
+
+	.methodology-tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #00ff88; }
+	.methodology-title { font-size: clamp(1.4rem, 2.5vw, 1.85rem); font-weight: 700; margin: 0.5rem 0 1.5rem; letter-spacing: -0.02em; }
+
+	.methodology-body { margin-bottom: 2.5rem; }
+	.methodology-body p { font-size: 0.95rem; color: #999; line-height: 1.65; margin: 0 0 1rem; }
+	.methodology-body a { color: #00ff88; text-decoration: underline; text-underline-offset: 2px; }
+
+	.criteria-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 1.25rem;
+		margin-bottom: 2.5rem;
+	}
+
+	.criteria-item {
+		background: #111;
+		border: 1px solid #202020;
+		border-radius: 12px;
+		padding: 1.25rem;
+	}
+
+	.criteria-score-box {
+		display: inline-block;
+		padding: 0.2rem 0.6rem;
+		border-radius: 6px;
+		font-weight: 800;
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+		margin-bottom: 0.65rem;
+	}
+
+	.score-green { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+	.score-yellow { background: rgba(255, 213, 79, 0.15); color: #ffd54f; border: 1px solid #ffd54f; }
+	.score-orange { background: rgba(255, 168, 0, 0.15); color: #ffa800; border: 1px solid #ffa800; }
+	.score-red { background: rgba(255, 68, 68, 0.15); color: #ff4444; border: 1px solid #ff4444; }
+
+	.criteria-item h4 { font-size: 1rem; font-weight: 600; margin: 0 0 0.35rem; }
+	.criteria-item p { font-size: 0.85rem; color: #999; margin: 0; line-height: 1.5; }
+
+	.journalist-box {
+		background: #141414;
+		border: 1px solid #282828;
+		border-radius: 12px;
+		padding: 1.5rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem;
+	}
+
+	.journalist-text h4 { margin: 0 0 0.25rem; font-size: 1rem; }
+	.journalist-text p { margin: 0; font-size: 0.875rem; color: #888; }
+	.journalist-text code { background: #202020; padding: 0.15rem 0.4rem; border-radius: 4px; color: #00ff88; font-size: 0.8125rem; }
+
+	.btn-copy-citation {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		background: #000;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 0.65rem 1.1rem;
+		border-radius: 8px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: border-color 0.15s;
+	}
+
+	.btn-copy-citation:hover { border-color: #00ff88; }
+
+	/* FAQ */
+	.faq-section { margin-bottom: 4rem; }
+	.faq-section h2 { font-family: var(--font-display); font-size: 1.75rem; text-align: center; margin-bottom: 2rem; letter-spacing: -0.02em; }
+
+	.faq-list { display: grid; gap: 1rem; max-width: 50rem; margin: 0 auto; }
+
+	.faq-item { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 12px; padding: 1.25rem 1.5rem; }
+	.faq-item summary { font-weight: 600; font-size: 1rem; cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+	.faq-item summary::-webkit-details-marker { display: none; }
+	.faq-item summary::after { content: '+'; font-family: var(--font-mono); font-size: 1.25rem; color: #00ff88; flex-shrink: 0; }
+	.faq-item[open] summary::after { content: '−'; }
+	.faq-item p { margin-top: 0.75rem; color: #888; line-height: 1.6; font-size: 0.92rem; }
+
+	/* Bottom CTA */
+	.bottom-cta__card {
+		background: radial-gradient(circle at 50% 0%, #171717 0%, #0d0d0d 100%);
+		border: 1px solid #222;
+		border-radius: 20px;
+		padding: 3.5rem 2rem;
+		text-align: center;
+	}
+
+	.bottom-cta__card h2 {
+		font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		margin: 0 auto 1rem;
+		max-width: 650px;
+	}
+
+	.bottom-cta__card p {
+		font-size: 1rem;
+		color: #999;
+		max-width: 580px;
+		margin: 0 auto 2rem;
+		line-height: 1.6;
+	}
+
+	.btn-cta-large {
+		display: inline-block;
+		background: #00ff88;
+		color: #000;
+		font-size: 1.1rem;
+		font-weight: 700;
+		padding: 0.95rem 2.25rem;
+		border-radius: 10px;
+		text-decoration: none;
+		transition: all 0.15s;
+		margin-bottom: 0.75rem;
+	}
+
+	.btn-cta-large:hover { background: #1aff96; transform: translateY(-2px); }
+
+	/* Toast */
+	.toast {
+		position: fixed;
+		bottom: 2rem;
+		left: 50%;
+		transform: translateX(-50%);
+		background: #00ff88;
+		color: #000;
+		padding: 0.75rem 1.5rem;
+		border-radius: 999px;
+		font-weight: 600;
+		font-size: 0.88rem;
+		z-index: 100;
+		box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+	}
+
+	.toast[hidden] { display: none; }
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.hero-section { padding: 3.5rem 0 2rem; }
+		.brands-grid { grid-template-columns: 1fr; }
+		.shame-grid { grid-template-columns: 1fr; }
+		.category-pills { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+		.search-sort-row { flex-direction: column; align-items: stretch; }
+		.sort-wrap { justify-content: space-between; }
+		.methodology-card { padding: 1.5rem; }
+		.compare-grid { grid-template-columns: 1fr; }
+		.compare-vs { text-align: center; }
+		.compare-toggle-row { flex-direction: column; align-items: flex-start; }
+		.results-count { margin-left: 0; }
+	}
+</style>

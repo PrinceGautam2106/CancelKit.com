@@ -100,7 +100,8 @@ export default defineConfig({
 					url.includes('/cancel-difficulty') ||
 					url.includes('/gym-cancellation-letter') ||
 					url.includes('/subscription-creep-calculator') ||
-					url.includes('/statement-scanner')
+					url.includes('/statement-scanner') ||
+					url.includes('/tools/cancellation-letter-generator')
 				) {
 					return { ...item, changefreq: 'weekly', priority: 0.85 };
 				}

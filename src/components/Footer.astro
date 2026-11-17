@@ -1,16 +1,20 @@
 ---
+const freeToolLinks = [
+	{ label: 'Cancel Difficulty Index', href: '/cancel-difficulty/' },
+	{ label: 'Cancellation Letter Generator', href: '/tools/cancellation-letter-generator/' },
+	{ label: 'Gym Certified Mail Generator', href: '/gym-cancellation-letter/' },
+	{ label: 'Bank Statement Scanner (Zero Upload)', href: '/statement-scanner/' },
+	{ label: 'Subscription Calculator', href: '/calculator/' },
+	{ label: 'Subscription Creep Calculator', href: '/subscription-creep-calculator/' },
+];
+
 const productLinks = [
 	{ label: 'Dashboard', href: '/dashboard' },
 	{ label: 'Pricing', href: '/pricing/' },
-	{ label: 'Cancel Difficulty Ranking', href: '/cancel-difficulty/' },
-	{ label: 'Refer a Friend (1 Mo Free)', href: '/refer/' },
 	{ label: 'Cancel Guides', href: '/cancel/' },
+	{ label: 'Refer a Friend (1 Mo Free)', href: '/refer/' },
 	{ label: 'Blog', href: '/blog/' },
 	{ label: 'Wall of Love', href: '/wall-of-love/' },
-	{ label: 'Subscription Calculator', href: '/calculator/' },
-	{ label: 'Subscription Creep Calculator', href: '/subscription-creep-calculator/' },
-	{ label: 'Gym Certified Mail Generator', href: '/gym-cancellation-letter/' },
-	{ label: 'Bank Statement Scanner (Zero Upload)', href: '/statement-scanner/' },
 	{ label: 'Alternatives', href: '/alternatives/' },
 ];
 
@@ -63,9 +67,15 @@ const topCancellations = [
 				<p class="footer-coffee">Made with ☕ for people tired of being charged</p>
 			</div>
 
-			<!-- Column 2: Product -->
+			<!-- Column 2: Free Tools & Product -->
 			<div class="footer-col">
-				<h3 class="footer-col-title">Product</h3>
+				<h3 class="footer-col-title">Free Tools</h3>
+				<ul class="footer-links">
+					{freeToolLinks.map((link) => (
+						<li><a href={link.href}>{link.label}</a></li>
+					))}
+				</ul>
+				<h3 class="footer-col-title" style="margin-top: 1.5rem;">Product</h3>
 				<ul class="footer-links">
 					{productLinks.map((link) => (
 						<li><a href={link.href}>{link.label}</a></li>
